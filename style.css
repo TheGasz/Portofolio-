@@ -9,30 +9,27 @@ body {
 nav {
   background-color: black;
   display: flex;
-  flex-direction: row;
+  height: 150px;
+  width: 100%; /* Mengatur lebar elemen <nav> menjadi 100% dari lebar layar */
   box-shadow: 20px 20px 50px rgba(248, 248, 248, 0.5);
+  justify-content: space-between;
+  align-items: center;
 }
 .logo {
-  margin-bottom: 50px;
-  padding: auto;
-  padding-left: 65px;
-  padding-top: 50px;
-  padding-bottom: 25px;
+
+  align-items: center;
   font-size: 5em;
   font-weight: bold;
   color: aliceblue;
 }
 
 .nav-links {
-  margin-bottom: 50px;
-  display: flex;
-  justify-content: flex-end;
+  
+  
+
   align-items: center;
   padding: auto;
-  padding-left: 65px;
-  padding-top: 75px;
-  padding-bottom: 25px;
-  margin-left: 1000px;
+  
 }
 .nav-links ul {
   list-style: none; /* Menghilangkan bullet points */
