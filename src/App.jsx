@@ -1,14 +1,15 @@
 import "./App.css";
 import React from "react";
 import "./index.css";
-import { header } from "./assets/header";
+import Header from "./assets/header.jsx";
 
 function App() {
   return (
-   <header tittle="Hello World" />
-    
-     
-    
+    <main>
+      <div className="bg-black h-20 flex items-center justify-between px-4">
+        <Header tittle="Portofolio" />
+      </div>
+    </main>
   );
 }
 
