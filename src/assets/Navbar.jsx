@@ -1,7 +1,7 @@
 import React from "react";
 import "../index.css";
 
-export const header = ({ tittle }) => {
+export const Header = ({ tittle }) => {
   return (
     <div className="bg-black flex items-center justify-between px-6 py-4">
       <span className="text-2xl text-white">{tittle}</span>
@@ -22,4 +22,4 @@ export const header = ({ tittle }) => {
     </div>
   );
 };
-export default header;
+export default Header;
