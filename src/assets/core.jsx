@@ -152,22 +152,22 @@ export const Core = () => {
       {/* Hero Section */}
       <section className="relative z-10 flex flex-col md:flex-row items-center justify-center px-6 py-20 md:py-32 max-w-7xl mx-auto w-full gap-12">
         <div className="flex-1 text-center md:text-left space-y-6">
-          <p className="text-xl md:text-2xl font-semibold text-blue-600 tracking-wide uppercase">
+          <p className="text-xl md:text-2xl font-semibold text-blue-600 tracking-wide uppercase animate-fade-in-up motion-reduce:animate-none">
             Frontend Developer
           </p>
-          <h1 className="text-5xl md:text-7xl font-extrabold text-gray-900 leading-tight">
+          <h1 className="text-5xl md:text-7xl font-extrabold text-gray-900 leading-tight animate-fade-in-up animation-delay-200 motion-reduce:animate-none">
             Hi, I'm{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500">
+            <span className="animated-gradient-text text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500">
               Bagas
             </span>
             .
           </h1>
-          <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto md:mx-0 leading-relaxed">
+          <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto md:mx-0 leading-relaxed animate-fade-in-up animation-delay-400 motion-reduce:animate-none">
             I craft responsive, modern, and user-friendly web experiences. I
             love writing clean code and untangling tricky problems to ship
             digital products that feel great to use.
           </p>
-          <div className="pt-4 flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4">
+          <div className="pt-4 flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4 animate-fade-in-up animation-delay-600 motion-reduce:animate-none">
             <Link
               to="/project"
               className="focus-ring px-8 py-4 min-h-[44px] w-full sm:w-auto inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"

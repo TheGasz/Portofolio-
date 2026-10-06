@@ -39,6 +39,49 @@
 }
 
 /* ------------------------------------------------------------------ */
+/* Motion primitives: gradient text, card tilt, scroll reveal         */
+/* ------------------------------------------------------------------ */
+/* Presentation-only helpers for the glow-up layer. Each is designed   */
+/* to composite safely (transform / opacity / background-position      */
+/* only) and has a reduced-motion / coarse-pointer fallback below.     */
+
+/* Animated gradient fill for the hero name. Pairs with a Tailwind     */
+/* bg-gradient-* + bg-clip-text treatment; pans the gradient across    */
+/* the glyphs via background-position only (gradientPan from the       */
+/* Tailwind config). background-size 200% gives it room to travel.     */
+.animated-gradient-text {
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: gradientPan 6s linear infinite;
+}
+
+/* Pointer-driven 3D tilt for cards. The --rx / --ry custom properties */
+/* are written by the usePointerTilt hook (clamped to +/-15deg); they  */
+/* default to 0deg so the resting state is flat. transform-only, so    */
+/* it composes with hover translate without triggering reflow.         */
+.card-tilt {
+  transform-style: preserve-3d;
+  transition: transform 300ms ease-out;
+  transform: perspective(800px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+}
+
+/* Scroll-reveal entrance. Elements start hidden/offset (.reveal) and   */
+/* settle into place once revealed (.reveal-visible). Transition is     */
+/* transform/opacity only and completes in <= 1000ms.                   */
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: transform 600ms ease-out, opacity 600ms ease-out;
+}
+
+.reveal-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ------------------------------------------------------------------ */
 /* Reduced-motion safety net                                          */
 /* ------------------------------------------------------------------ */
 /* Global fallback that collapses all non-essential Motion_Effects    */
@@ -54,5 +97,31 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Reduced-motion fallbacks for the motion primitives                 */
+/* ------------------------------------------------------------------ */
+/* Stop the ambient gradient pan, and resolve scroll-reveal to its     */
+/* visible resting state so content is never gated behind an           */
+/* animation that will not play.                                       */
+@media (prefers-reduced-motion: reduce) {
+  .animated-gradient-text {
+    animation: none;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Disable the pointer tilt entirely when the visitor prefers reduced  */
+/* motion AND is on a touch / coarse-pointer device (no precise hover  */
+/* to drive the effect). Keeps the card flat in that environment.      */
+@media (prefers-reduced-motion: reduce) and (hover: none), (prefers-reduced-motion: reduce) and (pointer: coarse) {
+  .card-tilt {
+    transform: none;
   }
 }

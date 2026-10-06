@@ -99,11 +99,14 @@ export default {
       // Blob is an ambient, infinite loop (transform-only, no reflow).
       // fade-in-up is a one-shot entrance that completes in <= 1000ms and
       // settles at a fully-opaque, in-place end state.
+      // gradient-pan is a continuous ambient loop (background-position only)
+      // powering the hero focal-point gradient-text treatment.
       animation: {
         "animate-blob": "blob 7s infinite",
         blob: "blob 7s infinite",
         "fade-in-up": "fadeInUp 0.8s ease-out forwards",
         "animate-fade-in-up": "fadeInUp 0.8s ease-out forwards",
+        "gradient-pan": "gradientPan 6s linear infinite",
       },
       keyframes: {
         // Transform-only — safe for compositing, no layout reflow.
@@ -117,6 +120,11 @@ export default {
         fadeInUp: {
           "0%": { opacity: "0", transform: "translateY(20px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        // Background-position only — composites safely, no layout reflow.
+        gradientPan: {
+          "0%": { backgroundPosition: "0% 50%" },
+          "100%": { backgroundPosition: "200% 50%" },
         },
       },
     },

@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import "../index.css";
 import { isValidHttpUrl } from "./url.js";
+import { usePointerTilt } from "./usePointerTilt.js";
+import { useScrollReveal } from "./useScrollReveal.js";
 
 /**
  * A single project record rendered as a Project_Card. All content fields are
@@ -60,13 +62,25 @@ const projectsData = [
 // Reusable animated ProjectCard component.
 // All content fields are optional so a partial Project_Entry degrades
 // gracefully: present fields render, absent fields are omitted without error.
-export const ProjectCard = ({ title, description, image, tech, demoUrl, repoUrl }) => {
+export const ProjectCard = ({ title, description, image, tech, demoUrl, repoUrl, revealDelayMs = 0 }) => {
     const [imgError, setImgError] = useState(false);
+    const { ref, onPointerMove, onPointerLeave } = usePointerTilt();
+    const { ref: revealRef, revealed } = useScrollReveal();
     const showImage = image && !imgError;
 
     return (
-        <div className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 border border-gray-100 flex flex-col">
-            <div className="relative overflow-hidden h-60">
+        <div
+            ref={revealRef}
+            style={{ transitionDelay: `${revealDelayMs}ms` }}
+            className={`reveal${revealed ? " reveal-visible" : ""} h-full`}
+        >
+            <div
+                ref={ref}
+                onPointerMove={onPointerMove}
+                onPointerLeave={onPointerLeave}
+                className="card-tilt group bg-white rounded-2xl overflow-hidden shadow-sm hover:-translate-y-2 hover:shadow-[0_24px_48px_-12px_rgba(37,99,235,0.35)] hover:ring-2 hover:ring-blue-500/30 transition-all duration-300 border border-gray-100 flex flex-col h-full"
+            >
+                <div className="relative overflow-hidden h-60">
                 {showImage ? (
                     <img
                         src={image}
@@ -112,7 +126,7 @@ export const ProjectCard = ({ title, description, image, tech, demoUrl, repoUrl 
                 {Array.isArray(tech) && tech.length > 0 && (
                     <div className="flex flex-wrap gap-2 mb-6">
                         {tech.map((t, index) => (
-                            <span key={index} className="px-3 py-1 bg-blue-50 text-blue-600 text-xs font-semibold rounded-full">
+                            <span key={index} className="px-3 py-1 bg-blue-50 text-blue-600 text-xs font-semibold rounded-full transition-all duration-300 group-hover:-translate-y-0.5 group-hover:bg-blue-100 group-hover:text-blue-700 group-hover:shadow-sm">
                                 {t}
                             </span>
                         ))}
@@ -145,6 +159,7 @@ export const ProjectCard = ({ title, description, image, tech, demoUrl, repoUrl 
                     </div>
                 )}
             </div>
+            </div>
         </div>
     );
 };
@@ -164,7 +179,7 @@ export const ProjectGrid = ({ projects = [] }) => {
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-            {projects.map((project) => (
+            {projects.map((project, index) => (
                 <ProjectCard
                     key={project.id}
                     title={project.title}
@@ -173,6 +188,10 @@ export const ProjectGrid = ({ projects = [] }) => {
                     tech={project.tech}
                     demoUrl={project.demoUrl}
                     repoUrl={project.repoUrl}
+                    // Index-derived stagger so cards reveal in document order.
+                    // Cycle 0/120/240/360ms; max delay (360) + the 600ms
+                    // .reveal transition stays within the 1000ms budget.
+                    revealDelayMs={(index % 4) * 120}
                 />
             ))}
         </div>
