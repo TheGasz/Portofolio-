@@ -1,4 +1,58 @@
-
-
 @import "tailwindcss";
 
+/* ------------------------------------------------------------------ */
+/* Grid / pattern helpers                                             */
+/* ------------------------------------------------------------------ */
+
+/* Subtle dotted/line grid used behind hero and section backgrounds. */
+.bg-grid-pattern {
+  background-size: 40px 40px;
+  background-image: linear-gradient(to right, rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+}
+
+/* ------------------------------------------------------------------ */
+/* Animation-delay helpers                                            */
+/* ------------------------------------------------------------------ */
+/* Stagger decorative blobs and fade-in entrances. Pairs with the     */
+/* animate-blob / animate-fade-in-up animations from tailwind.config. */
+
+.animation-delay-200 { animation-delay: 0.2s; }
+.animation-delay-400 { animation-delay: 0.4s; }
+.animation-delay-600 { animation-delay: 0.6s; }
+.animation-delay-800 { animation-delay: 0.8s; }
+.animation-delay-2000 { animation-delay: 2s; }
+.animation-delay-4000 { animation-delay: 4s; }
+
+/* ------------------------------------------------------------------ */
+/* Shared focus-visible ring utility                                  */
+/* ------------------------------------------------------------------ */
+/* Apply to any interactive element (links, buttons, CTAs) for a      */
+/* consistent, high-contrast keyboard focus indicator. The ring uses  */
+/* the primary accent blue (#2563eb, ~5.1:1 on white, >= 3:1 against  */
+/* adjacent colors) over a white offset so it stays visible on both   */
+/* light surfaces and colored/gradient backgrounds (Req 10.4).        */
+.focus-ring:focus-visible {
+  outline: none;
+  border-radius: inherit;
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #2563eb;
+}
+
+/* ------------------------------------------------------------------ */
+/* Reduced-motion safety net                                          */
+/* ------------------------------------------------------------------ */
+/* Global fallback that collapses all non-essential Motion_Effects    */
+/* when the visitor prefers reduced motion. Transitions needed to     */
+/* indicate interactive state changes still fire near-instantly       */
+/* rather than being removed outright (Req 11.2). This complements     */
+/* per-element Tailwind `motion-reduce:` variants.                    */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
