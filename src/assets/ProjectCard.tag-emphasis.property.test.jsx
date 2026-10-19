@@ -31,7 +31,7 @@ afterEach(() => {
 
 // Preserved tag-span selector: the group-hover emphasis classes added by the
 // glow-up must not change this resting selector.
-const TAG_SPAN_SELECTOR = "span.bg-blue-50";
+const TAG_SPAN_SELECTOR = "span.shimmer-pill";
 // The tag container wraps the tag spans; it must be absent when tech is empty.
 const TAG_CONTAINER_SELECTOR = "div.flex-wrap";
 

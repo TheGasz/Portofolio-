@@ -37,7 +37,7 @@ describe("Core hero content (Req 1.1, 1.2)", () => {
     expect(headings[0]).toHaveTextContent(/Bagas/);
   });
 
-  it("includes a first-person pronoun and the role 'Frontend Developer'", () => {
+  it("includes a first-person pronoun and the role 'Data Scientist & Data Engineer'", () => {
     renderHome();
 
     // First-person voice: "I" or "I'm" appears in the hero copy. The pronoun
@@ -49,7 +49,7 @@ describe("Core hero content (Req 1.1, 1.2)", () => {
     );
 
     // Role descriptor is present (the eyebrow is a <p>, not a heading).
-    expect(screen.getByText("Frontend Developer")).toBeInTheDocument();
+    expect(screen.getByText(/Data Scientist & Data Engineer/)).toBeInTheDocument();
   });
 
   it("renders at least two hero CTAs including a '/project' link and a contact CTA", () => {

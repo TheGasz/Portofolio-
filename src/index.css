@@ -1,14 +1,132 @@
 @import "tailwindcss";
 
 /* ------------------------------------------------------------------ */
+/* Aurora night theme — global backdrop                               */
+/* ------------------------------------------------------------------ */
+/* A deep, near-black base with slow-drifting aurora color pools. The  */
+/* animated layer pans via background-position only (compositor-safe,  */
+/* no reflow); the base color is a solid fallback. This is the canvas  */
+/* the whole site now sits on, so light-on-dark contrast is preserved  */
+/* by the component-level text colors.                                 */
+:root {
+  color-scheme: dark;
+}
+
+body {
+  background-color: #0d1120;
+  color: #dfe3ea;
+}
+
+/* Fixed, full-viewport aurora wash. Multiple radial pools over a wide  */
+/* linear sweep; the whole stack is 200%+ in size so auroraPan has room */
+/* to travel. Rendered behind content via a negative z-index layer.     */
+.aurora-bg {
+  position: relative;
+  background-color: #0d1120;
+  isolation: isolate;
+}
+
+.aurora-bg::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(44rem 44rem at 15% 18%, rgba(56, 89, 140, 0.22), transparent 62%),
+    radial-gradient(38rem 38rem at 85% 12%, rgba(45, 120, 130, 0.16), transparent 62%),
+    radial-gradient(42rem 42rem at 78% 82%, rgba(180, 130, 90, 0.12), transparent 62%),
+    radial-gradient(40rem 40rem at 18% 86%, rgba(40, 72, 120, 0.18), transparent 62%);
+  background-color: #0d1120;
+}
+
+/* A second, slowly panning linear sheet layered over the pools adds a    */
+/* gentle "moving gradient" drift — kept low-saturation and soft so it    */
+/* reads as ambient depth, not a neon light show.                         */
+.aurora-bg::after {
+  content: "";
+  position: fixed;
+  inset: -20%;
+  z-index: -3;
+  background-image: linear-gradient(
+    115deg,
+    #0d1120 0%,
+    #182238 22%,
+    #1f3450 40%,
+    #234a52 56%,
+    #3a3b4f 72%,
+    #182238 86%,
+    #0d1120 100%
+  );
+  background-size: 300% 300%;
+  filter: blur(70px);
+  opacity: 0.42;
+  animation: auroraPan 24s ease-in-out infinite;
+}
+
+/* ------------------------------------------------------------------ */
 /* Grid / pattern helpers                                             */
 /* ------------------------------------------------------------------ */
 
-/* Subtle dotted/line grid used behind hero and section backgrounds. */
+/* Subtle dotted/line grid used behind hero and section backgrounds.   */
+/* Tuned for the dark theme (light hairlines at low opacity).          */
 .bg-grid-pattern {
-  background-size: 40px 40px;
-  background-image: linear-gradient(to right, rgba(0, 0, 0, 0.03) 1px, transparent 1px),
-                    linear-gradient(to bottom, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+  background-size: 44px 44px;
+  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+}
+
+/* ------------------------------------------------------------------ */
+/* Glass surfaces + gradient borders                                  */
+/* ------------------------------------------------------------------ */
+/* Frosted panel used by cards and section bands on the dark backdrop. */
+.glass {
+  background: rgba(18, 26, 51, 0.55);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Gradient hairline border via a mask trick so the fill stays glassy.  */
+.gradient-border {
+  position: relative;
+}
+
+.gradient-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(125, 155, 200, 0.5), rgba(90, 150, 155, 0.45), rgba(190, 150, 110, 0.4));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  opacity: 0.35;
+  transition: opacity 300ms ease-out;
+  pointer-events: none;
+}
+
+.gradient-border:hover::before {
+  opacity: 0.7;
+}
+
+/* Shimmer-swept tag/pill highlight (background-position only motion).    */
+/* Toned down to a soft slate/teal sheen so tags read as calm, not neon.  */
+.shimmer-pill {
+  background-image: linear-gradient(
+    110deg,
+    rgba(120, 140, 170, 0.12) 0%,
+    rgba(90, 150, 160, 0.22) 45%,
+    rgba(120, 140, 170, 0.12) 60%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 3.5s linear infinite;
+}
+
+/* Soft glow halo behind CTAs / focal accents (opacity-pulse only).      */
+.glow-halo {
+  animation: glowPulse 4.5s ease-in-out infinite;
 }
 
 /* ------------------------------------------------------------------ */
@@ -114,6 +232,14 @@
   .reveal {
     opacity: 1;
     transform: translateY(0);
+  }
+
+  /* Freeze the ambient aurora wash, shimmer, float, and glow pulses so   */
+  /* nothing drifts for visitors who prefer reduced motion.               */
+  .aurora-bg::after,
+  .shimmer-pill,
+  .glow-halo {
+    animation: none;
   }
 }
 

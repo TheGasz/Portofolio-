@@ -67,13 +67,13 @@ describe("ProjectCard partial-entry resilience property", () => {
 
         // Tech tag container renders iff tech is a present, non-empty array.
         const tagContainer = container.querySelector("div.flex-wrap");
-        const tagEl = container.querySelector("span.bg-blue-50");
+        const tagEl = container.querySelector("span.shimmer-pill");
         const hasTech =
           Array.isArray(entry.tech) && entry.tech.length > 0;
         if (hasTech) {
           expect(tagContainer).not.toBeNull();
           expect(tagEl).not.toBeNull();
-          const tags = container.querySelectorAll("span.bg-blue-50");
+          const tags = container.querySelectorAll("span.shimmer-pill");
           expect(tags.length).toBe(entry.tech.length);
         } else {
           expect(tagContainer).toBeNull();

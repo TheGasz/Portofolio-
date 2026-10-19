@@ -20,7 +20,7 @@ afterEach(() => {
 });
 
 // Tag spans carry this shared, distinctive class in the card markup.
-const TAG_SPAN_SELECTOR = "span.bg-blue-50";
+const TAG_SPAN_SELECTOR = "span.shimmer-pill";
 // The tag container wraps the tag spans; it must be absent when tech is empty.
 const TAG_CONTAINER_SELECTOR = "div.flex-wrap";
 

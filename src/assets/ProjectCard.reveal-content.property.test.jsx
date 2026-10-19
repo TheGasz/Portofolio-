@@ -34,7 +34,7 @@ afterEach(() => {
 });
 
 // Tag spans carry this shared, distinctive class in the card markup.
-const TAG_SPAN_SELECTOR = "span.bg-blue-50";
+const TAG_SPAN_SELECTOR = "span.shimmer-pill";
 // Link-out anchors render with this exact rel for safe external navigation.
 const LINKOUT_SELECTOR = 'a[rel="noopener noreferrer"]';
 

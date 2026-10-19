@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import "../index.css";
 import { isValidHttpUrl } from "./url.js";
+import profilePhoto from "./profile.jpg";
 
 /**
  * @typedef {Object} SocialLink
@@ -29,11 +30,10 @@ import { isValidHttpUrl } from "./url.js";
  * @type {SiteConfig}
  */
 export const siteConfig = {
-  contactEmail: "hello@bagas.dev",
+  contactEmail: "bagasadjie2006@gmail.com",
   socials: [
-    { label: "GitHub", href: "https://github.com/bagas" },
-    { label: "LinkedIn", href: "https://linkedin.com/in/bagas" },
-    { label: "Twitter", href: "https://twitter.com/bagas" },
+    { label: "GitHub", href: "https://github.com/TheGasz" },
+    { label: "LinkedIn", href: "https://www.linkedin.com/in/bagas-adjie-pamungkas-5401a3336/" },
   ],
 };
 
@@ -44,28 +44,28 @@ export const siteConfig = {
  */
 export const skills = [
   {
-    title: "Web Development",
+    title: "Data Science & ML",
     description:
-      "I build fast, scalable web apps with React, Next.js, and modern JavaScript — clean code that holds up as it grows.",
-    icon: "</>",
+      "I turn messy datasets into models that actually decide something — ensembles, deep learning, and honest cross-validation, tuned with Optuna until the metrics hold up.",
+    icon: "🧠",
   },
   {
-    title: "UI/UX Design",
+    title: "Data Engineering & Pipelines",
     description:
-      "I craft intuitive, accessible, pixel-perfect interfaces with Tailwind CSS and Figma, so things feel as good as they look.",
-    icon: "🎨",
+      "I build the plumbing: ingesting, cleaning, and joining multi-source data into reproducible, leak-free pipelines with Pandas, feature stores, and careful temporal splits.",
+    icon: "🛠️",
   },
   {
-    title: "Performance Optimization",
+    title: "EDA & Feature Engineering",
     description:
-      "I obsess over fast load times and buttery-smooth animations to keep every interaction feeling instant and delightful.",
-    icon: "🚀",
+      "I dig into distributions, correlations, and spatial-temporal structure first, then craft physically meaningful features so the model learns signal instead of noise.",
+    icon: "📊",
   },
   {
-    title: "Playful Motion",
+    title: "Evaluation & Reproducibility",
     description:
-      "I sprinkle in tasteful micro-interactions and animated flourishes that guide attention without ever getting in the way.",
-    icon: "✨",
+      "I obsess over trustworthy metrics — rolling-origin CV, OOF predictions, leakage checks, and seeded runs — so results survive contact with new data.",
+    icon: "🔁",
   },
 ];
 
@@ -75,7 +75,7 @@ export const skills = [
  * @type {string}
  */
 export const aboutNarrative =
-  "Hi, I'm Bagas — a frontend developer who genuinely loves turning fuzzy ideas into interfaces people enjoy using. I care about clean code, thoughtful motion, and accessibility, and I get a real kick out of that moment when a layout finally clicks. When I'm not shipping, I'm tinkering with side projects and chasing new things to learn.";
+  "Hi, I'm Bagas — a data enthusiast who loves turning raw, messy data into models and pipelines people can actually trust. I split my time between data science (training ensembles and deep learning models, chasing honest metrics) and data engineering (ingesting, cleaning, and joining multi-source datasets into reproducible pipelines). I care deeply about EDA, leak-free validation, and reproducibility, and I get a real kick out of that moment when a stubborn dataset finally tells its story. When I'm not training models, I'm competing in data challenges and digging into new domains to learn.";
 
 /**
  * Presentational "What I Do" section. Renders exactly one skill card per item,
@@ -90,27 +90,32 @@ export const SkillsSection = ({ skills: items = [] }) => {
   if (items.length === 0) return null;
 
   return (
-    <section className="relative z-10 bg-white/60 backdrop-blur-md py-20 px-6 border-t border-gray-100">
-      <div className="max-w-7xl mx-auto text-center space-y-12">
-        <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
-          What I Do
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <section className="relative z-10 py-24 px-6 border-t border-white/5">
+      <div className="max-w-7xl mx-auto text-center space-y-14">
+        <div className="space-y-4">
+          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-teal-300/70">
+            Skills
+          </p>
+          <h2 className="text-3xl md:text-5xl font-bold text-slate-50">
+            What I Do
+          </h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {items.map((skill, index) => (
             <div
               key={index}
-              className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 transform hover:-translate-y-2"
+              className="glass gradient-border group relative p-7 rounded-2xl shadow-lg transition-all duration-300 transform hover:-translate-y-1.5 hover:shadow-2xl"
             >
               <div
                 aria-hidden="true"
-                className="w-14 h-14 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center text-2xl font-bold mb-6 mx-auto transition-transform duration-300 hover:rotate-12"
+                className="w-14 h-14 rounded-xl flex items-center justify-center text-2xl font-bold mb-6 mx-auto bg-gradient-to-br from-sky-500/20 to-teal-500/20 text-slate-100 ring-1 ring-white/10 transition-transform duration-300 group-hover:rotate-6 group-hover:scale-105"
               >
                 {skill.icon}
               </div>
-              <h3 className="text-xl font-bold mb-3 text-gray-800">
+              <h3 className="text-lg font-bold mb-3 text-slate-50">
                 {skill.title}
               </h3>
-              <p className="text-gray-600 leading-relaxed">
+              <p className="text-sm text-slate-300/90 leading-relaxed">
                 {skill.description}
               </p>
             </div>
@@ -134,49 +139,52 @@ export const Core = () => {
   const validSocials = siteConfig.socials.filter((s) => isValidHttpUrl(s.href));
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 relative overflow-hidden bg-grid-pattern">
+    <div className="aurora-bg flex flex-col min-h-screen relative overflow-hidden bg-grid-pattern text-slate-200">
       {/* Background animated blobs — decorative, transform-only motion. */}
+      {/* Muted, low-opacity tones so the backdrop feels calm and warm. */}
       <div
         aria-hidden="true"
-        className="absolute top-0 -left-4 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-2xl opacity-50 animate-blob motion-reduce:animate-none"
+        className="absolute top-10 -left-10 w-80 h-80 bg-slate-500 rounded-full mix-blend-screen filter blur-3xl opacity-25 animate-blob motion-reduce:animate-none"
       ></div>
       <div
         aria-hidden="true"
-        className="absolute top-0 -right-4 w-72 h-72 bg-cyan-300 rounded-full mix-blend-multiply filter blur-2xl opacity-50 animate-blob motion-reduce:animate-none animation-delay-2000"
+        className="absolute top-0 -right-10 w-80 h-80 bg-teal-700 rounded-full mix-blend-screen filter blur-3xl opacity-25 animate-blob motion-reduce:animate-none animation-delay-2000"
       ></div>
       <div
         aria-hidden="true"
-        className="absolute -bottom-8 left-20 w-72 h-72 bg-indigo-300 rounded-full mix-blend-multiply filter blur-2xl opacity-50 animate-blob motion-reduce:animate-none animation-delay-4000"
+        className="absolute -bottom-10 left-1/3 w-80 h-80 bg-amber-700 rounded-full mix-blend-screen filter blur-3xl opacity-20 animate-blob motion-reduce:animate-none animation-delay-4000"
       ></div>
 
       {/* Hero Section */}
       <section className="relative z-10 flex flex-col md:flex-row items-center justify-center px-6 py-20 md:py-32 max-w-7xl mx-auto w-full gap-12">
         <div className="flex-1 text-center md:text-left space-y-6">
-          <p className="text-xl md:text-2xl font-semibold text-blue-600 tracking-wide uppercase animate-fade-in-up motion-reduce:animate-none">
-            Frontend Developer
+          <p className="inline-flex items-center gap-2 text-sm font-semibold text-teal-300/80 tracking-[0.25em] uppercase animate-fade-in-up motion-reduce:animate-none">
+            <span aria-hidden="true" className="inline-block w-8 h-px bg-gradient-to-r from-teal-400/70 to-transparent"></span>
+            Data Scientist &amp; Data Engineer
           </p>
-          <h1 className="text-5xl md:text-7xl font-extrabold text-gray-900 leading-tight animate-fade-in-up animation-delay-200 motion-reduce:animate-none">
+          <h1 className="text-5xl md:text-7xl font-extrabold text-slate-50 leading-tight animate-fade-in-up animation-delay-200 motion-reduce:animate-none">
             Hi, I'm{" "}
-            <span className="animated-gradient-text text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500">
+            <span className="animated-gradient-text text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-teal-300 to-amber-200">
               Bagas
             </span>
             .
           </h1>
-          <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto md:mx-0 leading-relaxed animate-fade-in-up animation-delay-400 motion-reduce:animate-none">
-            I craft responsive, modern, and user-friendly web experiences. I
-            love writing clean code and untangling tricky problems to ship
-            digital products that feel great to use.
+          <p className="text-lg md:text-xl text-slate-300/90 max-w-2xl mx-auto md:mx-0 leading-relaxed animate-fade-in-up animation-delay-400 motion-reduce:animate-none">
+            I build data science models and the engineering pipelines that
+            feed them. I love wrangling messy, multi-source data and untangling
+            tricky problems to ship insights and predictions you can trust.
           </p>
           <div className="pt-4 flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4 animate-fade-in-up animation-delay-600 motion-reduce:animate-none">
             <Link
               to="/project"
-              className="focus-ring px-8 py-4 min-h-[44px] w-full sm:w-auto inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+              className="focus-ring group relative px-8 py-4 min-h-[44px] w-full sm:w-auto inline-flex items-center justify-center bg-gradient-to-r from-sky-700 to-teal-600 text-white font-semibold rounded-full shadow-lg shadow-black/30 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl bg-[length:200%_auto] hover:bg-[position:right_center]"
             >
               View My Work
+              <span aria-hidden="true" className="ml-2 transition-transform duration-300 group-hover:translate-x-1">→</span>
             </Link>
             <a
               href="#contact"
-              className="focus-ring px-8 py-4 min-h-[44px] w-full sm:w-auto inline-flex items-center justify-center bg-white/80 backdrop-blur-sm border-2 border-gray-200 hover:border-gray-300 text-gray-800 font-semibold rounded-full shadow-sm hover:shadow-md transition-all duration-300"
+              className="focus-ring px-8 py-4 min-h-[44px] w-full sm:w-auto inline-flex items-center justify-center glass border border-white/15 hover:border-teal-300/40 text-slate-100 font-semibold rounded-full transition-all duration-300 hover:-translate-y-1"
             >
               Get in Touch
             </a>
@@ -187,13 +195,14 @@ export const Core = () => {
         <div className="flex-1 flex justify-center relative w-full max-w-md">
           <div
             aria-hidden="true"
-            className="absolute inset-0 bg-gradient-to-tr from-blue-200 to-cyan-200 rounded-full blur-3xl opacity-50 animate-blob motion-reduce:animate-none"
+            className="glow-halo absolute inset-0 bg-gradient-to-tr from-sky-700 via-teal-600 to-amber-500 rounded-full blur-3xl opacity-25 motion-reduce:animate-none"
           ></div>
+          <div className="animate-float motion-reduce:animate-none relative z-10 w-full max-w-sm mx-auto gradient-border rounded-full p-1.5">
           {imgError ? (
             // Same-size decorative placeholder when the hero image fails to load.
             <div
               aria-hidden="true"
-              className="rounded-3xl shadow-2xl relative z-10 w-full h-[400px] ring-4 ring-white/50 bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center"
+              className="rounded-full shadow-2xl w-full aspect-square ring-1 ring-white/10 bg-gradient-to-br from-sky-700 via-teal-600 to-amber-600 flex items-center justify-center"
             >
               <svg
                 className="w-20 h-20 text-white/80"
@@ -211,12 +220,13 @@ export const Core = () => {
             </div>
           ) : (
             <img
-              src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
-              alt="Bagas's workspace: a tidy desk with a laptop showing code"
+              src={profilePhoto}
+              alt="Bagas Adjie Pamungkas smiling, wearing a black shirt"
               onError={() => setImgError(true)}
-              className="rounded-3xl shadow-2xl relative z-10 w-full h-[400px] object-cover ring-4 ring-white/50 backdrop-blur-sm transition-transform duration-500 hover:scale-105"
+              className="rounded-full shadow-2xl w-full aspect-square object-cover object-[center_30%] ring-1 ring-white/10 transition-transform duration-500 hover:scale-[1.03]"
             />
           )}
+          </div>
         </div>
       </section>
 
@@ -224,12 +234,15 @@ export const Core = () => {
       <SkillsSection skills={skills} />
 
       {/* About Section */}
-      <section className="relative z-10 py-20 px-6">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6 text-center md:text-left">
+      <section className="relative z-10 py-24 px-6">
+        <div className="max-w-5xl mx-auto glass gradient-border rounded-3xl p-10 md:p-14">
+          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-amber-200/70 mb-4 text-center md:text-left">
+            About
+          </p>
+          <h2 className="text-3xl md:text-4xl font-bold text-slate-50 mb-6 text-center md:text-left">
             About Me
           </h2>
-          <p className="text-lg md:text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto md:mx-0">
+          <p className="text-lg md:text-xl text-slate-300 leading-relaxed max-w-3xl mx-auto md:mx-0">
             {aboutNarrative}
           </p>
         </div>
@@ -238,13 +251,16 @@ export const Core = () => {
       {/* Contact & Social Section */}
       <section
         id="contact"
-        className="relative z-10 bg-white/60 backdrop-blur-md py-20 px-6 border-t border-gray-100"
+        className="relative z-10 py-24 px-6 border-t border-white/5"
       >
         <div className="max-w-7xl mx-auto text-center space-y-8">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
-            Let's Build Something
+          <h2 className="text-3xl md:text-5xl font-bold text-slate-50">
+            Let's Build{" "}
+            <span className="animated-gradient-text text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-teal-300 to-amber-200">
+              Something
+            </span>
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg text-slate-300/90 max-w-2xl mx-auto leading-relaxed">
             Got a project in mind or just want to say hi? I'd love to hear from
             you.
           </p>
@@ -253,7 +269,7 @@ export const Core = () => {
             <div className="flex justify-center">
               <a
                 href={`mailto:${siteConfig.contactEmail}`}
-                className="focus-ring inline-flex items-center justify-center gap-2 px-8 py-4 min-h-[44px] bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                className="focus-ring inline-flex items-center justify-center gap-2 px-8 py-4 min-h-[44px] bg-gradient-to-r from-sky-700 to-teal-600 bg-[length:200%_auto] hover:bg-[position:right_center] text-white font-semibold rounded-full shadow-lg shadow-black/30 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl"
               >
                 Email me at {siteConfig.contactEmail}
               </a>
@@ -269,7 +285,7 @@ export const Core = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={`${social.label} (opens in a new tab)`}
-                    className="focus-ring inline-flex items-center justify-center min-h-[44px] px-6 py-3 bg-white/80 backdrop-blur-sm border-2 border-gray-200 hover:border-blue-300 text-gray-800 font-semibold rounded-full shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1"
+                    className="focus-ring inline-flex items-center justify-center min-h-[44px] px-6 py-3 glass border border-white/15 hover:border-teal-300/40 text-slate-100 font-semibold rounded-full transition-all duration-300 transform hover:-translate-y-1"
                   >
                     {social.label}
                   </a>

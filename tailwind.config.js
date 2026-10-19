@@ -43,6 +43,31 @@ export default {
           300: "#a5b4fc",
           500: "#6366f1",
         },
+        // Aurora accents — extra gradient partners for the glow-up layer.
+        // Used in decorative blobs, gradient text, and glow rings only; never
+        // as a text/background pairing that must meet body-copy contrast.
+        violet: {
+          400: "#a78bfa",
+          500: "#8b5cf6",
+          600: "#7c3aed",
+        },
+        fuchsia: {
+          400: "#e879f9",
+          500: "#d946ef",
+          600: "#c026d3",
+        },
+        amber: {
+          300: "#fcd34d",
+          400: "#fbbf24",
+          500: "#f59e0b",
+        },
+        // Dark surface tokens for the aurora night theme.
+        night: {
+          900: "#070a18", // page base
+          800: "#0b1020", // elevated base
+          700: "#121a33", // card surface
+          600: "#1b2547", // card hover / border
+        },
         // Neutral grays for headings, body, surfaces, and borders.
         neutral: {
           50: "#f9fafb",  // surface
@@ -107,6 +132,15 @@ export default {
         "fade-in-up": "fadeInUp 0.8s ease-out forwards",
         "animate-fade-in-up": "fadeInUp 0.8s ease-out forwards",
         "gradient-pan": "gradientPan 6s linear infinite",
+        // Ambient aurora wash — pans a large multi-stop gradient across the
+        // page background (background-position only, no reflow).
+        aurora: "auroraPan 18s ease-in-out infinite",
+        // Shimmer sweep for pill/tag highlights (background-position only).
+        shimmer: "shimmer 2.5s linear infinite",
+        // Gentle vertical float for hero accents (transform only).
+        float: "float 6s ease-in-out infinite",
+        // Soft breathing glow for CTAs and focal accents (opacity only).
+        "glow-pulse": "glowPulse 3.5s ease-in-out infinite",
       },
       keyframes: {
         // Transform-only — safe for compositing, no layout reflow.
@@ -125,6 +159,32 @@ export default {
         gradientPan: {
           "0%": { backgroundPosition: "0% 50%" },
           "100%": { backgroundPosition: "200% 50%" },
+        },
+        // Ambient aurora wash. Background-position only so it stays on the
+        // compositor (no layout reflow). Travels in two axes for an organic,
+        // non-linear drift across the page backdrop.
+        auroraPan: {
+          "0%": { backgroundPosition: "0% 50%" },
+          "50%": { backgroundPosition: "100% 50%" },
+          "100%": { backgroundPosition: "0% 50%" },
+        },
+        // Highlight sweep for tags/pills. Background-position only.
+        shimmer: {
+          "0%": { backgroundPosition: "-200% 0" },
+          "100%": { backgroundPosition: "200% 0" },
+        },
+        // Gentle float. Transform only — compositor-safe.
+        float: {
+          "0%": { transform: "translateY(0px)" },
+          "50%": { transform: "translateY(-12px)" },
+          "100%": { transform: "translateY(0px)" },
+        },
+        // Breathing glow. Opacity only — compositor-safe. Narrow, gentle
+        // range so it reads as a soft ambient shift rather than a pulse.
+        glowPulse: {
+          "0%": { opacity: "0.35" },
+          "50%": { opacity: "0.6" },
+          "100%": { opacity: "0.35" },
         },
       },
     },

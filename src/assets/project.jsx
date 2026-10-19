@@ -3,6 +3,14 @@ import "../index.css";
 import { isValidHttpUrl } from "./url.js";
 import { usePointerTilt } from "./usePointerTilt.js";
 import { useScrollReveal } from "./useScrollReveal.js";
+import {
+    waterLevelCover,
+    floodPipelineCover,
+    wasteClassifyCover,
+    embeddingCover,
+    cropCover,
+    simulationCover,
+} from "./projectCovers.js";
 
 /**
  * A single project record rendered as a Project_Card. All content fields are
@@ -19,43 +27,60 @@ import { useScrollReveal } from "./useScrollReveal.js";
  * @property {string}  [repoUrl]   Optional absolute http(s) URL to the source repository.
  */
 
-// Data projects with more details and working placeholder images.
+// Real data-science / data-engineering projects imported from GitHub.
+// These are notebook-based ML projects, so there are no live visual demos —
+// each card links straight to its source repository on GitHub. Rather than a
+// misleading stock screenshot, each `image` is a themed, on-brand SVG cover
+// (see projectCovers.js) that hints at the project's domain.
 /** @type {ProjectEntry[]} */
 const projectsData = [
     {
         id: 1,
-        title: "E-commerce Website",
-        description: "A modern, fully-functional online store features seamless checkout, shopping cart, and interactive UI.",
-        image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-        tech: ["React", "Tailwind", "Node.js"],
-        demoUrl: "https://ecommerce-demo.bagas.dev",
-        repoUrl: "https://github.com/bagas/ecommerce-website"
+        title: "River Water-Level Forecasting (Bengawan Solo)",
+        description: "Flood monitoring needs lead time, so I forecast water level across 30 river stations over a 242-day horizon with no future observations. I engineered ~187 leak-free hydrological features (rainfall, soil moisture, upstream routing) and blended a 7-member LightGBM + XGBoost + CatBoost ensemble, validated with 4-fold rolling-origin CV (mean RMSE 1.39).",
+        image: waterLevelCover,
+        tech: ["Python", "LightGBM", "XGBoost", "CatBoost", "Pandas", "HydroRIVERS"],
+        repoUrl: "https://github.com/TheGasz/Prediksi_TinggiMukaAir_BengawanSolo"
+    },
+    {
+        id: 6,
+        title: "Jakarta Flood Risk Data Pipeline",
+        description: "Flood risk data for Jakarta was scattered across agencies and riddled with errors, so I built an end-to-end spatial-temporal pipeline that fuses 7 open datasets (BPBD disaster logs, 10-minute water-level telemetry, demographics, weather, land cover) across 267 urban villages. I ran a forensic data audit — fixing Excel date corruption, masking frozen sensors, and reprojecting geometry to UTM — then built a daily spatio-temporal feature store (97k rows, 0 missing) that surfaced a 41x relative flood-risk jump along the Ciliwung corridor.",
+        image: floodPipelineCover,
+        tech: ["Python", "Pandas", "GeoPandas", "scikit-learn (PCA)", "NumPy", "Matplotlib"],
+        repoUrl: "https://github.com/TheGasz/Data-Engineer-Jakarta-Flood-Spatial-Temporal-"
     },
     {
         id: 2,
-        title: "Finance Mobile App",
-        description: "A financial tracking app that helps users manage their budget, expenses, and savings with beautiful charts.",
-        image: "https://images.unsplash.com/photo-1616077168079-7e09a6a38f4d?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-        tech: ["React Native", "Firebase"],
-        // No live demo for a native mobile app; only the source repository is linked.
-        repoUrl: "https://github.com/bagas/finance-mobile-app"
+        title: "Hierarchical Waste Classification (AI PilahYuk)",
+        description: "Sorting waste into Recyclable, Organic, and B3 (hazardous) is high-stakes when a hazardous item slips through. I froze a SigLIP so400m vision backbone, cached 1152-dim embeddings, then trained lightweight MLP heads with class-weighted focal loss and Mixup — reaching ~0.99 macro F1 while keeping hazardous-class recall near-perfect.",
+        image: wasteClassifyCover,
+        tech: ["Python", "PyTorch", "SigLIP", "Optuna", "scikit-learn", "NumPy"],
+        repoUrl: "https://github.com/TheGasz/AI_PilahYuk"
     },
     {
         id: 3,
-        title: "Analytics Dashboard",
-        description: "A clean internal dashboard for data management, presenting real-time user statistics and reports.",
-        image: "https://images.unsplash.com/photo-1553877522-43269d4ea984?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-        tech: ["React", "Chart.js", "Express"],
-        // Internal/private project: a live demo is available but the repo stays private.
-        demoUrl: "https://analytics-dashboard.bagas.dev"
+        title: "Waste Image Classification (Satria Data 2026)",
+        description: "A big-data competition to classify waste into three classes. I concatenated frozen SigLIP v1 + v2 embeddings (3456-dim) with a patch-max pooling trick to catch small recyclable regions, then tuned a two-stage MLP head with Optuna, GroupKFold, and TTA ensembling — scoring 0.9962 F1 on the test set.",
+        image: embeddingCover,
+        tech: ["Python", "SigLIP 2", "Optuna", "Focal Loss", "GroupKFold"],
+        repoUrl: "https://github.com/TheGasz/Satria-Data_IdentifikasiJenisSampah"
     },
     {
         id: 4,
-        title: "Social Media Platform",
-        description: "A community platform with real-time chat, posting, and user interaction mechanics.",
-        image: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-        tech: ["Next.js", "Socket.io", "MongoDB"]
-        // Intentionally no demoUrl/repoUrl to exercise optional link-out handling.
+        title: "Crop Yield Prediction",
+        description: "A full-stack ML app that predicts agricultural yield from environmental and farming features. I served a TensorFlow/Keras model behind a Flask API and wired it to a React front end, turning raw field inputs into an actionable yield estimate for the end user.",
+        image: cropCover,
+        tech: ["Python", "TensorFlow", "Keras", "Flask", "React"],
+        repoUrl: "https://github.com/TheGasz/Crop-Yield-Prediction"
+    },
+    {
+        id: 5,
+        title: "Agent-Based Exposure Simulation",
+        description: "An interactive agent-based model of a waiting room, built to study visual exposure. Agents arrive via a Poisson process and navigate with ray-casting field-of-view, while the simulation tracks which obstacles get seen most and renders it as an interactive heatmap.",
+        image: simulationCover,
+        tech: ["Python", "Streamlit", "NumPy", "Plotly", "Matplotlib"],
+        repoUrl: "https://github.com/TheGasz/ABM_ExposureSim"
     }
 ];
 
@@ -78,7 +103,7 @@ export const ProjectCard = ({ title, description, image, tech, demoUrl, repoUrl,
                 ref={ref}
                 onPointerMove={onPointerMove}
                 onPointerLeave={onPointerLeave}
-                className="card-tilt group bg-white rounded-2xl overflow-hidden shadow-sm hover:-translate-y-2 hover:shadow-[0_24px_48px_-12px_rgba(37,99,235,0.35)] hover:ring-2 hover:ring-blue-500/30 transition-all duration-300 border border-gray-100 flex flex-col h-full"
+                className="card-tilt gradient-border group glass rounded-2xl overflow-hidden shadow-lg hover:-translate-y-1.5 hover:shadow-2xl transition-all duration-300 flex flex-col h-full"
             >
                 <div className="relative overflow-hidden h-60">
                 {showImage ? (
@@ -110,23 +135,23 @@ export const ProjectCard = ({ title, description, image, tech, demoUrl, repoUrl,
                         </svg>
                     </div>
                 )}
-                <div className="absolute inset-0 bg-black bg-opacity-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-night-900/85 via-night-900/15 to-transparent opacity-75 group-hover:opacity-90 transition-opacity duration-300"></div>
             </div>
             <div className="p-8 flex flex-col flex-grow">
                 {title && (
-                    <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
+                    <h3 className="text-2xl font-bold text-slate-50 mb-3 group-hover:text-teal-200 transition-colors">
                         {title}
                     </h3>
                 )}
                 {description && (
-                    <p className="text-gray-600 mb-6 flex-grow leading-relaxed">
+                    <p className="text-slate-300/90 mb-6 flex-grow leading-relaxed">
                         {description}
                     </p>
                 )}
                 {Array.isArray(tech) && tech.length > 0 && (
                     <div className="flex flex-wrap gap-2 mb-6">
                         {tech.map((t, index) => (
-                            <span key={index} className="px-3 py-1 bg-blue-50 text-blue-600 text-xs font-semibold rounded-full transition-all duration-300 group-hover:-translate-y-0.5 group-hover:bg-blue-100 group-hover:text-blue-700 group-hover:shadow-sm">
+                            <span key={index} className="shimmer-pill motion-reduce:animate-none px-3 py-1 bg-white/10 text-slate-100 text-xs font-semibold rounded-full ring-1 ring-white/15 transition-all duration-300 group-hover:-translate-y-0.5 group-hover:text-white group-hover:ring-teal-300/40">
                                 {t}
                             </span>
                         ))}
@@ -140,7 +165,7 @@ export const ProjectCard = ({ title, description, image, tech, demoUrl, repoUrl,
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 aria-label={`Live demo of ${title || "this project"}`}
-                                className="focus-ring flex-1 min-h-[44px] inline-flex items-center justify-center py-3 px-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+                                className="focus-ring flex-1 min-h-[44px] inline-flex items-center justify-center py-3 px-4 bg-gradient-to-r from-sky-700 to-teal-600 bg-[length:200%_auto] hover:bg-[position:right_center] text-white font-semibold rounded-lg transition-all duration-300"
                             >
                                 Live Demo
                             </a>
@@ -151,7 +176,7 @@ export const ProjectCard = ({ title, description, image, tech, demoUrl, repoUrl,
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 aria-label={`Source repository of ${title || "this project"}`}
-                                className="focus-ring flex-1 min-h-[44px] inline-flex items-center justify-center py-3 px-4 bg-blue-50 border border-blue-200 text-blue-700 font-semibold rounded-lg hover:bg-blue-100 transition-colors"
+                                className="focus-ring flex-1 min-h-[44px] inline-flex items-center justify-center py-3 px-4 glass border border-white/15 text-slate-200 font-semibold rounded-lg hover:border-teal-300/40 hover:text-white transition-all duration-300"
                             >
                                 Source Code
                             </a>
@@ -200,17 +225,26 @@ export const ProjectGrid = ({ projects = [] }) => {
 
 export const Projects = () => {
     return (
-        <div className="bg-white min-h-screen py-20 px-6">
-            <div className="max-w-7xl mx-auto">
+        <div className="aurora-bg bg-grid-pattern min-h-screen py-24 px-6 text-slate-200 relative overflow-hidden">
+            {/* Decorative ambient blobs behind the grid. */}
+            <div aria-hidden="true" className="absolute -top-10 right-0 w-80 h-80 bg-slate-500 rounded-full mix-blend-screen blur-3xl opacity-20 animate-blob motion-reduce:animate-none"></div>
+            <div aria-hidden="true" className="absolute bottom-0 -left-10 w-80 h-80 bg-teal-700 rounded-full mix-blend-screen blur-3xl opacity-20 animate-blob motion-reduce:animate-none animation-delay-4000"></div>
+            <div className="max-w-7xl mx-auto relative z-10">
                 <div className="mb-16 text-center md:text-left">
-                    <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4">
-                        Featured Works
+                    <p className="text-sm font-semibold uppercase tracking-[0.25em] text-teal-300/70 mb-4">
+                        Portfolio
+                    </p>
+                    <h1 className="text-4xl md:text-6xl font-extrabold text-slate-50 mb-4">
+                        Featured{" "}
+                        <span className="animated-gradient-text text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-teal-300 to-amber-200">
+                            Works
+                        </span>
                     </h1>
-                    <p className="text-xl text-gray-500 max-w-2xl">
-                        A collection of projects showcasing my journey and skills in software development.
+                    <p className="text-xl text-slate-300/90 max-w-2xl mx-auto md:mx-0">
+                        A collection of data science and data engineering projects I've built.
                     </p>
                 </div>
-                <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-8 text-center md:text-left">
+                <h2 className="text-2xl md:text-3xl font-bold text-slate-50 mb-8 text-center md:text-left">
                     Selected Projects
                 </h2>
                 <ProjectGrid projects={projectsData} />

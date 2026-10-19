@@ -41,7 +41,7 @@ const snapshotAccessibleContent = (container) => {
   const titles = Array.from(container.querySelectorAll("h3")).map(
     (el) => el.textContent
   );
-  const tags = Array.from(container.querySelectorAll("span.bg-blue-50")).map(
+  const tags = Array.from(container.querySelectorAll("span.shimmer-pill")).map(
     (el) => el.textContent
   );
   const links = Array.from(container.querySelectorAll("a[aria-label]")).map(

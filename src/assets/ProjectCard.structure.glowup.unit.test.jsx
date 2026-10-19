@@ -95,8 +95,10 @@ describe("ProjectCard structure regression after glow-up (Req 2.7, 3.2, 7.5)", (
   it("preserves tech tag text, order, and count via span.bg-blue-50", () => {
     const { container } = renderCard();
 
-    const tagSpans = container.querySelectorAll("span.bg-blue-50");
+    const tagSpans = container.querySelectorAll("span.shimmer-pill");
     expect(tagSpans).toHaveLength(ENTRY.tech.length);
+    // (selector updated from span.bg-blue-50 to span.shimmer-pill after the
+    // tag pill restyle; shimmer-pill is the stable semantic class on each tag.)
     expect(Array.from(tagSpans).map((s) => s.textContent)).toEqual(ENTRY.tech);
   });
 

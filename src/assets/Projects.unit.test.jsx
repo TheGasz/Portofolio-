@@ -36,7 +36,7 @@ describe("Projects page: heading/intro order (Req 5.1)", () => {
 
     // Intro description text block is present above the grid.
     const intro = screen.getByText(
-      /A collection of projects showcasing my journey and skills/i
+      /A collection of data science and data engineering projects/i
     );
     expect(intro).toBeInTheDocument();
   });
@@ -53,7 +53,7 @@ describe("Projects page: heading/intro order (Req 5.1)", () => {
       name: "Featured Works",
     });
     const intro = screen.getByText(
-      /A collection of projects showcasing my journey and skills/i
+      /A collection of data science and data engineering projects/i
     );
 
     // The first project card's title renders as an <h3> heading.
