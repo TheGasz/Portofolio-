@@ -117,6 +117,29 @@ export const floodPipelineCover = cover(
    </g>`
 );
 
+// 7. Face anti-spoofing — face outline inside a detection frame + scan line.
+export const faceSpoofingCover = cover(
+  "face",
+  `<text x="40" y="70" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="27" font-weight="700">Face Anti-Spoofing</text>
+   <g stroke="#5eead4" stroke-width="4" fill="none" stroke-linecap="round">
+     <path d="M230 120 H200 V150"/><path d="M370 120 H400 V150"/>
+     <path d="M230 290 H200 V260"/><path d="M370 290 H400 V260"/>
+   </g>
+   <g stroke="#7dd3fc" stroke-width="4" fill="none">
+     <ellipse cx="300" cy="205" rx="55" ry="68"/>
+     <circle cx="282" cy="195" r="5" fill="#7dd3fc" stroke="none"/>
+     <circle cx="318" cy="195" r="5" fill="#7dd3fc" stroke="none"/>
+     <path d="M284 232 Q300 244 316 232"/>
+   </g>
+   <rect x="200" y="200" width="200" height="4" rx="2" fill="#fcd34d" opacity="0.9"/>
+   <g font-family="system-ui, sans-serif" font-size="15" font-weight="600">
+     <rect x="60" y="280" width="78" height="26" rx="13" fill="#15803d" opacity="0.5" stroke="#86efac" stroke-width="1.5"/>
+     <text x="99" y="298" fill="#86efac" text-anchor="middle">real</text>
+     <rect x="150" y="280" width="78" height="26" rx="13" fill="#b45309" opacity="0.5" stroke="#fcd34d" stroke-width="1.5"/>
+     <text x="189" y="298" fill="#fcd34d" text-anchor="middle">spoof</text>
+   </g>`
+);
+
 // 5. Agent-based exposure simulation — agents, vision cone + heatmap grid.
 export const simulationCover = cover(
   "sim",

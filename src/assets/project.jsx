@@ -8,6 +8,7 @@ import {
     floodPipelineCover,
     wasteClassifyCover,
     embeddingCover,
+    faceSpoofingCover,
     cropCover,
     simulationCover,
 } from "./projectCovers.js";
@@ -65,6 +66,14 @@ const projectsData = [
         image: embeddingCover,
         tech: ["Python", "SigLIP 2", "Optuna", "Focal Loss", "GroupKFold"],
         repoUrl: "https://github.com/TheGasz/Satria-Data_IdentifikasiJenisSampah"
+    },
+    {
+        id: 7,
+        title: "Face Anti-Spoofing Detection",
+        description: "Face recognition is only as safe as its ability to tell a real face from a photo, screen, or mask, so I built a 6-class anti-spoofing pipeline (real vs. printed, screen, mask, mannequin, unknown). I trained a ConvNeXt-Tiny backbone with 5-fold cross-validation, Optuna tuning, and a corrected focal loss, and I used SigLIP embeddings with leave-one-out trimmed centroids to catch mislabeled data and prevent cross-class duplicate leakage before training.",
+        image: faceSpoofingCover,
+        tech: ["Python", "PyTorch", "ConvNeXt", "Optuna", "SigLIP", "Grad-CAM"],
+        repoUrl: "https://github.com/TheGasz/faceSpoofingDetection"
     },
     {
         id: 4,
