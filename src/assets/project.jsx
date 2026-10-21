@@ -4,6 +4,7 @@ import { isValidHttpUrl } from "./url.js";
 import { usePointerTilt } from "./usePointerTilt.js";
 import { useScrollReveal } from "./useScrollReveal.js";
 import {
+    ragSupportCover,
     waterLevelCover,
     floodPipelineCover,
     wasteClassifyCover,
@@ -35,6 +36,14 @@ import {
 // (see projectCovers.js) that hints at the project's domain.
 /** @type {ProjectEntry[]} */
 const projectsData = [
+    {
+        id: 8,
+        title: "Customer Support RAG Copilot",
+        description: "Support teams drown in messy Indonesian tickets — slang, typos, mixed error codes — and generic chatbots happily hallucinate fixes or approve void warranties. So I built an end-to-end copilot: an IndoBERT model fine-tuned with LoRA triages each ticket (category + urgency) while a hybrid RAG engine (BM25 + FAISS + reranker) retrieves the right SOP and answers with strict citations. A confidence router abstains and escalates to a human when it isn't sure, so answers stay grounded and critical tickets never get missed.",
+        image: ragSupportCover,
+        tech: ["Python", "IndoBERT", "LoRA / PEFT", "FAISS", "BM25", "FastAPI", "Streamlit"],
+        repoUrl: "https://github.com/TheGasz/customerServiceTicketRAG"
+    },
     {
         id: 1,
         title: "River Water-Level Forecasting (Bengawan Solo)",

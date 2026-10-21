@@ -140,6 +140,39 @@ export const faceSpoofingCover = cover(
    </g>`
 );
 
+// 8. Customer-support RAG — ticket flows into retrieval docs + grounded reply.
+export const ragSupportCover = cover(
+  "rag",
+  `<text x="40" y="66" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="26" font-weight="700">Support RAG Copilot</text>
+   <g font-family="system-ui, sans-serif">
+     <rect x="60" y="130" width="120" height="150" rx="12" fill="#0e7490" opacity="0.4" stroke="#7dd3fc" stroke-width="2"/>
+     <text x="120" y="118" fill="#7dd3fc" font-size="15" font-weight="600" text-anchor="middle">Ticket</text>
+     <g stroke="#7dd3fc" stroke-width="3" stroke-linecap="round" opacity="0.8">
+       <line x1="78" y1="158" x2="162" y2="158"/><line x1="78" y1="178" x2="162" y2="178"/>
+       <line x1="78" y1="198" x2="140" y2="198"/><line x1="78" y1="226" x2="162" y2="226"/>
+       <line x1="78" y1="246" x2="130" y2="246"/>
+     </g>
+   </g>
+   <g stroke="#5eead4" stroke-width="3" fill="none" marker-end="url(#a)">
+     <path d="M188 205 H250"/><path d="M372 205 H434"/>
+   </g>
+   <g>
+     <rect x="258" y="150" width="104" height="30" rx="6" fill="#15803d" opacity="0.4" stroke="#86efac" stroke-width="1.5"/>
+     <rect x="258" y="190" width="104" height="30" rx="6" fill="#15803d" opacity="0.3" stroke="#86efac" stroke-width="1.5"/>
+     <rect x="258" y="230" width="104" height="30" rx="6" fill="#15803d" opacity="0.2" stroke="#86efac" stroke-width="1.5"/>
+     <text x="310" y="138" fill="#86efac" font-family="system-ui, sans-serif" font-size="14" font-weight="600" text-anchor="middle">Retrieve</text>
+   </g>
+   <g>
+     <rect x="440" y="150" width="110" height="120" rx="12" fill="#b45309" opacity="0.35" stroke="#fcd34d" stroke-width="2"/>
+     <text x="495" y="138" fill="#fcd34d" font-family="system-ui, sans-serif" font-size="14" font-weight="600" text-anchor="middle">Answer</text>
+     <g stroke="#fcd34d" stroke-width="3" stroke-linecap="round" opacity="0.85">
+       <line x1="456" y1="178" x2="534" y2="178"/><line x1="456" y1="198" x2="534" y2="198"/>
+       <line x1="456" y1="218" x2="510" y2="218"/>
+     </g>
+     <text x="456" y="250" fill="#fcd34d" font-family="system-ui, sans-serif" font-size="12">[cite: SOP]</text>
+   </g>`
+);
+
 // 5. Agent-based exposure simulation — agents, vision cone + heatmap grid.
 export const simulationCover = cover(
   "sim",
