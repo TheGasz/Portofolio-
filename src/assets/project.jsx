@@ -38,8 +38,8 @@ import {
 const projectsData = [
     {
         id: 8,
-        title: "Customer Support RAG Copilot",
-        description: "Support teams drown in messy Indonesian tickets — slang, typos, mixed error codes — and generic chatbots happily hallucinate fixes or approve void warranties. So I built an end-to-end copilot: an IndoBERT model fine-tuned with LoRA triages each ticket (category + urgency) while a hybrid RAG engine (BM25 + FAISS + reranker) retrieves the right SOP and answers with strict citations. A confidence router abstains and escalates to a human when it isn't sure, so answers stay grounded and critical tickets never get missed.",
+        title: "Enterprise AI Support Copilot (RAG)",
+        description: "Enterprise support teams drown in messy Indonesian tickets — slang, typos, mixed error codes — and generic chatbots happily hallucinate fixes or approve void warranties. So I built an end-to-end copilot: an IndoBERT model fine-tuned with LoRA triages each ticket (category + urgency, 0.98 macro-F1) while a metadata-filtered hybrid RAG engine (BM25 + FAISS + cross-encoder reranker) retrieves the right SOP and answers with strict citations. A confidence router abstains and escalates to a human when it isn't sure — catching 30/30 adversarial traps — so answers stay grounded and critical tickets never get missed. Served via FastAPI with a Streamlit dual-view UI.",
         image: ragSupportCover,
         tech: ["Python", "IndoBERT", "LoRA / PEFT", "FAISS", "BM25", "FastAPI", "Streamlit"],
         repoUrl: "https://github.com/TheGasz/customerServiceTicketRAG"
