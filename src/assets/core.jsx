@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import "../index.css";
 import { isValidHttpUrl } from "./url.js";
+import { Icon } from "./icons.jsx";
 import profilePhoto from "./profile.jpg";
 
 /**
@@ -20,7 +21,7 @@ import profilePhoto from "./profile.jpg";
  * @typedef {Object} Skill
  * @property {string} title        Skill name, <= 40 chars.
  * @property {string} description  Short blurb, <= 200 chars.
- * @property {string} [icon]       Decorative glyph; rendered aria-hidden.
+ * @property {string} [icon]       Icon key resolved by <Icon> (see icons.jsx).
  */
 
 /**
@@ -47,25 +48,91 @@ export const skills = [
     title: "Data Science & ML",
     description:
       "I turn messy datasets into models that actually decide something — ensembles, deep learning, and honest cross-validation, tuned with Optuna until the metrics hold up.",
-    icon: "🧠",
+    icon: "brain",
   },
   {
     title: "Data Engineering & Pipelines",
     description:
       "I build the plumbing: ingesting, cleaning, and joining multi-source data into reproducible, leak-free pipelines with Pandas, feature stores, and careful temporal splits.",
-    icon: "🛠️",
+    icon: "pipeline",
   },
   {
     title: "EDA & Feature Engineering",
     description:
       "I dig into distributions, correlations, and spatial-temporal structure first, then craft physically meaningful features so the model learns signal instead of noise.",
-    icon: "📊",
+    icon: "chart",
   },
   {
     title: "Evaluation & Reproducibility",
     description:
       "I obsess over trustworthy metrics — rolling-origin CV, OOF predictions, leakage checks, and seeded runs — so results survive contact with new data.",
-    icon: "🔁",
+    icon: "cycle",
+  },
+];
+
+/**
+ * @typedef {Object} Certification
+ * @property {string} title     Certificate / achievement name.
+ * @property {string} issuer    Issuing organization or event.
+ * @property {string} [date]    Human-readable date (e.g. "Oct 2026").
+ * @property {string} [href]    Absolute http(s) verify URL, or a path to the
+ *                              certificate file under /public (e.g. "/certificates/eda.pdf").
+ * @property {string} [icon]    Icon key resolved by <Icon> (see icons.jsx).
+ */
+
+/**
+ * Data-science / data-engineering related certifications and competition wins.
+ * Each entry with a valid `href` renders a focusable link to view/verify the
+ * certificate; entries without one render as plain cards. An empty array omits
+ * the whole section.
+ *
+ * NOTE: Fill in the exact issuer/date for the data-course certs — these were
+ * added from the files in src/assets/Sertifikat and some details still need to
+ * be confirmed (marked "TODO").
+ * @type {Certification[]}
+ */
+export const certifications = [
+  {
+    title: "Pelatihan Data Science",
+    issuer: "Data science training", // TODO: confirm penyelenggara (issuer)
+    date: "",
+    href: "/certificates/pelatihan-data-science.pdf",
+    icon: "brain",
+  },
+  {
+    title: "Cleaning Data in Python",
+    issuer: "DataCamp",
+    date: "",
+    href: "/certificates/cleaning-data-python.pdf",
+    icon: "clean",
+  },
+  {
+    title: "Exploratory Data Analysis in Python",
+    issuer: "DataCamp",
+    date: "",
+    href: "/certificates/eda.pdf",
+    icon: "chart",
+  },
+  {
+    title: "Dimensionality Reduction in Python",
+    issuer: "DataCamp",
+    date: "",
+    href: "/certificates/dimensionality-reduction.pdf",
+    icon: "reduce",
+  },
+  {
+    title: "Juara 2 — AI Competition",
+    issuer: "AI competition", // TODO: confirm nama lomba (event name)
+    date: "",
+    href: "/certificates/juara-2-ai.pdf",
+    icon: "trophy",
+  },
+  {
+    title: "AWS Academy Graduate — Cloud Web Application Builder",
+    issuer: "AWS Academy (Credly)",
+    date: "Oct 2026",
+    href: "https://www.credly.com/go/mA2izAyL",
+    icon: "cloud",
   },
 ];
 
@@ -108,9 +175,9 @@ export const SkillsSection = ({ skills: items = [] }) => {
             >
               <div
                 aria-hidden="true"
-                className="w-14 h-14 rounded-xl flex items-center justify-center text-2xl font-bold mb-6 mx-auto bg-gradient-to-br from-sky-500/20 to-teal-500/20 text-slate-100 ring-1 ring-white/10 transition-transform duration-300 group-hover:rotate-6 group-hover:scale-105"
+                className="w-14 h-14 rounded-xl flex items-center justify-center mb-6 mx-auto bg-gradient-to-br from-sky-500/20 to-teal-500/20 text-teal-200 ring-1 ring-white/10 transition-transform duration-300 group-hover:rotate-6 group-hover:scale-105"
               >
-                {skill.icon}
+                <Icon name={skill.icon} className="w-7 h-7" />
               </div>
               <h3 className="text-lg font-bold mb-3 text-slate-50">
                 {skill.title}
@@ -121,6 +188,106 @@ export const SkillsSection = ({ skills: items = [] }) => {
             </div>
           ))}
         </div>
+      </div>
+    </section>
+  );
+};
+
+/**
+ * Presentational "Certifications" section. Renders one card per certification
+ * in array order. A card whose `href` is a valid absolute http(s) URL OR a
+ * site-relative path (starting with "/") becomes a focusable link that opens
+ * the certificate; otherwise it renders as a static card. Returns null (omitting
+ * the section) when there are no certifications.
+ *
+ * @param {{ certifications?: Certification[] }} props
+ */
+export const CertificationsSection = ({ certifications: items = [] }) => {
+  if (items.length === 0) return null;
+
+  // A usable link is either an absolute http(s) URL or a site-relative path.
+  const linkFor = (href) =>
+    typeof href === "string" && (isValidHttpUrl(href) || href.startsWith("/"))
+      ? href
+      : null;
+
+  // External links (http/https) open in a new tab; local PDFs do too so the
+  // visitor doesn't lose the portfolio. Both get safe rel attributes.
+  const isExternal = (href) => isValidHttpUrl(href);
+
+  return (
+    <section className="relative z-10 py-24 px-6 border-t border-white/5">
+      <div className="max-w-7xl mx-auto space-y-14">
+        <div className="space-y-4 text-center">
+          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-amber-200/70">
+            Credentials
+          </p>
+          <h2 className="text-3xl md:text-5xl font-bold text-slate-50">
+            Certifications &amp; Awards
+          </h2>
+          <p className="text-base text-slate-300/80 max-w-2xl mx-auto leading-relaxed">
+            A few of the data science and engineering credentials I've earned
+            along the way.
+          </p>
+        </div>
+
+        <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {items.map((cert, index) => {
+            const href = linkFor(cert.href);
+            const inner = (
+              <>
+                <div
+                  aria-hidden="true"
+                  className="w-14 h-14 rounded-xl flex items-center justify-center mb-5 bg-gradient-to-br from-amber-500/20 to-teal-500/20 text-amber-100 ring-1 ring-white/10 transition-transform duration-300 group-hover:rotate-6 group-hover:scale-105"
+                >
+                  <Icon name={cert.icon} className="w-7 h-7" />
+                </div>
+                <h3 className="text-base font-bold mb-2 text-slate-50 leading-snug">
+                  {cert.title}
+                </h3>
+                {cert.issuer && (
+                  <p className="text-sm text-slate-300/90">{cert.issuer}</p>
+                )}
+                {cert.date && (
+                  <p className="text-xs text-slate-400 mt-1">{cert.date}</p>
+                )}
+                {href && (
+                  <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-teal-300 group-hover:text-teal-200">
+                    View certificate
+                    <span
+                      aria-hidden="true"
+                      className="transition-transform duration-300 group-hover:translate-x-0.5"
+                    >
+                      →
+                    </span>
+                  </span>
+                )}
+              </>
+            );
+
+            return (
+              <li key={index} className="h-full">
+                {href ? (
+                  <a
+                    href={href}
+                    target="_blank"
+                    rel={isExternal(href) ? "noopener noreferrer" : "noopener"}
+                    aria-label={`View certificate: ${cert.title}${
+                      cert.issuer ? `, ${cert.issuer}` : ""
+                    } (opens in a new tab)`}
+                    className="focus-ring glass gradient-border group flex flex-col h-full p-6 rounded-2xl shadow-lg transition-all duration-300 transform hover:-translate-y-1.5 hover:shadow-2xl"
+                  >
+                    {inner}
+                  </a>
+                ) : (
+                  <div className="glass gradient-border group flex flex-col h-full p-6 rounded-2xl shadow-lg transition-all duration-300 transform hover:-translate-y-1.5 hover:shadow-2xl">
+                    {inner}
+                  </div>
+                )}
+              </li>
+            );
+          })}
+        </ul>
       </div>
     </section>
   );
@@ -232,6 +399,9 @@ export const Core = () => {
 
       {/* "What I Do" Section — omitted entirely when there are no skills. */}
       <SkillsSection skills={skills} />
+
+      {/* Certifications & Awards — omitted entirely when there are none. */}
+      <CertificationsSection certifications={certifications} />
 
       {/* About Section */}
       <section className="relative z-10 py-24 px-6">

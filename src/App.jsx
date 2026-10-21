@@ -10,7 +10,7 @@ function App() {
   return (
     <Router>
       <div className="flex flex-col min-h-screen bg-night-900 text-slate-200">
-        <Header title="Bagas." />
+        <Header title="Portofolio" />
         <main className="flex-grow pt-20">
           <Routes>
             <Route path="/" element={<Core />} />
