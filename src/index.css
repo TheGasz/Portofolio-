@@ -1,140 +1,120 @@
 @import "tailwindcss";
 
 /* ------------------------------------------------------------------ */
-/* Aurora night theme — global backdrop                               */
+/* Theme: "lab notebook"                                              */
 /* ------------------------------------------------------------------ */
-/* A deep, near-black base with slow-drifting aurora color pools. The  */
-/* animated layer pans via background-position only (compositor-safe,  */
-/* no reflow); the base color is a solid fallback. This is the canvas  */
-/* the whole site now sits on, so light-on-dark contrast is preserved  */
-/* by the component-level text colors.                                 */
+/* Warm paper, near-black ink, one loud signal color, and a highlighter */
+/* yellow for playful marks. Contrast (on paper #f3efe6):               */
+/*   ink #17150f ~17:1, ink-soft #45413a ~9:1, muted #67625a ~5.3:1.     */
+/*   signal #d93f12 ~4.6:1 (ok for text), marker is decorative only.     */
+@theme {
+  --color-paper: #f3efe6;
+  --color-paper-2: #e9e3d5;
+  --color-card: #fbf9f4;
+  --color-ink: #17150f;
+  --color-ink-soft: #45413a;
+  --color-muted: #67625a;
+  --color-signal: #d93f12;
+  --color-marker: #ffd84d;
+
+  --font-sans: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Instrument Serif", ui-serif, Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
 :root {
-  color-scheme: dark;
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background-color: #0d1120;
-  color: #dfe3ea;
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Fixed, full-viewport aurora wash. Multiple radial pools over a wide  */
-/* linear sweep; the whole stack is 200%+ in size so auroraPan has room */
-/* to travel. Rendered behind content via a negative z-index layer.     */
-.aurora-bg {
-  position: relative;
-  background-color: #0d1120;
-  isolation: isolate;
+::selection {
+  background: var(--color-marker);
+  color: var(--color-ink);
 }
 
-.aurora-bg::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -2;
-  background:
-    radial-gradient(44rem 44rem at 15% 18%, rgba(56, 89, 140, 0.22), transparent 62%),
-    radial-gradient(38rem 38rem at 85% 12%, rgba(45, 120, 130, 0.16), transparent 62%),
-    radial-gradient(42rem 42rem at 78% 82%, rgba(180, 130, 90, 0.12), transparent 62%),
-    radial-gradient(40rem 40rem at 18% 86%, rgba(40, 72, 120, 0.18), transparent 62%);
-  background-color: #0d1120;
+/* Engineering-paper dot grid. Low contrast so text always wins. */
+.paper-dots {
+  background-image: radial-gradient(rgba(23, 21, 15, 0.13) 1px, transparent 1px);
+  background-size: 22px 22px;
 }
 
-/* A second, slowly panning linear sheet layered over the pools adds a    */
-/* gentle "moving gradient" drift — kept low-saturation and soft so it    */
-/* reads as ambient depth, not a neon light show.                         */
-.aurora-bg::after {
-  content: "";
-  position: fixed;
-  inset: -20%;
-  z-index: -3;
-  background-image: linear-gradient(
-    115deg,
-    #0d1120 0%,
-    #182238 22%,
-    #1f3450 40%,
-    #234a52 56%,
-    #3a3b4f 72%,
-    #182238 86%,
-    #0d1120 100%
-  );
-  background-size: 300% 300%;
-  filter: blur(70px);
-  opacity: 0.42;
-  animation: auroraPan 24s ease-in-out infinite;
+/* Highlighter swipe behind inline text; wraps cleanly across lines. */
+.marker {
+  background-image: linear-gradient(transparent 58%, rgba(255, 216, 77, 0.85) 58%, rgba(255, 216, 77, 0.85) 92%, transparent 92%);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  padding: 0 0.1em;
 }
 
-/* ------------------------------------------------------------------ */
-/* Grid / pattern helpers                                             */
-/* ------------------------------------------------------------------ */
-
-/* Subtle dotted/line grid used behind hero and section backgrounds.   */
-/* Tuned for the dark theme (light hairlines at low opacity).          */
-.bg-grid-pattern {
-  background-size: 44px 44px;
-  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-                    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+/* Tape strip used on the polaroid photo. */
+.tape {
+  background: rgba(255, 216, 77, 0.55);
+  box-shadow: 0 1px 2px rgba(23, 21, 15, 0.12);
+  backdrop-filter: blur(1px);
 }
 
-/* ------------------------------------------------------------------ */
-/* Glass surfaces + gradient borders                                  */
-/* ------------------------------------------------------------------ */
-/* Frosted panel used by cards and section bands on the dark backdrop. */
-.glass {
-  background: rgba(18, 26, 51, 0.55);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-/* Gradient hairline border via a mask trick so the fill stays glassy.  */
-.gradient-border {
-  position: relative;
-}
-
-.gradient-border::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(135deg, rgba(125, 155, 200, 0.5), rgba(90, 150, 155, 0.45), rgba(190, 150, 110, 0.4));
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  mask-composite: exclude;
-  opacity: 0.35;
-  transition: opacity 300ms ease-out;
-  pointer-events: none;
-}
-
-.gradient-border:hover::before {
-  opacity: 0.7;
-}
-
-/* Shimmer-swept tag/pill highlight (background-position only motion).    */
-/* Toned down to a soft slate/teal sheen so tags read as calm, not neon.  */
+/* Project-card tech tag. The class name is a stable hook used by tests; */
+/* it no longer shimmers (the motion competed with reading).             */
 .shimmer-pill {
-  background-image: linear-gradient(
-    110deg,
-    rgba(120, 140, 170, 0.12) 0%,
-    rgba(90, 150, 160, 0.22) 45%,
-    rgba(120, 140, 170, 0.12) 60%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 3.5s linear infinite;
+  background-color: transparent;
 }
 
-/* Soft glow halo behind CTAs / focal accents (opacity-pulse only).      */
-.glow-halo {
-  animation: glowPulse 4.5s ease-in-out infinite;
+/* ------------------------------------------------------------------ */
+/* Keyframes                                                          */
+/* ------------------------------------------------------------------ */
+/* All compositor-friendly: transform, opacity, background-position,   */
+/* or stroke-dashoffset only.                                          */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes gradientPan {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+@keyframes draw {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Hand-drawn squiggle under the hero name: draws itself once. */
+.animate-draw {
+  stroke-dasharray: 420;
+  stroke-dashoffset: 420;
+  animation: draw 1.1s 0.7s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+}
+
+.animate-marquee {
+  animation: marquee 38s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
 }
 
 /* ------------------------------------------------------------------ */
 /* Animation-delay helpers                                            */
 /* ------------------------------------------------------------------ */
-/* Stagger decorative blobs and fade-in entrances. Pairs with the     */
-/* animate-blob / animate-fade-in-up animations from tailwind.config. */
-
 .animation-delay-200 { animation-delay: 0.2s; }
 .animation-delay-400 { animation-delay: 0.4s; }
 .animation-delay-600 { animation-delay: 0.6s; }
@@ -145,28 +125,20 @@ body {
 /* ------------------------------------------------------------------ */
 /* Shared focus-visible ring utility                                  */
 /* ------------------------------------------------------------------ */
-/* Apply to any interactive element (links, buttons, CTAs) for a      */
-/* consistent, high-contrast keyboard focus indicator. The ring uses  */
-/* the primary accent blue (#2563eb, ~5.1:1 on white, >= 3:1 against  */
-/* adjacent colors) over a white offset so it stays visible on both   */
-/* light surfaces and colored/gradient backgrounds (Req 10.4).        */
+/* Ink ring over a paper offset: visible on paper, cards, and the ink  */
+/* contact band alike (the paper gap separates it from dark fills).    */
 .focus-ring:focus-visible {
   outline: none;
   border-radius: inherit;
-  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #2563eb;
+  box-shadow: 0 0 0 2px #f3efe6, 0 0 0 4px #d93f12;
 }
 
 /* ------------------------------------------------------------------ */
 /* Motion primitives: gradient text, card tilt, scroll reveal         */
 /* ------------------------------------------------------------------ */
-/* Presentation-only helpers for the glow-up layer. Each is designed   */
-/* to composite safely (transform / opacity / background-position      */
-/* only) and has a reduced-motion / coarse-pointer fallback below.     */
 
-/* Animated gradient fill for the hero name. Pairs with a Tailwind     */
-/* bg-gradient-* + bg-clip-text treatment; pans the gradient across    */
-/* the glyphs via background-position only (gradientPan from the       */
-/* Tailwind config). background-size 200% gives it room to travel.     */
+/* Hero name fill: a slow pan across a signal-orange gradient, clipped  */
+/* to the glyphs. background-position only.                            */
 .animated-gradient-text {
   background-size: 200% auto;
   -webkit-background-clip: text;
@@ -175,19 +147,14 @@ body {
   animation: gradientPan 6s linear infinite;
 }
 
-/* Pointer-driven 3D tilt for cards. The --rx / --ry custom properties */
-/* are written by the usePointerTilt hook (clamped to +/-15deg); they  */
-/* default to 0deg so the resting state is flat. transform-only, so    */
-/* it composes with hover translate without triggering reflow.         */
+/* Pointer-driven 3D tilt for cards (--rx/--ry written by usePointerTilt). */
 .card-tilt {
   transform-style: preserve-3d;
   transition: transform 300ms ease-out;
   transform: perspective(800px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
 }
 
-/* Scroll-reveal entrance. Elements start hidden/offset (.reveal) and   */
-/* settle into place once revealed (.reveal-visible). Transition is     */
-/* transform/opacity only and completes in <= 1000ms.                   */
+/* Scroll-reveal entrance. transform/opacity only, <= 1000ms. */
 .reveal {
   opacity: 0;
   transform: translateY(16px);
@@ -202,11 +169,6 @@ body {
 /* ------------------------------------------------------------------ */
 /* Reduced-motion safety net                                          */
 /* ------------------------------------------------------------------ */
-/* Global fallback that collapses all non-essential Motion_Effects    */
-/* when the visitor prefers reduced motion. Transitions needed to     */
-/* indicate interactive state changes still fire near-instantly       */
-/* rather than being removed outright (Req 11.2). This complements     */
-/* per-element Tailwind `motion-reduce:` variants.                    */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -218,12 +180,7 @@ body {
   }
 }
 
-/* ------------------------------------------------------------------ */
-/* Reduced-motion fallbacks for the motion primitives                 */
-/* ------------------------------------------------------------------ */
-/* Stop the ambient gradient pan, and resolve scroll-reveal to its     */
-/* visible resting state so content is never gated behind an           */
-/* animation that will not play.                                       */
+/* Resolve every motion primitive to its resting, fully visible state. */
 @media (prefers-reduced-motion: reduce) {
   .animated-gradient-text {
     animation: none;
@@ -234,18 +191,19 @@ body {
     transform: translateY(0);
   }
 
-  /* Freeze the ambient aurora wash, shimmer, float, and glow pulses so   */
-  /* nothing drifts for visitors who prefer reduced motion.               */
-  .aurora-bg::after,
-  .shimmer-pill,
-  .glow-halo {
+  .animate-fade-in-up,
+  .animate-marquee {
     animation: none;
+  }
+
+  .animate-draw {
+    animation: none;
+    stroke-dashoffset: 0;
   }
 }
 
-/* Disable the pointer tilt entirely when the visitor prefers reduced  */
-/* motion AND is on a touch / coarse-pointer device (no precise hover  */
-/* to drive the effect). Keeps the card flat in that environment.      */
+/* Flatten the pointer tilt when reduced motion is requested on touch / */
+/* coarse-pointer devices (no precise hover to drive it).               */
 @media (prefers-reduced-motion: reduce) and (hover: none), (prefers-reduced-motion: reduce) and (pointer: coarse) {
   .card-tilt {
     transform: none;

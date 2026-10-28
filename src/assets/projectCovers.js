@@ -173,6 +173,74 @@ export const ragSupportCover = cover(
    </g>`
 );
 
+// 9. 15-minute city — city grid tinted into two accessibility clusters + pins.
+export const cityProfilerCover = cover(
+  "city",
+  `<text x="40" y="60" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="26" font-weight="700">15-Minute City</text>
+   <g>
+     ${Array.from({ length: 6 * 5 }, (_, i) => {
+       const c = i % 6, r = Math.floor(i / 6);
+       // Two clusters: well-served (teal) vs developing (slate).
+       const served = [1, 2, 7, 8, 9, 13, 14, 15, 20, 21].includes(i);
+       const fill = served ? "#0e7490" : "#334155";
+       const op = served ? 0.55 : 0.4;
+       return `<rect x="${90 + c * 70}" y="${95 + r * 40}" width="62" height="32" rx="5" fill="${fill}" opacity="${op}" stroke="#5eead4" stroke-width="0.8"/>`;
+     }).join("")}
+   </g>
+   <g fill="#fcd34d">
+     <circle cx="150" cy="150" r="5"/><circle cx="330" cy="135" r="5"/><circle cx="470" cy="190" r="5"/><circle cx="260" cy="250" r="5"/>
+   </g>`
+);
+
+// 10. Transit anomaly detection — tap-event stream with a flagged spike.
+export const transitAnomalyCover = cover(
+  "transit",
+  `<text x="40" y="60" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="26" font-weight="700">Transit Anomaly Detection</text>
+   <path d="M60 220 L120 200 L180 210 L240 180 L300 195 L360 110 L360 110 L420 205 L480 185 L540 200"
+         fill="none" stroke="#5eead4" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+   <line x1="60" y1="250" x2="540" y2="250" stroke="#334155" stroke-width="2"/>
+   <g>
+     <circle cx="360" cy="110" r="12" fill="none" stroke="#f87171" stroke-width="3"/>
+     <circle cx="360" cy="110" r="5" fill="#f87171"/>
+     <text x="360" y="92" fill="#f87171" font-family="system-ui, sans-serif" font-size="13" font-weight="600" text-anchor="middle">anomaly</text>
+   </g>
+   <g fill="#7dd3fc">
+     <rect x="96" y="275" width="26" height="26" rx="5" opacity="0.5"/>
+     <rect x="132" y="275" width="26" height="26" rx="5" opacity="0.5"/>
+     <text x="175" y="293" fill="#7dd3fc" font-family="system-ui, sans-serif" font-size="13">tap events</text>
+   </g>`
+);
+
+// 11. Reimbursement agent — receipt feeding an agent that routes a decision.
+export const reimburseAgentCover = cover(
+  "reimburse",
+  `<text x="40" y="58" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="25" font-weight="700">Reimbursement Agent</text>
+   <g>
+     <rect x="64" y="110" width="96" height="140" rx="8" fill="#0e7490" opacity="0.35" stroke="#7dd3fc" stroke-width="2"/>
+     <text x="112" y="100" fill="#7dd3fc" font-family="system-ui, sans-serif" font-size="13" font-weight="600" text-anchor="middle">Receipt</text>
+     <g stroke="#7dd3fc" stroke-width="2.5" stroke-linecap="round" opacity="0.8">
+       <line x1="80" y1="136" x2="144" y2="136"/><line x1="80" y1="156" x2="144" y2="156"/>
+       <line x1="80" y1="176" x2="126" y2="176"/><line x1="80" y1="200" x2="144" y2="200"/><line x1="80" y1="220" x2="120" y2="220"/>
+     </g>
+   </g>
+   <g stroke="#5eead4" stroke-width="3" fill="none"><path d="M168 180 H236"/></g>
+   <g>
+     <circle cx="300" cy="180" r="34" fill="#132033" stroke="#5eead4" stroke-width="2.5"/>
+     <text x="300" y="186" fill="#5eead4" font-family="system-ui, sans-serif" font-size="20" font-weight="700" text-anchor="middle">AI</text>
+   </g>
+   <g stroke="#5eead4" stroke-width="3" fill="none">
+     <path d="M338 160 L400 120"/><path d="M338 180 H400"/><path d="M338 200 L400 240"/>
+   </g>
+   <g font-family="system-ui, sans-serif" font-size="14" font-weight="600">
+     <rect x="406" y="104" width="120" height="30" rx="8" fill="#15803d" opacity="0.4" stroke="#86efac" stroke-width="1.5"/>
+     <text x="466" y="124" fill="#86efac" text-anchor="middle">Approve</text>
+     <rect x="406" y="164" width="120" height="30" rx="8" fill="#b45309" opacity="0.4" stroke="#fcd34d" stroke-width="1.5"/>
+     <text x="466" y="184" fill="#fcd34d" text-anchor="middle">Escalate</text>
+     <rect x="406" y="224" width="120" height="30" rx="8" fill="#7f1d1d" opacity="0.5" stroke="#f87171" stroke-width="1.5"/>
+     <text x="466" y="244" fill="#fca5a5" text-anchor="middle">Reject</text>
+   </g>`
+);
+
 // 5. Agent-based exposure simulation — agents, vision cone + heatmap grid.
 export const simulationCover = cover(
   "sim",

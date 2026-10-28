@@ -109,7 +109,19 @@ const CloudIcon = (p) => (
   </svg>
 );
 
+/** Rocket — deployment & serving. */
+const RocketIcon = (p) => (
+  <svg {...base} {...p}>
+    <path d="M14 4c3-1 5-1 6 0 1 1 1 3 0 6l-6 6-6-6 6-6Z" />
+    <circle cx="15.5" cy="8.5" r="1.5" />
+    <path d="M8 10H5l-2 3 4 1" />
+    <path d="M14 16v3l-3 2-1-4" />
+    <path d="M6.5 17.5 4 20" />
+  </svg>
+);
+
 const ICONS = {
+  rocket: RocketIcon,
   brain: BrainIcon,
   pipeline: PipelineIcon,
   chart: ChartIcon,

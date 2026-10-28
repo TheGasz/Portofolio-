@@ -16,17 +16,23 @@ export const Header = ({ title }) => {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <nav className="fixed top-0 w-full z-50 start-0 bg-night-900/70 backdrop-blur-xl shadow-lg shadow-black/30 border-b border-white/10">
-      <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between px-5 py-3">
+    <nav className="fixed top-0 start-0 z-50 w-full border-b border-ink bg-paper/85 backdrop-blur-md">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-2">
         <Link
           to="/"
-          className="focus-ring flex items-center min-h-[44px] px-3 py-2 -mx-3 rounded-lg group"
+          className="focus-ring group -mx-2 flex min-h-[44px] items-center gap-2.5 rounded-lg px-2 py-2"
         >
-          <span className="self-center text-2xl font-bold whitespace-nowrap tracking-tight bg-gradient-to-r from-sky-200 via-teal-200 to-amber-100 bg-clip-text text-transparent transition-opacity group-hover:opacity-80">
+          <span
+            aria-hidden="true"
+            className="grid h-8 w-8 place-items-center rounded-full bg-ink font-serif text-lg italic text-paper transition-transform duration-300 group-hover:-rotate-12 motion-reduce:transform-none"
+          >
+            b
+          </span>
+          <span className="whitespace-nowrap text-lg font-bold tracking-tight text-ink">
             {title}
           </span>
         </Link>
-        <div className="flex items-center gap-2 sm:gap-4">
+        <div className="flex items-center gap-1 rounded-full border border-ink bg-card p-1">
           {NAV_LINKS.map(({ to, label }) => {
             const active = isActive(to);
             return (
@@ -34,10 +40,12 @@ export const Header = ({ title }) => {
                 key={to}
                 to={to}
                 aria-current={active ? "page" : undefined}
-                className={`focus-ring relative inline-flex items-center justify-center min-h-[44px] min-w-[44px] px-3 py-2 rounded-lg transition-colors duration-300 ${
+                // `text-blue-600 font-bold` are the active-state hooks pinned by
+                // Navbar.property.test; the visible color is forced to paper.
+                className={`focus-ring inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full px-4 py-2 text-sm transition-colors duration-200 ${
                   active
-                    ? "text-blue-600 font-bold after:absolute after:bottom-1 after:left-3 after:right-3 after:h-0.5 after:rounded-full after:bg-gradient-to-r after:from-sky-400 after:to-teal-400"
-                    : "text-slate-300 font-medium hover:text-teal-200"
+                    ? "text-blue-600 font-bold bg-ink text-paper!"
+                    : "font-semibold text-ink-soft hover:bg-paper-2 hover:text-ink"
                 }`}
               >
                 {label}

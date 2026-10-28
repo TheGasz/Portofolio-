@@ -68,6 +68,12 @@ export const skills = [
       "I obsess over trustworthy metrics — rolling-origin CV, OOF predictions, leakage checks, and seeded runs — so results survive contact with new data.",
     icon: "cycle",
   },
+  {
+    title: "Deployment & Serving",
+    description:
+      "I ship models past the notebook: FastAPI services, Streamlit and React front ends, Redis-backed agents, and AWS, built to hit real latency budgets like sub-25 ms p95.",
+    icon: "rocket",
+  },
 ];
 
 /**
@@ -144,12 +150,39 @@ export const certifications = [
 export const aboutNarrative =
   "Hi, I'm Bagas — a data enthusiast who loves turning raw, messy data into models and pipelines people can actually trust. I split my time between data science (training ensembles and deep learning models, chasing honest metrics) and data engineering (ingesting, cleaning, and joining multi-source datasets into reproducible pipelines). I care deeply about EDA, leak-free validation, and reproducibility, and I get a real kick out of that moment when a stubborn dataset finally tells its story. When I'm not training models, I'm competing in data challenges and digging into new domains to learn.";
 
+
+/** Tools that show up across the projects, for the scrolling tool strip. */
+const toolbelt = [
+  "Python", "PyTorch", "LightGBM", "XGBoost", "CatBoost", "scikit-learn",
+  "Pandas", "GeoPandas", "Optuna", "SigLIP", "FAISS", "LangGraph",
+  "pgvector", "FastAPI", "Streamlit", "SHAP",
+];
+
 /**
- * Presentational "What I Do" section. Renders exactly one skill card per item,
- * in the same order as the `skills` prop. Returns null (omitting the entire
- * section) when there are no skills (Req 2.4), so the section is never rendered
- * empty. Each skill card exposes its title as an <h3> heading so cards are
- * individually locatable and orderable.
+ * Section heading row shared by the Home sections: a mono index + label, a
+ * large h2, and an optional aside on the right. Left-aligned on a 12-column
+ * grid so sections read like chapters of one notebook.
+ */
+const SectionHeader = ({ index, label, title, children }) => (
+  <div className="mb-12 grid gap-6 md:mb-16 md:grid-cols-12 md:items-end">
+    <div className="md:col-span-7">
+      <p className="font-mono text-sm text-muted">
+        <span className="text-signal">{index}</span> / {label}
+      </p>
+      <h2 className="mt-4 text-4xl font-extrabold leading-[0.95] tracking-[-0.03em] text-ink sm:text-5xl md:text-6xl">
+        {title}
+      </h2>
+    </div>
+    {children && (
+      <div className="text-lg leading-relaxed text-ink-soft md:col-span-5">{children}</div>
+    )}
+  </div>
+);
+
+/**
+ * Presentational "What I Do" section. Renders exactly one skill block per
+ * item, in the same order as the `skills` prop, each titled by an <h3>.
+ * Returns null (omitting the section) when there are no skills (Req 2.4).
  *
  * @param {{ skills?: Skill[] }} props
  */
@@ -157,48 +190,59 @@ export const SkillsSection = ({ skills: items = [] }) => {
   if (items.length === 0) return null;
 
   return (
-    <section className="relative z-10 py-24 px-6 border-t border-white/5">
-      <div className="max-w-7xl mx-auto text-center space-y-14">
-        <div className="space-y-4">
-          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-teal-300/70">
-            Skills
-          </p>
-          <h2 className="text-3xl md:text-5xl font-bold text-slate-50">
-            What I Do
-          </h2>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <section className="border-b border-ink bg-paper-2 px-6 py-20 md:py-28">
+      <div className="mx-auto max-w-7xl">
+        <SectionHeader
+          index="01"
+          label="Skills"
+          title={
+            <>
+              What I <span className="font-serif font-normal italic">do</span>
+            </>
+          }
+        >
+          Most of my work sits where modeling meets plumbing: get the data
+          right first, then make the model earn its metrics.
+        </SectionHeader>
+
+        <ol className="grid gap-px border border-ink bg-ink md:grid-cols-2">
           {items.map((skill, index) => (
-            <div
+            <li
               key={index}
-              className="glass gradient-border group relative p-7 rounded-2xl shadow-lg transition-all duration-300 transform hover:-translate-y-1.5 hover:shadow-2xl"
+              // An odd final item spans both columns so the grid never ends
+              // with an empty half-row.
+              className="group bg-paper-2 p-7 transition-colors duration-300 hover:bg-marker md:p-10 md:last:odd:col-span-2"
             >
-              <div
-                aria-hidden="true"
-                className="w-14 h-14 rounded-xl flex items-center justify-center mb-6 mx-auto bg-gradient-to-br from-sky-500/20 to-teal-500/20 text-teal-200 ring-1 ring-white/10 transition-transform duration-300 group-hover:rotate-6 group-hover:scale-105"
-              >
-                <Icon name={skill.icon} className="w-7 h-7" />
+              <div className="flex items-center justify-between">
+                <span aria-hidden="true" className="font-mono text-sm text-muted group-hover:text-ink">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <span
+                  aria-hidden="true"
+                  className="text-ink transition-transform duration-300 group-hover:-rotate-12 group-hover:scale-110 motion-reduce:transform-none"
+                >
+                  <Icon name={skill.icon} className="h-7 w-7" />
+                </span>
               </div>
-              <h3 className="text-lg font-bold mb-3 text-slate-50">
+              <h3 className="mt-10 text-2xl font-bold tracking-tight text-ink md:text-3xl">
                 {skill.title}
               </h3>
-              <p className="text-sm text-slate-300/90 leading-relaxed">
+              <p className="mt-3 max-w-prose leading-relaxed text-ink-soft group-hover:text-ink">
                 {skill.description}
               </p>
-            </div>
+            </li>
           ))}
-        </div>
+        </ol>
       </div>
     </section>
   );
 };
 
 /**
- * Presentational "Certifications" section. Renders one card per certification
- * in array order. A card whose `href` is a valid absolute http(s) URL OR a
- * site-relative path (starting with "/") becomes a focusable link that opens
- * the certificate; otherwise it renders as a static card. Returns null (omitting
- * the section) when there are no certifications.
+ * Presentational "Certifications" section, rendered as a ledger. A row whose
+ * `href` is a valid absolute http(s) URL OR a site-relative path (starting
+ * with "/") becomes a focusable link that opens the certificate in a new tab;
+ * otherwise it renders as a static row. Returns null when there are none.
  *
  * @param {{ certifications?: Certification[] }} props
  */
@@ -211,62 +255,60 @@ export const CertificationsSection = ({ certifications: items = [] }) => {
       ? href
       : null;
 
-  // External links (http/https) open in a new tab; local PDFs do too so the
-  // visitor doesn't lose the portfolio. Both get safe rel attributes.
   const isExternal = (href) => isValidHttpUrl(href);
 
-  return (
-    <section className="relative z-10 py-24 px-6 border-t border-white/5">
-      <div className="max-w-7xl mx-auto space-y-14">
-        <div className="space-y-4 text-center">
-          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-amber-200/70">
-            Credentials
-          </p>
-          <h2 className="text-3xl md:text-5xl font-bold text-slate-50">
-            Certifications &amp; Awards
-          </h2>
-          <p className="text-base text-slate-300/80 max-w-2xl mx-auto leading-relaxed">
-            A few of the data science and engineering credentials I've earned
-            along the way.
-          </p>
-        </div>
+  const rowClass =
+    "group grid grid-cols-[2.5rem_minmax(0,1fr)_auto] items-center gap-x-4 px-2 py-5 transition-colors duration-200 md:grid-cols-[4rem_minmax(0,1fr)_auto] md:px-4 md:py-6";
 
-        <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+  return (
+    <section className="border-b border-ink px-6 py-20 md:py-28">
+      <div className="mx-auto max-w-7xl">
+        <SectionHeader
+          index="02"
+          label="Credentials"
+          title={
+            <>
+              Certifications <span className="font-serif font-normal italic">&amp;</span> Awards
+            </>
+          }
+        >
+          Courses I finished and competitions I placed in. Every row opens the
+          actual certificate.
+        </SectionHeader>
+
+        <ul className="border-t-2 border-ink">
           {items.map((cert, index) => {
             const href = linkFor(cert.href);
             const inner = (
               <>
-                <div
-                  aria-hidden="true"
-                  className="w-14 h-14 rounded-xl flex items-center justify-center mb-5 bg-gradient-to-br from-amber-500/20 to-teal-500/20 text-amber-100 ring-1 ring-white/10 transition-transform duration-300 group-hover:rotate-6 group-hover:scale-105"
-                >
-                  <Icon name={cert.icon} className="w-7 h-7" />
+                <span aria-hidden="true" className="font-mono text-sm text-muted">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <div className="min-w-0">
+                  <h3 className="text-lg font-semibold leading-snug tracking-tight text-ink transition-transform duration-300 group-hover:translate-x-1.5 motion-reduce:transform-none md:text-2xl">
+                    {cert.title}
+                  </h3>
+                  {(cert.issuer || cert.date) && (
+                    <p className="mt-1 font-mono text-xs text-muted md:text-sm">
+                      {cert.issuer}
+                      {cert.issuer && cert.date && " · "}
+                      {cert.date}
+                    </p>
+                  )}
                 </div>
-                <h3 className="text-base font-bold mb-2 text-slate-50 leading-snug">
-                  {cert.title}
-                </h3>
-                {cert.issuer && (
-                  <p className="text-sm text-slate-300/90">{cert.issuer}</p>
-                )}
-                {cert.date && (
-                  <p className="text-xs text-slate-400 mt-1">{cert.date}</p>
-                )}
                 {href && (
-                  <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-teal-300 group-hover:text-teal-200">
-                    View certificate
-                    <span
-                      aria-hidden="true"
-                      className="transition-transform duration-300 group-hover:translate-x-0.5"
-                    >
-                      →
-                    </span>
+                  <span
+                    aria-hidden="true"
+                    className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-ink text-ink transition-colors duration-300 group-hover:bg-ink group-hover:text-paper md:h-12 md:w-12"
+                  >
+                    ↗
                   </span>
                 )}
               </>
             );
 
             return (
-              <li key={index} className="h-full">
+              <li key={index} className="border-b border-ink/20">
                 {href ? (
                   <a
                     href={href}
@@ -275,14 +317,12 @@ export const CertificationsSection = ({ certifications: items = [] }) => {
                     aria-label={`View certificate: ${cert.title}${
                       cert.issuer ? `, ${cert.issuer}` : ""
                     } (opens in a new tab)`}
-                    className="focus-ring glass gradient-border group flex flex-col h-full p-6 rounded-2xl shadow-lg transition-all duration-300 transform hover:-translate-y-1.5 hover:shadow-2xl"
+                    className={`focus-ring ${rowClass} hover:bg-card`}
                   >
                     {inner}
                   </a>
                 ) : (
-                  <div className="glass gradient-border group flex flex-col h-full p-6 rounded-2xl shadow-lg transition-all duration-300 transform hover:-translate-y-1.5 hover:shadow-2xl">
-                    {inner}
-                  </div>
+                  <div className={rowClass}>{inner}</div>
                 )}
               </li>
             );
@@ -305,97 +345,138 @@ export const Core = () => {
   // Keep only socials whose href is a valid absolute http(s) URL (Req 4.3-4.4).
   const validSocials = siteConfig.socials.filter((s) => isValidHttpUrl(s.href));
 
+  // Lead sentence of the narrative gets display treatment; the rest is body.
+  const breakAt = aboutNarrative.indexOf(". ");
+  const aboutLead = breakAt === -1 ? aboutNarrative : aboutNarrative.slice(0, breakAt + 1);
+  const aboutRest = breakAt === -1 ? "" : aboutNarrative.slice(breakAt + 2);
+
+  const aboutFacts = [
+    { label: "Focus", value: "ML models + the pipelines behind them" },
+    { label: "Toolkit", value: "Python, PyTorch, gradient boosting, RAG" },
+    { label: "Credentials", value: `${certifications.length} certificates & awards` },
+  ];
+
   return (
-    <div className="aurora-bg flex flex-col min-h-screen relative overflow-hidden bg-grid-pattern text-slate-200">
-      {/* Background animated blobs — decorative, transform-only motion. */}
-      {/* Muted, low-opacity tones so the backdrop feels calm and warm. */}
-      <div
-        aria-hidden="true"
-        className="absolute top-10 -left-10 w-80 h-80 bg-slate-500 rounded-full mix-blend-screen filter blur-3xl opacity-25 animate-blob motion-reduce:animate-none"
-      ></div>
-      <div
-        aria-hidden="true"
-        className="absolute top-0 -right-10 w-80 h-80 bg-teal-700 rounded-full mix-blend-screen filter blur-3xl opacity-25 animate-blob motion-reduce:animate-none animation-delay-2000"
-      ></div>
-      <div
-        aria-hidden="true"
-        className="absolute -bottom-10 left-1/3 w-80 h-80 bg-amber-700 rounded-full mix-blend-screen filter blur-3xl opacity-20 animate-blob motion-reduce:animate-none animation-delay-4000"
-      ></div>
+    <div className="flex min-h-screen flex-col bg-paper text-ink">
+      {/* ---------------------------------------------------------- Hero */}
+      <section className="paper-dots relative overflow-hidden border-b border-ink">
+        <div className="mx-auto grid max-w-7xl items-center gap-14 px-6 pb-20 pt-12 md:pt-20 lg:grid-cols-12 lg:gap-10 lg:pb-28">
+          <div className="lg:col-span-7">
+            <p className="inline-flex items-center gap-2 rounded-full border border-ink bg-card px-3 py-1.5 font-mono text-xs text-ink animate-fade-in-up motion-reduce:animate-none sm:text-sm">
+              <span aria-hidden="true" className="h-2 w-2 rounded-full bg-signal"></span>
+              Data Scientist &amp; Data Engineer
+            </p>
 
-      {/* Hero Section */}
-      <section className="relative z-10 flex flex-col md:flex-row items-center justify-center px-6 py-20 md:py-32 max-w-7xl mx-auto w-full gap-12">
-        <div className="flex-1 text-center md:text-left space-y-6">
-          <p className="inline-flex items-center gap-2 text-sm font-semibold text-teal-300/80 tracking-[0.25em] uppercase animate-fade-in-up motion-reduce:animate-none">
-            <span aria-hidden="true" className="inline-block w-8 h-px bg-gradient-to-r from-teal-400/70 to-transparent"></span>
-            Data Scientist &amp; Data Engineer
-          </p>
-          <h1 className="text-5xl md:text-7xl font-extrabold text-slate-50 leading-tight animate-fade-in-up animation-delay-200 motion-reduce:animate-none">
-            Hi, I'm{" "}
-            <span className="animated-gradient-text text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-teal-300 to-amber-200">
-              Bagas
-            </span>
-            .
-          </h1>
-          <p className="text-lg md:text-xl text-slate-300/90 max-w-2xl mx-auto md:mx-0 leading-relaxed animate-fade-in-up animation-delay-400 motion-reduce:animate-none">
-            I build data science models and the engineering pipelines that
-            feed them. I love wrangling messy, multi-source data and untangling
-            tricky problems to ship insights and predictions you can trust.
-          </p>
-          <div className="pt-4 flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4 animate-fade-in-up animation-delay-600 motion-reduce:animate-none">
-            <Link
-              to="/project"
-              className="focus-ring group relative px-8 py-4 min-h-[44px] w-full sm:w-auto inline-flex items-center justify-center bg-gradient-to-r from-sky-700 to-teal-600 text-white font-semibold rounded-full shadow-lg shadow-black/30 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl bg-[length:200%_auto] hover:bg-[position:right_center]"
-            >
-              View My Work
-              <span aria-hidden="true" className="ml-2 transition-transform duration-300 group-hover:translate-x-1">→</span>
-            </Link>
-            <a
-              href="#contact"
-              className="focus-ring px-8 py-4 min-h-[44px] w-full sm:w-auto inline-flex items-center justify-center glass border border-white/15 hover:border-teal-300/40 text-slate-100 font-semibold rounded-full transition-all duration-300 hover:-translate-y-1"
-            >
-              Get in Touch
-            </a>
-          </div>
-        </div>
+            <h1 className="mt-7 text-[3.75rem] font-extrabold leading-[0.9] tracking-[-0.045em] text-ink animate-fade-in-up animation-delay-200 motion-reduce:animate-none sm:text-8xl lg:text-[8.5rem]">
+              Hi, I'm
+              <br />{" "}
+              <span className="relative inline-block">
+                <span className="animated-gradient-text bg-[linear-gradient(90deg,#d93f12,#f06a2a,#d93f12)] pr-[0.08em] font-serif font-normal italic tracking-[-0.02em]">
+                  Bagas
+                </span>
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 400 30"
+                  preserveAspectRatio="none"
+                  className="absolute -bottom-1 left-0 h-4 w-[92%] text-ink sm:h-5"
+                  fill="none"
+                >
+                  <path
+                    className="animate-draw"
+                    d="M4 20 C 60 6, 110 28, 170 16 S 280 4, 330 18 S 380 22, 396 10"
+                    stroke="currentColor"
+                    strokeWidth="5"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </span>
+              <span className="-ml-[0.06em]">.</span>
+            </h1>
 
-        {/* Decorative / Image Section */}
-        <div className="flex-1 flex justify-center relative w-full max-w-md">
-          <div
-            aria-hidden="true"
-            className="glow-halo absolute inset-0 bg-gradient-to-tr from-sky-700 via-teal-600 to-amber-500 rounded-full blur-3xl opacity-25 motion-reduce:animate-none"
-          ></div>
-          <div className="animate-float motion-reduce:animate-none relative z-10 w-full max-w-sm mx-auto gradient-border rounded-full p-1.5">
-          {imgError ? (
-            // Same-size decorative placeholder when the hero image fails to load.
-            <div
-              aria-hidden="true"
-              className="rounded-full shadow-2xl w-full aspect-square ring-1 ring-white/10 bg-gradient-to-br from-sky-700 via-teal-600 to-amber-600 flex items-center justify-center"
-            >
-              <svg
-                className="w-20 h-20 text-white/80"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={1.5}
+            <p className="mt-8 max-w-xl text-lg leading-relaxed text-ink-soft animate-fade-in-up animation-delay-400 motion-reduce:animate-none md:text-xl">
+              I build data science models and the engineering pipelines that
+              feed them. I love wrangling{" "}
+              <span className="marker text-ink">messy, multi-source data</span>{" "}
+              and untangling tricky problems to ship insights and predictions
+              you can trust.
+            </p>
+
+            <div className="mt-10 flex flex-col items-start gap-5 animate-fade-in-up animation-delay-600 motion-reduce:animate-none sm:flex-row sm:items-center sm:gap-8">
+              <Link
+                to="/project"
+                className="focus-ring group inline-flex min-h-[48px] items-center justify-center rounded-xl border-2 border-ink bg-ink px-7 py-3 text-lg font-semibold text-paper shadow-[5px_5px_0_0_#d93f12] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[7px_7px_0_0_#d93f12] active:translate-x-1 active:translate-y-1 active:shadow-none motion-reduce:transform-none"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
-                />
-              </svg>
+                View My Work
+                <span aria-hidden="true" className="ml-2 transition-transform duration-200 group-hover:translate-x-1 motion-reduce:transform-none">→</span>
+              </Link>
+              <a
+                href="#contact"
+                className="focus-ring inline-flex min-h-[44px] items-center rounded-md text-lg font-semibold text-ink underline decoration-signal decoration-2 underline-offset-[6px] transition-colors hover:decoration-4"
+              >
+                Get in Touch
+              </a>
             </div>
-          ) : (
-            <img
-              src={profilePhoto}
-              alt="Bagas Adjie Pamungkas smiling, wearing a black shirt"
-              onError={() => setImgError(true)}
-              className="rounded-full shadow-2xl w-full aspect-square object-cover object-[center_30%] ring-1 ring-white/10 transition-transform duration-500 hover:scale-[1.03]"
-            />
-          )}
+          </div>
+
+          {/* Polaroid portrait with tape. */}
+          <div className="relative mx-auto w-full max-w-[18rem] sm:max-w-xs lg:col-span-5 lg:max-w-sm">
+            <figure className="relative rotate-[3deg] border border-ink/10 bg-card p-3 pb-16 shadow-[0_24px_50px_-20px_rgba(23,21,15,0.45)] transition-transform duration-500 hover:rotate-0 motion-reduce:rotate-0 motion-reduce:transition-none">
+              <div aria-hidden="true" className="tape absolute -top-3 left-1/2 h-7 w-28 -translate-x-1/2 -rotate-3"></div>
+              {imgError ? (
+                <div
+                  aria-hidden="true"
+                  className="flex aspect-[4/5] w-full items-center justify-center bg-paper-2"
+                >
+                  <svg
+                    className="h-16 w-16 text-muted"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={1.5}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+                    />
+                  </svg>
+                </div>
+              ) : (
+                <img
+                  src={profilePhoto}
+                  alt="Bagas Adjie Pamungkas smiling, wearing a black shirt"
+                  onError={() => setImgError(true)}
+                  className="aspect-[4/5] w-full object-cover object-[center_30%]"
+                />
+              )}
+              <figcaption className="absolute inset-x-0 bottom-4 text-center font-serif text-2xl italic text-ink-soft">
+                me, mid-EDA
+              </figcaption>
+            </figure>
           </div>
         </div>
       </section>
+
+      {/* ------------------------------------------------- Tool marquee */}
+      <div className="overflow-hidden border-b border-ink bg-ink py-4 text-paper">
+        <ul
+          aria-label="Tools I work with"
+          className="flex w-max animate-marquee items-center motion-reduce:w-full motion-reduce:flex-wrap motion-reduce:justify-center motion-reduce:gap-y-2 motion-reduce:px-6"
+        >
+          {[...toolbelt, ...toolbelt].map((tool, i) => (
+            <li
+              key={`${tool}-${i}`}
+              aria-hidden={i >= toolbelt.length ? "true" : undefined}
+              className={`flex items-center whitespace-nowrap text-xl font-semibold tracking-tight md:text-2xl ${
+                i >= toolbelt.length ? "motion-reduce:hidden" : ""
+              }`}
+            >
+              <span className="px-5">{tool}</span>
+              <span aria-hidden="true" className="text-signal">✦</span>
+            </li>
+          ))}
+        </ul>
+      </div>
 
       {/* "What I Do" Section — omitted entirely when there are no skills. */}
       <SkillsSection skills={skills} />
@@ -403,66 +484,87 @@ export const Core = () => {
       {/* Certifications & Awards — omitted entirely when there are none. */}
       <CertificationsSection certifications={certifications} />
 
-      {/* About Section */}
-      <section className="relative z-10 py-24 px-6">
-        <div className="max-w-5xl mx-auto glass gradient-border rounded-3xl p-10 md:p-14">
-          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-amber-200/70 mb-4 text-center md:text-left">
-            About
-          </p>
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-50 mb-6 text-center md:text-left">
-            About Me
-          </h2>
-          <p className="text-lg md:text-xl text-slate-300 leading-relaxed max-w-3xl mx-auto md:mx-0">
-            {aboutNarrative}
-          </p>
+      {/* -------------------------------------------------------- About */}
+      <section className="paper-dots border-b border-ink px-6 py-20 md:py-28">
+        <div className="mx-auto grid max-w-7xl gap-12 md:grid-cols-12">
+          <div className="md:col-span-4">
+            <p className="font-mono text-sm text-muted">
+              <span className="text-signal">03</span> / About
+            </p>
+            <h2 className="mt-4 text-4xl font-extrabold leading-[0.95] tracking-[-0.03em] text-ink sm:text-5xl md:text-6xl">
+              About <span className="font-serif font-normal italic">me</span>
+            </h2>
+            <dl className="mt-10 space-y-5 border-t border-ink pt-6">
+              {aboutFacts.map((fact) => (
+                <div key={fact.label}>
+                  <dt className="font-mono text-xs uppercase tracking-wider text-muted">{fact.label}</dt>
+                  <dd className="mt-1 font-medium text-ink">{fact.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+          <div className="md:col-span-8">
+            <p className="text-3xl font-semibold leading-[1.15] tracking-tight text-ink md:text-[2.75rem]">
+              <span className="marker">{aboutLead}</span>
+            </p>
+            {aboutRest && (
+              <p className="mt-8 max-w-2xl text-lg leading-relaxed text-ink-soft md:text-xl">
+                {aboutRest}
+              </p>
+            )}
+          </div>
         </div>
       </section>
 
-      {/* Contact & Social Section */}
-      <section
-        id="contact"
-        className="relative z-10 py-24 px-6 border-t border-white/5"
-      >
-        <div className="max-w-7xl mx-auto text-center space-y-8">
-          <h2 className="text-3xl md:text-5xl font-bold text-slate-50">
-            Let's Build{" "}
-            <span className="animated-gradient-text text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-teal-300 to-amber-200">
-              Something
-            </span>
+      {/* ------------------------------------------------------ Contact */}
+      <section id="contact" className="scroll-mt-20 bg-ink px-6 py-24 text-paper md:py-32">
+        <div className="mx-auto max-w-7xl">
+          <p className="font-mono text-sm text-paper/60">
+            <span className="text-signal">04</span> / Contact
+          </p>
+          <h2 className="mt-5 text-5xl font-extrabold leading-[0.9] tracking-[-0.04em] sm:text-7xl lg:text-[7rem]">
+            Let's build
+            <br />{" "}
+            <span className="font-serif font-normal italic text-marker">something</span>.
           </h2>
-          <p className="text-lg text-slate-300/90 max-w-2xl mx-auto leading-relaxed">
+          <p className="mt-8 max-w-xl text-lg leading-relaxed text-paper/70 md:text-xl">
             Got a project in mind or just want to say hi? I'd love to hear from
             you.
           </p>
 
-          {hasContactEmail && (
-            <div className="flex justify-center">
+          <div className="mt-12 flex flex-col gap-10 border-t border-paper/15 pt-10 lg:flex-row lg:items-end lg:justify-between">
+            {hasContactEmail && (
               <a
                 href={`mailto:${siteConfig.contactEmail}`}
-                className="focus-ring inline-flex items-center justify-center gap-2 px-8 py-4 min-h-[44px] bg-gradient-to-r from-sky-700 to-teal-600 bg-[length:200%_auto] hover:bg-[position:right_center] text-white font-semibold rounded-full shadow-lg shadow-black/30 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl"
+                className="focus-ring group inline-block rounded-lg"
               >
-                Email me at {siteConfig.contactEmail}
+                <span className="block font-mono text-sm text-paper/60">Email me at</span>
+                <span className="mt-2 inline-flex flex-wrap items-baseline gap-x-3 break-all text-2xl font-semibold tracking-tight text-paper underline decoration-signal decoration-2 underline-offset-8 transition-colors duration-200 group-hover:text-marker sm:text-4xl">
+                  {siteConfig.contactEmail}
+                  <span aria-hidden="true" className="text-signal transition-transform duration-200 group-hover:translate-x-1 motion-reduce:transform-none">→</span>
+                </span>
               </a>
-            </div>
-          )}
+            )}
 
-          {validSocials.length > 0 && (
-            <ul className="flex flex-wrap items-center justify-center gap-4 pt-2">
-              {validSocials.map((social) => (
-                <li key={social.href}>
-                  <a
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`${social.label} (opens in a new tab)`}
-                    className="focus-ring inline-flex items-center justify-center min-h-[44px] px-6 py-3 glass border border-white/15 hover:border-teal-300/40 text-slate-100 font-semibold rounded-full transition-all duration-300 transform hover:-translate-y-1"
-                  >
-                    {social.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          )}
+            {validSocials.length > 0 && (
+              <ul className="flex gap-3">
+                {validSocials.map((social) => (
+                  <li key={social.href}>
+                    <a
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`${social.label} (opens in a new tab)`}
+                      className="focus-ring inline-flex min-h-[48px] items-center gap-2 rounded-full border border-paper/30 px-5 font-semibold text-paper transition-colors duration-200 hover:border-paper hover:bg-paper hover:text-ink"
+                    >
+                      {social.label}
+                      <span aria-hidden="true">↗</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
       </section>
     </div>

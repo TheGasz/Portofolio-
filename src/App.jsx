@@ -9,23 +9,19 @@ import Projects from "./assets/project.jsx";
 function App() {
   return (
     <Router>
-      <div className="flex flex-col min-h-screen bg-night-900 text-slate-200">
+      <div className="flex flex-col min-h-screen bg-paper text-ink">
         <Header title="Portofolio" />
-        <main className="flex-grow pt-20">
+        <main className="flex-grow pt-[71px]">
           <Routes>
             <Route path="/" element={<Core />} />
             <Route path="/project" element={<Projects />} />
           </Routes>
         </main>
-        <footer className="relative py-8 bg-night-900 border-t border-white/10 text-center overflow-hidden">
-          <div aria-hidden="true" className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-teal-400/40 to-transparent"></div>
-          <p className="text-slate-400">
-            &copy; {new Date().getFullYear()}{" "}
-            <span className="bg-gradient-to-r from-sky-200 to-teal-200 bg-clip-text text-transparent font-semibold">
-              Bagas
-            </span>
-            . Crafted with care &amp; a little motion.
-          </p>
+        <footer className="border-t border-paper/15 bg-ink px-6 py-8 text-paper/60">
+          <div className="mx-auto flex max-w-7xl flex-col gap-2 font-mono text-xs sm:flex-row sm:items-center sm:justify-between sm:text-sm">
+            <p>&copy; {new Date().getFullYear()} Bagas Adjie Pamungkas</p>
+            <p>Built with React, Tailwind, and too much coffee.</p>
+          </div>
         </footer>
       </div>
     </Router>
