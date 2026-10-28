@@ -420,7 +420,7 @@ export const Core = () => {
 
           {/* Polaroid portrait with tape. */}
           <div className="relative mx-auto w-full max-w-[18rem] sm:max-w-xs lg:col-span-5 lg:max-w-sm">
-            <figure className="relative rotate-[3deg] border border-ink/10 bg-card p-3 pb-16 shadow-[0_24px_50px_-20px_rgba(23,21,15,0.45)] transition-transform duration-500 hover:rotate-0 motion-reduce:rotate-0 motion-reduce:transition-none">
+            <figure className="relative rotate-[3deg] border border-ink/10 bg-card p-3 pb-10 shadow-[0_24px_50px_-20px_rgba(23,21,15,0.45)] transition-transform duration-500 hover:rotate-0 motion-reduce:rotate-0 motion-reduce:transition-none">
               <div aria-hidden="true" className="tape absolute -top-3 left-1/2 h-7 w-28 -translate-x-1/2 -rotate-3"></div>
               {imgError ? (
                 <div
@@ -449,9 +449,6 @@ export const Core = () => {
                   className="aspect-[4/5] w-full object-cover object-[center_30%]"
                 />
               )}
-              <figcaption className="absolute inset-x-0 bottom-4 text-center font-serif text-2xl italic text-ink-soft">
-                me, mid-EDA
-              </figcaption>
             </figure>
           </div>
         </div>
