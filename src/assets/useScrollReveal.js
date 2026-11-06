@@ -32,7 +32,7 @@
  * }} A ref to attach to the element to reveal, plus the `revealed` flag used to
  *   toggle `.reveal` / `.reveal-visible`.
  */
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 /**
  * Resolve, once, whether the element should start already revealed. Returns
@@ -81,6 +81,38 @@ export const useScrollReveal = ({ threshold = 0.15 } = {}) => {
   }, [revealed, threshold]);
 
   return { ref, revealed };
+};
+
+/**
+ * `Reveal` — presentational wrapper for scroll-reveal entrance choreography.
+ * Attaches `useScrollReveal` and renders `.reveal` with `.reveal-visible` on intersection.
+ *
+ * @param {Object} props
+ * @param {keyof HTMLElementTagNameMap|React.ComponentType} [props.as='div']
+ * @param {number} [props.delayMs=0]
+ * @param {number} [props.threshold=0.12]
+ * @param {string} [props.className='']
+ * @param {React.ReactNode} [props.children]
+ */
+export const Reveal = ({
+  as: Component = "div",
+  delayMs = 0,
+  threshold = 0.12,
+  className = "",
+  children,
+  ...rest
+}) => {
+  const { ref, revealed } = useScrollReveal({ threshold });
+  return React.createElement(
+    Component,
+    {
+      ref,
+      style: delayMs > 0 ? { transitionDelay: `${delayMs}ms` } : undefined,
+      className: `reveal${revealed ? " reveal-visible" : ""}${className ? ` ${className}` : ""}`,
+      ...rest,
+    },
+    children
+  );
 };
 
 export default useScrollReveal;

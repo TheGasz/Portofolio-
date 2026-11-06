@@ -1,7 +1,8 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
-import Projects, { ProjectGrid } from "./project.jsx";
+import Projects, { ProjectGrid, ProjectCard } from "./project.jsx";
 
 // Unit tests for the Projects page heading/intro order and the empty state.
 //
@@ -136,3 +137,51 @@ describe("Projects grid: empty state (Req 5.5)", () => {
     expect(cardHeadings.map((h) => h.textContent)).toEqual(["Alpha", "Beta"]);
   });
 });
+
+describe("ProjectCard metric badge (Task 4)", () => {
+  it("renders metric badge when metric is provided", () => {
+    render(
+      <MemoryRouter>
+        <ProjectCard
+          title="Copilot"
+          description="A RAG copilot"
+          metric="0.98 macro-F1"
+        />
+      </MemoryRouter>
+    );
+
+    const badge = screen.getByTestId("project-metric");
+    expect(badge).toBeInTheDocument();
+    expect(badge).toHaveTextContent("0.98 macro-F1");
+  });
+});
+
+describe("Projects category filtering (Task 4)", () => {
+  it("renders category filter buttons and filters projects on click", async () => {
+    const user = userEvent.setup();
+    render(
+      <MemoryRouter>
+        <Projects />
+      </MemoryRouter>
+    );
+
+    // Initial state: all 11 projects rendered
+    expect(screen.getAllByRole("heading", { level: 3 })).toHaveLength(11);
+
+    // Category filter button for GenAI & Agents
+    const genAiBtn = screen.getByRole("button", { name: /GenAI & Agents/i });
+    expect(genAiBtn).toHaveAttribute("aria-pressed", "false");
+
+    await user.click(genAiBtn);
+    expect(genAiBtn).toHaveAttribute("aria-pressed", "true");
+
+    // GenAI has 2 projects (RAG Copilot + KlaimKilat)
+    expect(screen.getAllByRole("heading", { level: 3 })).toHaveLength(2);
+
+    // Click "All" to reset
+    const allBtn = screen.getByRole("button", { name: /All/i });
+    await user.click(allBtn);
+    expect(screen.getAllByRole("heading", { level: 3 })).toHaveLength(11);
+  });
+});
+

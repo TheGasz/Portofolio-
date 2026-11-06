@@ -66,4 +66,36 @@ describe("Navbar client-side navigation", () => {
     projectsLink.focus();
     expect(document.activeElement).toBe(projectsLink);
   });
+
+  it("renders a sliding pill indicator that adjusts position per route", () => {
+    const { unmount } = render(
+      <MemoryRouter initialEntries={["/"]}>
+        <Header title="Bagas" />
+      </MemoryRouter>
+    );
+
+    const pill = screen.getByTestId("nav-sliding-pill");
+    expect(pill).toBeInTheDocument();
+    expect(pill.classList.contains("translate-x-0")).toBe(true);
+    expect(pill.classList.contains("opacity-100")).toBe(true);
+
+    unmount();
+    render(
+      <MemoryRouter initialEntries={["/project"]}>
+        <Header title="Bagas" />
+      </MemoryRouter>
+    );
+    const pillProject = screen.getByTestId("nav-sliding-pill");
+    expect(pillProject.classList.contains("translate-x-full")).toBe(true);
+    expect(pillProject.classList.contains("opacity-100")).toBe(true);
+
+    cleanup();
+    render(
+      <MemoryRouter initialEntries={["/unknown-route"]}>
+        <Header title="Bagas" />
+      </MemoryRouter>
+    );
+    const pillUnknown = screen.getByTestId("nav-sliding-pill");
+    expect(pillUnknown.classList.contains("opacity-0")).toBe(true);
+  });
 });

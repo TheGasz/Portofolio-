@@ -1,4 +1,4 @@
-import { describe, it, expect, afterEach } from "vitest";
+import { describe, it, expect, afterEach, vi } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import userEvent from "@testing-library/user-event";
@@ -178,3 +178,50 @@ describe("Core conditional omission logic (Req 2.4, 4.5)", () => {
     expect(link).toHaveAttribute("href", "mailto:hello@bagas.dev");
   });
 });
+
+describe("Featured Works section on Home (Task 5)", () => {
+  it("renders a 'Featured Works' section with top projects and a link to /project", () => {
+    render(
+      <MemoryRouter>
+        <Core />
+      </MemoryRouter>
+    );
+
+    const featuredHeading = screen.getByRole("heading", {
+      level: 2,
+      name: /Featured Works/i,
+    });
+    expect(featuredHeading).toBeInTheDocument();
+
+    const viewAllLink = screen.getByRole("link", {
+      name: /explore all 11 projects/i,
+    });
+    expect(viewAllLink).toHaveAttribute("href", "/project");
+  });
+});
+
+describe("Copy Email interaction in Contact (Task 5)", () => {
+  it("renders copy email button and triggers copy feedback", async () => {
+    const user = userEvent.setup();
+    const writeTextSpy = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", {
+      value: { writeText: writeTextSpy },
+      configurable: true,
+      writable: true,
+    });
+
+    render(
+      <MemoryRouter>
+        <Core />
+      </MemoryRouter>
+    );
+
+    const copyBtn = screen.getByRole("button", { name: /copy email/i });
+    expect(copyBtn).toBeInTheDocument();
+
+    await user.click(copyBtn);
+    expect(writeTextSpy).toHaveBeenCalledWith("bagasadjie2006@gmail.com");
+    expect(copyBtn).toHaveTextContent(/copied/i);
+  });
+});
+

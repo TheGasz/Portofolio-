@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 
@@ -24,6 +24,7 @@ const coreSrc = read("src", "assets", "core.jsx");
 const projectSrc = read("src", "assets", "project.jsx");
 const appSrc = read("src", "App.jsx");
 const indexCssSrc = read("src", "index.css");
+const indexHtmlSrc = read("index.html");
 
 describe("named + default exports on page/section files (Req 13.4)", () => {
   it("Navbar.jsx exports both `Header` (named) and a `Header` default", () => {
@@ -80,3 +81,16 @@ describe("reduced-motion handling (Req 11.2)", () => {
     );
   });
 });
+
+describe("brand assets and SEO metadata (Task 1)", () => {
+  it("index.html references /favicon.svg and defines meta description", () => {
+    expect(indexHtmlSrc).toMatch(/href=["']\/favicon\.svg["']/);
+    expect(indexHtmlSrc).toMatch(/<meta\s+name=["']description["']/);
+  });
+
+  it("public/favicon.svg and public/certificates/juara-2-mobdev.pdf exist", () => {
+    expect(existsSync(resolve(root, "public", "favicon.svg"))).toBe(true);
+    expect(existsSync(resolve(root, "public", "certificates", "juara-2-mobdev.pdf"))).toBe(true);
+  });
+});
+

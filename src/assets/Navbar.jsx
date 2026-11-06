@@ -32,7 +32,18 @@ export const Header = ({ title }) => {
             {title}
           </span>
         </Link>
-        <div className="flex items-center gap-1 rounded-full border border-ink bg-card p-1">
+        <div className="relative grid grid-cols-2 items-center rounded-full border border-ink bg-card p-1">
+          <span
+            aria-hidden="true"
+            data-testid="nav-sliding-pill"
+            className={`pointer-events-none absolute inset-y-1 w-[calc(50%-4px)] rounded-full bg-ink transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
+              location.pathname === "/"
+                ? "left-1 translate-x-0 opacity-100"
+                : location.pathname === "/project"
+                ? "left-1 translate-x-full opacity-100"
+                : "opacity-0 scale-95"
+            }`}
+          />
           {NAV_LINKS.map(({ to, label }) => {
             const active = isActive(to);
             return (
@@ -42,10 +53,10 @@ export const Header = ({ title }) => {
                 aria-current={active ? "page" : undefined}
                 // `text-blue-600 font-bold` are the active-state hooks pinned by
                 // Navbar.property.test; the visible color is forced to paper.
-                className={`focus-ring inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full px-4 py-2 text-sm transition-colors duration-200 ${
+                className={`focus-ring relative z-10 inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full px-4 py-2 text-sm transition-colors duration-200 ${
                   active
-                    ? "text-blue-600 font-bold bg-ink text-paper!"
-                    : "font-semibold text-ink-soft hover:bg-paper-2 hover:text-ink"
+                    ? "text-blue-600 font-bold text-paper!"
+                    : "font-semibold text-ink-soft hover:text-ink"
                 }`}
               >
                 {label}

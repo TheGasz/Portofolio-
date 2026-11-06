@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
 import { render, renderHook, act } from "@testing-library/react";
-import { useScrollReveal } from "./useScrollReveal.js";
+import { useScrollReveal, Reveal } from "./useScrollReveal.js";
 
 // Unit tests for the `useScrollReveal` hook (Requirements 4.1, 4.5, 4.7).
 //
@@ -65,7 +65,7 @@ const mockIntersectionObserver = () => {
 };
 
 /** Small component that attaches the hook's ref to a real DOM node. */
-const Reveal = ({ onRender }) => {
+const HookHarness = ({ onRender }) => {
   const { ref, revealed } = useScrollReveal();
   onRender(revealed);
   return <div ref={ref} data-revealed={revealed} />;
@@ -119,7 +119,7 @@ describe("useScrollReveal", () => {
     const captured = mockIntersectionObserver();
 
     const states = [];
-    render(<Reveal onRender={(revealed) => states.push(revealed)} />);
+    render(<HookHarness onRender={(revealed) => states.push(revealed)} />);
 
     // Lazy initial state resolves to false (observer path active).
     expect(states[0]).toBe(false);
@@ -165,3 +165,20 @@ describe("useScrollReveal", () => {
     expect(states.slice(firstTrueIdx).every((s) => s === true)).toBe(true);
   });
 });
+
+describe("Reveal component wrapper (Task 2)", () => {
+  it("renders with reveal class and passes delayMs to style", () => {
+    const { container } = render(
+      <Reveal delayMs={150} className="custom-test">
+        <span>Content</span>
+      </Reveal>
+    );
+
+    const el = container.firstChild;
+    expect(el).toHaveClass("reveal");
+    expect(el).toHaveClass("custom-test");
+    expect(el.style.transitionDelay).toBe("150ms");
+    expect(el).toHaveTextContent("Content");
+  });
+});
+

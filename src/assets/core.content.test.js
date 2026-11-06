@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { skills, aboutNarrative } from "./core.jsx";
+import { skills, aboutNarrative, certifications } from "./core.jsx";
 
 // Unit tests for authored-content constraints on the Home page content.
 // _Requirements: 2.1, 2.2, 3.1_
@@ -33,5 +33,20 @@ describe("aboutNarrative — authored-content constraints", () => {
 
   it("is written in a first-person voice", () => {
     expect(aboutNarrative).toMatch(/\b(I|I'm|I've|my|me)\b/);
+  });
+});
+
+describe("certifications — verified metadata (Task 5)", () => {
+  it("contains 7 certificates with non-empty metadata and no TODOs", () => {
+    expect(certifications).toHaveLength(7);
+    for (const cert of certifications) {
+      expect(cert.title).toBeTruthy();
+      expect(cert.issuer).toBeTruthy();
+      expect(cert.issuer).not.toContain("TODO");
+      expect(cert.issuer).not.toBe("Data science training");
+      expect(cert.issuer).not.toBe("AI competition");
+      expect(cert.date).toBeTruthy();
+      expect(cert.href).toBeTruthy();
+    }
   });
 });

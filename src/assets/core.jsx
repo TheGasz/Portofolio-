@@ -4,6 +4,8 @@ import "../index.css";
 import { isValidHttpUrl } from "./url.js";
 import { Icon } from "./icons.jsx";
 import profilePhoto from "./profile.jpg";
+import { Reveal } from "./useScrollReveal.js";
+import { projectsData, ProjectCard } from "./project.jsx";
 
 /**
  * @typedef {Object} SocialLink
@@ -100,37 +102,44 @@ export const skills = [
 export const certifications = [
   {
     title: "Pelatihan Data Science",
-    issuer: "Data science training", // TODO: confirm penyelenggara (issuer)
-    date: "",
+    issuer: "Divisi Workshop KMTETI FT UGM",
+    date: "Nov 2025",
     href: "/certificates/pelatihan-data-science.pdf",
     icon: "brain",
   },
   {
     title: "Cleaning Data in Python",
     issuer: "DataCamp",
-    date: "",
+    date: "Sep 2026",
     href: "/certificates/cleaning-data-python.pdf",
     icon: "clean",
   },
   {
     title: "Exploratory Data Analysis in Python",
     issuer: "DataCamp",
-    date: "",
+    date: "Sep 2026",
     href: "/certificates/eda.pdf",
     icon: "chart",
   },
   {
     title: "Dimensionality Reduction in Python",
     issuer: "DataCamp",
-    date: "",
+    date: "Sep 2026",
     href: "/certificates/dimensionality-reduction.pdf",
     icon: "reduce",
   },
   {
-    title: "Juara 2 — AI Competition",
-    issuer: "AI competition", // TODO: confirm nama lomba (event name)
-    date: "",
+    title: "1st Runner Up — Final Project Bootcamp TETI AI",
+    issuer: "Divisi Workshop KMTETI FT UGM",
+    date: "Jul 2025",
     href: "/certificates/juara-2-ai.pdf",
+    icon: "trophy",
+  },
+  {
+    title: "1st Runner Up — Final Project Bootcamp TETI Mobile Dev",
+    issuer: "Divisi Workshop KMTETI FT UGM",
+    date: "Jul 2026",
+    href: "/certificates/juara-2-mobdev.pdf",
     icon: "trophy",
   },
   {
@@ -164,7 +173,7 @@ const toolbelt = [
  * grid so sections read like chapters of one notebook.
  */
 const SectionHeader = ({ index, label, title, children }) => (
-  <div className="mb-12 grid gap-6 md:mb-16 md:grid-cols-12 md:items-end">
+  <Reveal className="mb-12 grid gap-6 md:mb-16 md:grid-cols-12 md:items-end">
     <div className="md:col-span-7">
       <p className="font-mono text-sm text-muted">
         <span className="text-signal">{index}</span> / {label}
@@ -176,7 +185,7 @@ const SectionHeader = ({ index, label, title, children }) => (
     {children && (
       <div className="text-lg leading-relaxed text-ink-soft md:col-span-5">{children}</div>
     )}
-  </div>
+  </Reveal>
 );
 
 /**
@@ -213,26 +222,82 @@ export const SkillsSection = ({ skills: items = [] }) => {
               // with an empty half-row.
               className="group bg-paper-2 p-7 transition-colors duration-300 hover:bg-marker md:p-10 md:last:odd:col-span-2"
             >
-              <div className="flex items-center justify-between">
-                <span aria-hidden="true" className="font-mono text-sm text-muted group-hover:text-ink">
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-                <span
-                  aria-hidden="true"
-                  className="text-ink transition-transform duration-300 group-hover:-rotate-12 group-hover:scale-110 motion-reduce:transform-none"
-                >
-                  <Icon name={skill.icon} className="h-7 w-7" />
-                </span>
-              </div>
-              <h3 className="mt-10 text-2xl font-bold tracking-tight text-ink md:text-3xl">
-                {skill.title}
-              </h3>
-              <p className="mt-3 max-w-prose leading-relaxed text-ink-soft group-hover:text-ink">
-                {skill.description}
-              </p>
+              <Reveal delayMs={(index % 2) * 120}>
+                <div className="flex items-center justify-between">
+                  <span aria-hidden="true" className="font-mono text-sm text-muted group-hover:text-ink">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <span
+                    aria-hidden="true"
+                    className="text-ink transition-transform duration-300 group-hover:-rotate-12 group-hover:scale-110 motion-reduce:transform-none"
+                  >
+                    <Icon name={skill.icon} className="h-7 w-7" />
+                  </span>
+                </div>
+                <h3 className="mt-10 text-2xl font-bold tracking-tight text-ink md:text-3xl">
+                  {skill.title}
+                </h3>
+                <p className="mt-3 max-w-prose leading-relaxed text-ink-soft group-hover:text-ink">
+                  {skill.description}
+                </p>
+              </Reveal>
             </li>
           ))}
         </ol>
+      </div>
+    </section>
+  );
+};
+
+/**
+ * Presentational "Featured Works" preview section on Home.
+ * Showcases top 3 flagship projects with link-out to /project.
+ */
+export const FeaturedWorksSection = () => {
+  const topProjects = projectsData.slice(0, 3);
+
+  return (
+    <section className="border-b border-ink bg-paper px-6 py-20 md:py-28">
+      <div className="mx-auto max-w-7xl">
+        <SectionHeader
+          index="02"
+          label="Works"
+          title={
+            <>
+              Featured <span className="font-serif font-normal italic">Works</span>
+            </>
+          }
+        >
+          A selection of production-grade ML models and data pipelines I've built.
+          Each project is designed for real-world reliability.
+        </SectionHeader>
+
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+          {topProjects.map((project, idx) => (
+            <ProjectCard
+              key={project.id}
+              number={idx + 1}
+              title={project.title}
+              description={project.description}
+              image={project.image}
+              tech={project.tech}
+              demoUrl={project.demoUrl}
+              repoUrl={project.repoUrl}
+              metric={project.metric}
+              revealDelayMs={idx * 120}
+            />
+          ))}
+        </div>
+
+        <Reveal delayMs={150} className="mt-12 flex justify-center">
+          <Link
+            to="/project"
+            className="focus-ring group inline-flex min-h-[48px] items-center justify-center gap-3 rounded-xl border-2 border-ink bg-ink px-8 py-3.5 text-base font-semibold text-paper shadow-[5px_5px_0_0_#d93f12] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[7px_7px_0_0_#d93f12] active:translate-x-1 active:translate-y-1 active:shadow-none motion-reduce:transform-none sm:text-lg"
+          >
+            Explore All {projectsData.length} Projects
+            <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1 motion-reduce:transform-none">→</span>
+          </Link>
+        </Reveal>
       </div>
     </section>
   );
@@ -264,7 +329,7 @@ export const CertificationsSection = ({ certifications: items = [] }) => {
     <section className="border-b border-ink px-6 py-20 md:py-28">
       <div className="mx-auto max-w-7xl">
         <SectionHeader
-          index="02"
+          index="03"
           label="Credentials"
           title={
             <>
@@ -309,21 +374,23 @@ export const CertificationsSection = ({ certifications: items = [] }) => {
 
             return (
               <li key={index} className="border-b border-ink/20">
-                {href ? (
-                  <a
-                    href={href}
-                    target="_blank"
-                    rel={isExternal(href) ? "noopener noreferrer" : "noopener"}
-                    aria-label={`View certificate: ${cert.title}${
-                      cert.issuer ? `, ${cert.issuer}` : ""
-                    } (opens in a new tab)`}
-                    className={`focus-ring ${rowClass} hover:bg-card`}
-                  >
-                    {inner}
-                  </a>
-                ) : (
-                  <div className={rowClass}>{inner}</div>
-                )}
+                <Reveal delayMs={(index % 4) * 80}>
+                  {href ? (
+                    <a
+                      href={href}
+                      target="_blank"
+                      rel={isExternal(href) ? "noopener noreferrer" : "noopener"}
+                      aria-label={`View certificate: ${cert.title}${
+                        cert.issuer ? `, ${cert.issuer}` : ""
+                      } (opens in a new tab)`}
+                      className={`focus-ring ${rowClass} hover:bg-card`}
+                    >
+                      {inner}
+                    </a>
+                  ) : (
+                    <div className={rowClass}>{inner}</div>
+                  )}
+                </Reveal>
               </li>
             );
           })}
@@ -336,6 +403,20 @@ export const CertificationsSection = ({ certifications: items = [] }) => {
 export const Core = () => {
   // Hero image fallback: swap to a decorative same-size placeholder on error.
   const [imgError, setImgError] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyEmail = async () => {
+    if (!siteConfig.contactEmail) return;
+    try {
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(siteConfig.contactEmail);
+      }
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy email:", err);
+    }
+  };
 
   // Only surface a contact CTA when a usable email string is configured (Req 4.5).
   const hasContactEmail =
@@ -396,7 +477,7 @@ export const Core = () => {
             <p className="mt-8 max-w-xl text-lg leading-relaxed text-ink-soft animate-fade-in-up animation-delay-400 motion-reduce:animate-none md:text-xl">
               I build data science models and the engineering pipelines that
               feed them. I love wrangling{" "}
-              <span className="marker text-ink">messy, multi-source data</span>{" "}
+              <span className="marker marker-sweep text-ink">messy, multi-source data</span>{" "}
               and untangling tricky problems to ship insights and predictions
               you can trust.
             </p>
@@ -419,7 +500,7 @@ export const Core = () => {
           </div>
 
           {/* Polaroid portrait with tape. */}
-          <div className="relative mx-auto w-full max-w-[18rem] sm:max-w-xs lg:col-span-5 lg:max-w-sm">
+          <div className="relative mx-auto w-full max-w-[18rem] animate-fade-in-up animation-delay-400 motion-reduce:animate-none sm:max-w-xs lg:col-span-5 lg:max-w-sm">
             <figure className="relative rotate-[3deg] border border-ink/10 bg-card p-3 pb-10 shadow-[0_24px_50px_-20px_rgba(23,21,15,0.45)] transition-transform duration-500 hover:rotate-0 motion-reduce:rotate-0 motion-reduce:transition-none">
               <div aria-hidden="true" className="tape absolute -top-3 left-1/2 h-7 w-28 -translate-x-1/2 -rotate-3"></div>
               {imgError ? (
@@ -478,15 +559,18 @@ export const Core = () => {
       {/* "What I Do" Section — omitted entirely when there are no skills. */}
       <SkillsSection skills={skills} />
 
+      {/* "Featured Works" preview section */}
+      <FeaturedWorksSection />
+
       {/* Certifications & Awards — omitted entirely when there are none. */}
       <CertificationsSection certifications={certifications} />
 
       {/* -------------------------------------------------------- About */}
       <section className="paper-dots border-b border-ink px-6 py-20 md:py-28">
         <div className="mx-auto grid max-w-7xl gap-12 md:grid-cols-12">
-          <div className="md:col-span-4">
+          <Reveal className="md:col-span-4">
             <p className="font-mono text-sm text-muted">
-              <span className="text-signal">03</span> / About
+              <span className="text-signal">04</span> / About
             </p>
             <h2 className="mt-4 text-4xl font-extrabold leading-[0.95] tracking-[-0.03em] text-ink sm:text-5xl md:text-6xl">
               About <span className="font-serif font-normal italic">me</span>
@@ -499,25 +583,25 @@ export const Core = () => {
                 </div>
               ))}
             </dl>
-          </div>
-          <div className="md:col-span-8">
+          </Reveal>
+          <Reveal delayMs={150} className="md:col-span-8">
             <p className="text-3xl font-semibold leading-[1.15] tracking-tight text-ink md:text-[2.75rem]">
-              <span className="marker">{aboutLead}</span>
+              <span className="marker marker-sweep">{aboutLead}</span>
             </p>
             {aboutRest && (
               <p className="mt-8 max-w-2xl text-lg leading-relaxed text-ink-soft md:text-xl">
                 {aboutRest}
               </p>
             )}
-          </div>
+          </Reveal>
         </div>
       </section>
 
       {/* ------------------------------------------------------ Contact */}
       <section id="contact" className="scroll-mt-20 bg-ink px-6 py-24 text-paper md:py-32">
-        <div className="mx-auto max-w-7xl">
+        <Reveal className="mx-auto max-w-7xl">
           <p className="font-mono text-sm text-paper/60">
-            <span className="text-signal">04</span> / Contact
+            <span className="text-signal">05</span> / Contact
           </p>
           <h2 className="mt-5 text-5xl font-extrabold leading-[0.9] tracking-[-0.04em] sm:text-7xl lg:text-[7rem]">
             Let's build
@@ -531,16 +615,27 @@ export const Core = () => {
 
           <div className="mt-12 flex flex-col gap-10 border-t border-paper/15 pt-10 lg:flex-row lg:items-end lg:justify-between">
             {hasContactEmail && (
-              <a
-                href={`mailto:${siteConfig.contactEmail}`}
-                className="focus-ring group inline-block rounded-lg"
-              >
-                <span className="block font-mono text-sm text-paper/60">Email me at</span>
-                <span className="mt-2 inline-flex flex-wrap items-baseline gap-x-3 break-all text-2xl font-semibold tracking-tight text-paper underline decoration-signal decoration-2 underline-offset-8 transition-colors duration-200 group-hover:text-marker sm:text-4xl">
-                  {siteConfig.contactEmail}
-                  <span aria-hidden="true" className="text-signal transition-transform duration-200 group-hover:translate-x-1 motion-reduce:transform-none">→</span>
-                </span>
-              </a>
+              <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+                <a
+                  href={`mailto:${siteConfig.contactEmail}`}
+                  className="focus-ring group inline-block rounded-lg"
+                >
+                  <span className="block font-mono text-sm text-paper/60">Email me at</span>
+                  <span className="mt-2 inline-flex flex-wrap items-baseline gap-x-3 break-all text-2xl font-semibold tracking-tight text-paper underline decoration-signal decoration-2 underline-offset-8 transition-colors duration-200 group-hover:text-marker sm:text-4xl">
+                    {siteConfig.contactEmail}
+                    <span aria-hidden="true" className="text-signal transition-transform duration-200 group-hover:translate-x-1 motion-reduce:transform-none">→</span>
+                  </span>
+                </a>
+                <button
+                  type="button"
+                  onClick={handleCopyEmail}
+                  aria-label={copied ? "Email address copied to clipboard" : "Copy email address"}
+                  className="focus-ring inline-flex min-h-[44px] items-center gap-2 rounded-full border border-paper/30 px-4 py-2 font-mono text-xs font-semibold text-paper transition-colors duration-200 hover:border-paper hover:bg-paper hover:text-ink sm:mt-6 sm:text-sm"
+                >
+                  <span aria-hidden="true">{copied ? "✓" : "📋"}</span>
+                  <span>{copied ? "Copied!" : "Copy email"}</span>
+                </button>
+              </div>
             )}
 
             {validSocials.length > 0 && (
@@ -562,7 +657,7 @@ export const Core = () => {
               </ul>
             )}
           </div>
-        </div>
+        </Reveal>
       </section>
     </div>
   );

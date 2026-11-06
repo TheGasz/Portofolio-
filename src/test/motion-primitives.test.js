@@ -262,3 +262,26 @@ describe(".animated-gradient-text reduced-motion fallback (Req 1.3)", () => {
     expect(found).toBe(true);
   });
 });
+
+describe(".page-enter route transition motion primitive (Task 2)", () => {
+  it("defines .page-enter with animation in index.css", () => {
+    const rule = extractRuleBody(indexCssSrc, ".page-enter");
+    expect(rule).not.toBeNull();
+    expect(rule.body).toMatch(/animation\s*:\s*pageEnter/);
+  });
+
+  it("disables .page-enter under prefers-reduced-motion: reduce", () => {
+    const mediaRe = /@media\s*\(\s*prefers-reduced-motion\s*:\s*reduce\s*\)/g;
+    let found = false;
+    let m;
+    while ((m = mediaRe.exec(indexCssSrc)) !== null) {
+      const block = extractRuleBody(indexCssSrc, ".page-enter", m.index);
+      if (block && /animation\s*:\s*none/.test(block.body)) {
+        found = true;
+        break;
+      }
+    }
+    expect(found).toBe(true);
+  });
+});
+
