@@ -448,85 +448,43 @@ export const Core = () => {
   ];
 
   return (
-    <div className="flex min-h-screen flex-col bg-paper text-ink">
-      {/* ---------------------------------------------------------- Hero */}
-      <section className="paper-dots relative overflow-hidden border-b border-ink">
-        <div className="mx-auto max-w-7xl px-6 pb-16 pt-10 md:pb-24 md:pt-16">
-          <div className="grid items-end gap-8 lg:grid-cols-12 lg:gap-10">
-            <div className="lg:col-span-7">
-              <p className="inline-flex items-center gap-2 rounded-full border border-ink bg-card px-3 py-1.5 font-mono text-xs text-ink animate-fade-in-up motion-reduce:animate-none sm:text-sm">
-                <span aria-hidden="true" className="h-2 w-2 rounded-full bg-signal"></span>
-                Data Scientist &amp; Data Engineer
-              </p>
+    <div className="h-screen w-screen overflow-hidden bg-[linear-gradient(180deg,#cfe1ed_0%,#e2edf5_50%,#f3efe6_100%)] text-ink">
+      {/* ---------------- Full-Screen Interactive 3D Bedroom & Study Desk */}
+      <DeskWorkstation
+        siteConfig={siteConfig}
+        skills={skills}
+        certifications={certifications}
+        aboutNarrative={aboutNarrative}
+        aboutFacts={aboutFacts}
+        toolbelt={toolbelt}
+        profilePhoto={profilePhoto}
+        projects={projectsData}
+      />
 
-              <h1 className="mt-5 text-[3.5rem] font-extrabold leading-[0.9] tracking-[-0.045em] text-ink animate-fade-in-up animation-delay-200 motion-reduce:animate-none sm:text-7xl lg:text-[6.5rem]">
-                Hi, I'm{" "}
-                <span className="relative inline-block">
-                  <span className="animated-gradient-text bg-[linear-gradient(90deg,#d93f12,#f06a2a,#d93f12)] pr-[0.08em] font-serif font-normal italic tracking-[-0.02em]">
-                    Bagas
-                  </span>
-                  <svg
-                    aria-hidden="true"
-                    viewBox="0 0 400 30"
-                    preserveAspectRatio="none"
-                    className="absolute -bottom-1 left-0 h-4 w-[92%] text-ink sm:h-5"
-                    fill="none"
-                  >
-                    <path
-                      className="animate-draw"
-                      d="M4 20 C 60 6, 110 28, 170 16 S 280 4, 330 18 S 380 22, 396 10"
-                      stroke="currentColor"
-                      strokeWidth="5"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                </span>
-                <span className="-ml-[0.06em]">.</span>
-              </h1>
-            </div>
-
-            <div className="lg:col-span-5">
-              <p className="text-base leading-relaxed text-ink-soft animate-fade-in-up animation-delay-400 motion-reduce:animate-none md:text-lg">
-                I build data science models and the engineering pipelines that
-                feed them. I love wrangling{" "}
-                <span className="marker marker-sweep text-ink">messy, multi-source data</span>{" "}
-                and untangling tricky problems to ship insights and predictions
-                you can trust.
-              </p>
-
-              <div className="mt-6 flex flex-wrap items-center gap-5 animate-fade-in-up animation-delay-600 motion-reduce:animate-none">
-                <Link
-                  to="/project"
-                  className="focus-ring group inline-flex min-h-[48px] items-center justify-center rounded-xl border-2 border-ink bg-ink px-6 py-2.5 text-base font-semibold text-paper shadow-[5px_5px_0_0_#d93f12] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[7px_7px_0_0_#d93f12] active:translate-x-1 active:translate-y-1 active:shadow-none motion-reduce:transform-none sm:text-lg"
-                >
-                  View My Work
-                  <span aria-hidden="true" className="ml-2 transition-transform duration-200 group-hover:translate-x-1 motion-reduce:transform-none">→</span>
-                </Link>
-                <a
-                  href="#contact"
-                  className="focus-ring inline-flex min-h-[44px] items-center rounded-md text-base font-semibold text-ink underline decoration-signal decoration-2 underline-offset-[6px] transition-colors hover:decoration-4 sm:text-lg"
-                >
-                  Get in Touch
-                </a>
-              </div>
-            </div>
+      {/* Screen-Reader & Semantic Fallback Sections (Visually Consolidated into the 3D Room) */}
+      <div className="sr-only">
+        <section>
+          <p>Data Scientist &amp; Data Engineer</p>
+          <h1 className="motion-reduce:animate-none">
+            Hi, I'm{" "}
+            <span className="animated-gradient-text">Bagas</span>
+            <span>.</span>
+          </h1>
+          <p>
+            Selamat datang di kamar &amp; meja kerja saya! I build data
+            science models and the engineering pipelines that feed them —
+            klik langsung Monitor, Trophy, Buku, HP, atau Foto di meja untuk
+            menjelajahi portofolio saya.
+          </p>
+          <div>
+            <Link to="/project" className="focus-ring">
+              View My Work
+            </Link>
+            <a href="#contact" className="focus-ring">
+              Get in Touch
+            </a>
           </div>
-
-          {/* Interactive 3D Isometric Workstation Centerpiece */}
-          <div className="mt-10 animate-fade-in-up animation-delay-400 motion-reduce:animate-none">
-            <DeskWorkstation
-              siteConfig={siteConfig}
-              skills={skills}
-              certifications={certifications}
-              aboutNarrative={aboutNarrative}
-              aboutFacts={aboutFacts}
-              toolbelt={toolbelt}
-              profilePhoto={profilePhoto}
-              projectCount={projectsData.length}
-            />
-          </div>
-        </div>
-      </section>
+        </section>
 
       {/* ------------------------------------------------- Tool marquee */}
       <div className="overflow-hidden border-b border-ink bg-ink py-4 text-paper">
@@ -687,6 +645,7 @@ export const Core = () => {
           </div>
         </Reveal>
       </section>
+      </div>
     </div>
   );
 };

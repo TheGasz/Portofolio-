@@ -1,7 +1,6 @@
 import "./App.css";
 import React, { useEffect } from "react";
 import "./index.css";
-import Header from "./assets/Navbar.jsx";
 import Core from "./assets/core.jsx";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import Projects from "./assets/project.jsx";
@@ -26,7 +25,7 @@ function MainContent() {
   const location = useLocation();
 
   return (
-    <main className="flex-grow pt-[71px]">
+    <main className="flex-grow">
       <ScrollToTop />
       <div key={location.pathname} className="page-enter">
         <Routes>
@@ -41,15 +40,8 @@ function MainContent() {
 function App() {
   return (
     <Router>
-      <div className="flex flex-col min-h-screen bg-paper text-ink">
-        <Header title="Portofolio" />
+      <div className="flex min-h-screen flex-col bg-paper text-ink">
         <MainContent />
-        <footer className="border-t border-paper/15 bg-ink px-6 py-8 text-paper/60">
-          <div className="mx-auto flex max-w-7xl flex-col gap-2 font-mono text-xs sm:flex-row sm:items-center sm:justify-between sm:text-sm">
-            <p>&copy; {new Date().getFullYear()} Bagas Adjie Pamungkas</p>
-            <p>Built with React, Tailwind, and too much coffee.</p>
-          </div>
-        </footer>
       </div>
     </Router>
   );

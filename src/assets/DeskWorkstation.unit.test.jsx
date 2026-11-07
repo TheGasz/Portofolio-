@@ -11,6 +11,7 @@ import {
 } from "./core.jsx";
 import { DeskWorkstation } from "./desk/DeskWorkstation.jsx";
 import { DESK_HOTSPOTS, DEFAULT_READOUT } from "./desk/deskModel.js";
+import { projectsData } from "./project.jsx";
 
 afterEach(() => {
   cleanup();
@@ -34,7 +35,7 @@ const renderWorkstation = () =>
               ]}
               toolbelt={["Python", "PyTorch", "FastAPI"]}
               profilePhoto="/test-profile.jpg"
-              projectCount={11}
+              projects={projectsData}
             />
           }
         />
@@ -43,14 +44,16 @@ const renderWorkstation = () =>
     </MemoryRouter>
   );
 
-describe("DeskWorkstation 3D Isometric Scene & Hotspots", () => {
-  it("renders the SVG workstation with all 5 interactive hotspots and default readout", () => {
+describe("Bagas's Study Room 3D Workstation & 5 Cinematic Stage Animations", () => {
+  it("renders the SVG study room with all 5 interactive hotspots, default readout, and Musik Syahdu toggle", async () => {
+    const user = userEvent.setup();
     const { container } = renderWorkstation();
 
     const svgGroup = screen.getByRole("group", {
       name: /Interactive 3D Isometric Workstation/i,
     });
     expect(svgGroup).toBeInTheDocument();
+    expect(svgGroup).toHaveAttribute("data-zoomed", "false");
 
     // All 5 SVG hotspot groups are present, focusable, and named.
     for (const hotspot of DESK_HOTSPOTS) {
@@ -66,6 +69,16 @@ describe("DeskWorkstation 3D Isometric Scene & Hotspots", () => {
     // Default readout text is displayed.
     const readout = screen.getByTestId("desk-readout");
     expect(readout).toHaveTextContent(DEFAULT_READOUT);
+
+    // Speaker icon toggle button for Musik Syahdu works cleanly.
+    const musicBtn = screen.getByRole("button", {
+      name: /serene room ambient music/i,
+    });
+    expect(musicBtn).toHaveAttribute("aria-pressed", "false");
+    await user.click(musicBtn);
+    expect(musicBtn).toHaveAttribute("aria-pressed", "true");
+    await user.click(musicBtn);
+    expect(musicBtn).toHaveAttribute("aria-pressed", "false");
   });
 
   it("updates the live readout bar on hotspot hover and focus", () => {
@@ -85,10 +98,10 @@ describe("DeskWorkstation 3D Isometric Scene & Hotspots", () => {
       'g.desk-hotspot[data-hotspot="phone"]'
     );
     fireEvent.focus(phoneHotspot);
-    expect(readout).toHaveTextContent(/03 \/ DESK PHONE/i);
+    expect(readout).toHaveTextContent(/03 \/ SMARTPHONE ON STAND/i);
   });
 
-  it("navigates to /project when [01] Monitor & PC hotspot is clicked", async () => {
+  it("powers on the Monitor and dives into all 11 ProjectCards when [01] Monitor is clicked", async () => {
     const user = userEvent.setup();
     const { container } = renderWorkstation();
 
@@ -97,10 +110,36 @@ describe("DeskWorkstation 3D Isometric Scene & Hotspots", () => {
     );
     await user.click(monitorHotspot);
 
-    expect(screen.getByText("Routed Projects Page")).toBeInTheDocument();
+    const svgGroup = screen.getByRole("group", {
+      name: /Interactive 3D Isometric Workstation/i,
+    });
+    expect(svgGroup).toHaveAttribute("data-zoomed", "true");
+
+    const monitorDialog = screen.getByTestId("desk-overlay-monitor");
+    expect(monitorDialog).toBeInTheDocument();
+    expect(
+      within(monitorDialog).getByRole("heading", {
+        name: /BagasOS — Project Explorer/i,
+      })
+    ).toBeInTheDocument();
+
+    // Displays ProjectCards inside the monitor screen and supports category filtering
+    expect(within(monitorDialog).getByText(/Showing 11 of 11 projects/i)).toBeInTheDocument();
+    const ragFilterBtn = within(monitorDialog).getByRole("button", {
+      name: "GenAI & Agents",
+    });
+    await user.click(ragFilterBtn);
+    expect(within(monitorDialog).getByText(/Showing 2 of 11 projects/i)).toBeInTheDocument();
+
+    // Exit monitor returns to room
+    const exitBtn = within(monitorDialog).getByRole("button", {
+      name: /Exit Monitor/i,
+    });
+    await user.click(exitBtn);
+    expect(screen.queryByTestId("desk-overlay-monitor")).not.toBeInTheDocument();
   });
 
-  it("opens and closes the [02] About Me overlay when Wall Portrait is clicked or Escape is pressed", async () => {
+  it("opens and closes the [02] About Me portrait stage when Wall Portrait is clicked or Escape is pressed", async () => {
     const user = userEvent.setup();
     const { container } = renderWorkstation();
 
@@ -111,20 +150,18 @@ describe("DeskWorkstation 3D Isometric Scene & Hotspots", () => {
 
     const dialog = screen.getByTestId("desk-overlay-photo");
     expect(dialog).toBeInTheDocument();
-    expect(within(dialog).getByRole("heading", { name: /About Me/i })).toBeInTheDocument();
-    expect(within(dialog).getByText(/data enthusiast who loves turning raw/i)).toBeInTheDocument();
+    expect(
+      within(dialog).getByRole("heading", { name: /About Me/i })
+    ).toBeInTheDocument();
+    expect(
+      within(dialog).getByText(/data enthusiast who loves turning raw/i)
+    ).toBeInTheDocument();
 
-    const jumpLink = within(dialog).getByRole("link", {
-      name: /Jump to Full About Section/i,
-    });
-    expect(jumpLink).toHaveAttribute("href", "#about");
-
-    // Pressing Escape closes the overlay.
     await user.keyboard("{Escape}");
     expect(screen.queryByTestId("desk-overlay-photo")).not.toBeInTheDocument();
   });
 
-  it("opens [03] Contact Me overlay with mailto, Copy email, LinkedIn, and GitHub when Desk Telephone is clicked", async () => {
+  it("zooms into [03] Smartphone on Stand with mailto, Copy email, LinkedIn, and GitHub when clicked", async () => {
     const user = userEvent.setup();
     const writeTextSpy = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(navigator, "clipboard", {
@@ -143,20 +180,20 @@ describe("DeskWorkstation 3D Isometric Scene & Hotspots", () => {
     const dialog = screen.getByTestId("desk-overlay-phone");
     expect(dialog).toBeInTheDocument();
 
-    // Direct mailto link (never target="_blank").
     const mailtoLink = within(dialog).getByRole("link", {
       name: /bagasadjie2006@gmail\.com/i,
     });
-    expect(mailtoLink).toHaveAttribute("href", "mailto:bagasadjie2006@gmail.com");
+    expect(mailtoLink).toHaveAttribute(
+      "href",
+      "mailto:bagasadjie2006@gmail.com"
+    );
     expect(mailtoLink).not.toHaveAttribute("target", "_blank");
 
-    // Copy email button inside overlay.
     const copyBtn = within(dialog).getByRole("button", { name: /copy email/i });
     await user.click(copyBtn);
     expect(writeTextSpy).toHaveBeenCalledWith("bagasadjie2006@gmail.com");
     expect(copyBtn).toHaveTextContent(/Copied!/i);
 
-    // Social links with target="_blank" and rel="noopener noreferrer".
     const githubLink = within(dialog).getByRole("link", { name: /GitHub/i });
     expect(githubLink).toHaveAttribute("target", "_blank");
     expect(githubLink).toHaveAttribute("rel", "noopener noreferrer");
@@ -166,47 +203,47 @@ describe("DeskWorkstation 3D Isometric Scene & Hotspots", () => {
     expect(linkedinLink).toHaveAttribute("rel", "noopener noreferrer");
   });
 
-  it("opens [04] Skills overlay when Lab Notebook is clicked and [05] Credentials overlay when Trophy Shelf is clicked", async () => {
+  it("pulls out & opens [04] Book from Left Cabinet for What I Do, and ignites [05] Trophy on Top-Left Cabinet for Credentials", async () => {
     const user = userEvent.setup();
     const { container } = renderWorkstation();
 
-    // Click [04] Lab Notebook
+    // Click [04] Left Cabinet Bookshelf
     const notebookHotspot = container.querySelector(
       'g.desk-hotspot[data-hotspot="notebook"]'
     );
     await user.click(notebookHotspot);
 
-    const skillsDialog = screen.getByTestId("desk-overlay-notebook");
-    expect(skillsDialog).toBeInTheDocument();
-    expect(within(skillsDialog).getByText("Data Science & ML")).toBeInTheDocument();
-    expect(
-      within(skillsDialog).getByRole("link", { name: /Jump to Full Skills Section/i })
-    ).toHaveAttribute("href", "#skills");
+    const bookDialog = screen.getByTestId("desk-overlay-notebook");
+    expect(bookDialog).toBeInTheDocument();
+    expect(within(bookDialog).getByText(/Data Science & ML/i)).toBeInTheDocument();
+    expect(within(bookDialog).getByText("FastAPI")).toBeInTheDocument();
 
-    // Switch directly to [05] Trophy Shelf
+    // Click [05] Top-Left Cabinet Trophy
     const trophyHotspot = container.querySelector(
       'g.desk-hotspot[data-hotspot="trophy"]'
     );
     await user.click(trophyHotspot);
 
-    expect(screen.queryByTestId("desk-overlay-notebook")).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("desk-overlay-notebook")
+    ).not.toBeInTheDocument();
     const trophyDialog = screen.getByTestId("desk-overlay-trophy");
     expect(trophyDialog).toBeInTheDocument();
-    expect(within(trophyDialog).getByText(/Pelatihan Data Science/i)).toBeInTheDocument();
     expect(
-      within(trophyDialog).getByRole("link", {
-        name: /Jump to Full Credentials Section/i,
-      })
-    ).toHaveAttribute("href", "#credentials");
+      within(trophyDialog).getByText(/Pelatihan Data Science/i)
+    ).toBeInTheDocument();
+    expect(
+      within(trophyDialog).getByText(/BOOTCAMP 1ST RUNNER UP/i)
+    ).toBeInTheDocument();
   });
 
   it("supports keyboard shortcuts 1–5 and toggling callout pins", async () => {
     const user = userEvent.setup();
     renderWorkstation();
 
-    // Press "2" to open About Me overlay
-    await user.keyboard("2");
-    expect(screen.getByTestId("desk-overlay-photo")).toBeInTheDocument();
+    // Press "5" to open Glowing Trophy stage
+    await user.keyboard("5");
+    expect(screen.getByTestId("desk-overlay-trophy")).toBeInTheDocument();
 
     // Toggle Pins button
     const pinsBtn = screen.getByRole("button", {
@@ -216,24 +253,33 @@ describe("DeskWorkstation 3D Isometric Scene & Hotspots", () => {
     await user.click(pinsBtn);
     expect(pinsBtn).toHaveTextContent(/Pins: OFF/i);
 
-    // Press "1" to navigate to /project
+    // Press "1" to switch directly to Monitor Project Explorer
     await user.keyboard("1");
-    expect(screen.getByText("Routed Projects Page")).toBeInTheDocument();
+    expect(screen.getByTestId("desk-overlay-monitor")).toBeInTheDocument();
   });
 
-  it("renders inside Core on Home (/) with all anchor sections present", () => {
-    const { container } = render(
+  it("greets visitors with the 'My Portofolio' bedroom entrance door and enters Bagas Works Room on click", async () => {
+    const user = userEvent.setup();
+    renderWorkstation();
+
+    const entranceDoor = screen.getByTestId("room-entrance-door");
+    expect(entranceDoor).toBeInTheDocument();
+    expect(within(entranceDoor).getByText("My Portofolio")).toBeInTheDocument();
+
+    const doorButton = within(entranceDoor).getByRole("button", {
+      name: /My Portofolio/i,
+    });
+    await user.click(doorButton);
+    expect(entranceDoor).toHaveAttribute("data-opening", "true");
+  });
+
+  it("renders inside Core on Home (/) as a consolidated single-page room", () => {
+    render(
       <MemoryRouter initialEntries={["/"]}>
         <Core />
       </MemoryRouter>
     );
 
     expect(screen.getByTestId("desk-workstation")).toBeInTheDocument();
-    expect(container.querySelector("#skills")).not.toBeNull();
-    expect(container.querySelector("#featured-works")).not.toBeNull();
-    expect(container.querySelector("#credentials")).not.toBeNull();
-    expect(container.querySelector("#about")).not.toBeNull();
-    expect(container.querySelector("#contact")).not.toBeNull();
   });
 });
-

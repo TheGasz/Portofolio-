@@ -3,36 +3,29 @@ import * as G from "../iso/lathe.js";
 import { tubePieces, tubeSvg } from "../iso/tube.js";
 import { DESK_HOTSPOTS } from "./deskModel.js";
 
-export const VIEW_WIDTH = 920;
-export const VIEW_HEIGHT = 560;
+export const VIEW_WIDTH = 1600;
+export const VIEW_HEIGHT = 900;
 
-const DESK = { x: -178, y: -92, w: 356, d: 204, r: 10 };
-const DESK_H = 12;
-const LEG_H = 16;
+const CAMERA_BOUNDS = { x: -202, y: -88, w: 368, d: 148, r: 4 };
+const ROOM_TOP = 168;
+const FLOOR_Z = -112;
 
-const WALL = { x: -178, y: -100, w: 356, d: 8, r: 3 };
-const WALL_TOP = 172;
-const WALL_FACE_Y = WALL.y + WALL.d; // -92
-
-// Projection fitted to encompass the full desk, legs, and back wall.
+// Front-Facing Room POV ("POV Tampak Depan" — azimuth: 80°, elevation: 11°)
+// zoomed in closer so left/right sides aren't empty while keeping full top/bottom clearance.
 export const P = k.fitProjection(
   [
-    ...k.boxCorners(DESK, -DESK_H - LEG_H, 0),
-    ...k.boxCorners(WALL, 0, WALL_TOP),
+    ...k.boxCorners(CAMERA_BOUNDS, FLOOR_Z - 8, 0),
+    ...k.boxCorners(CAMERA_BOUNDS, 0, ROOM_TOP),
   ],
   VIEW_WIDTH,
   VIEW_HEIGHT,
-  { pad: 26, azimuth: 52, elevation: 29 }
+  { pad: 18, azimuth: 80, elevation: 11 }
 );
 
 const at = (point) => k.iso(point, P);
 const S = (paths, style) => k.solidSvg(paths, style);
 const L = (d, style) => k.lineSvg(d, style);
 const D = (points, style) => k.dotsSvg(points, style);
-const byDepth = (points) =>
-  [...points].sort(
-    (a, b) => k.depthOf([a[0], a[1], 0], P) - k.depthOf([b[0], b[1], 0], P)
-  );
 
 function mergeSlabs(slabs) {
   return {
@@ -109,7 +102,9 @@ function recessedWindow(
     `<g clip-path="url(#${id})">`,
     `<path class="iso-top" d="${tops.join("")}"/>`,
     ...sides.map((d, shade) =>
-      d.length ? `<path class="iso-shade" data-shade="${shade}" d="${d.join("")}"/>` : ""
+      d.length
+        ? `<path class="iso-shade" data-shade="${shade}" d="${d.join("")}"/>`
+        : ""
     ),
     `<g transform="${planeOfY(yFace - depth)}"><path class="${backClass}" d="${shape}"/>${backContent}<path class="iso-line" data-tone="faint" d="${shape}"/></g>`,
     insideContent,
@@ -119,294 +114,665 @@ function recessedWindow(
 }
 
 /**
- * 1. Static Desk Plate, Stepped Legs, Ruler Strip & Architectural Back Wall
+ * 1. Cool-Toned Bedroom Wall, Tiled Floor, Scenic Window & Right Wooden Door
  */
-function buildDeskAndWall() {
+function buildRoomAndWindow() {
   const out = [];
+  const WALL_Y = -92;
 
-  // Soft shadow halo under the entire desk
+  // Full-Bleed Tiled Bedroom Floor Slab (extends far past viewport edges for any aspect ratio)
+  const FLOOR = { x: -900, y: -98, w: 1800, d: 780, r: 2 };
   out.push(
-    `<path class="iso-halo" d="${k.haloOf(DESK, -DESK_H - LEG_H, DESK_H, P)}"/>`
+    S(k.slabOf(FLOOR, FLOOR_Z - 4, 4, P, 4, 0.8), {
+      tone: "lo",
+      className: "room-floor-slab",
+    })
   );
 
-  // 4 Stepped cylindrical desk legs sorted back-to-front
-  for (const [lx, ly] of byDepth(k.corners(DESK, 22))) {
-    out.push(
-      S(k.cylinder(lx, ly, 8.5, -DESK_H - LEG_H, 2.4, P, 28), { tone: "lo" })
-    );
-    out.push(
-      S(
-        k.cylinder(lx, ly, 6.2, -DESK_H - LEG_H + 2.4, LEG_H - 2.4, P, 28),
-        { tone: "mid" }
-      )
-    );
+  // White Ceramic Floor Tile Grid Lines across the entire bedroom floor
+  const tileLines = [];
+  for (let tx = -840; tx <= 840; tx += 38) {
+    tileLines.push(k.lineOnTop([tx, -92], [tx, 640], FLOOR_Z, P));
   }
+  for (let ty = -60; ty <= 620; ty += 34) {
+    tileLines.push(k.lineOnTop([-860, ty], [860, ty], FLOOR_Z, P));
+  }
+  out.push(L(tileLines.join(""), { tone: "faint", free: true }));
 
-  // Main Desk Top Slab
-  const deskSeam = k.sideSeam(DESK, -4, P, 8);
+  // Full-Bleed Cool-Toned Bedroom Back Wall (fills the entire background behind the furniture)
+  const BACK_WALL = { x: -900, y: -100, w: 1800, d: 8, r: 2 };
   out.push(
-    S(k.slabOf(DESK, -DESK_H, DESK_H, P, 8, 1.8), {
+    S(k.slabOf(BACK_WALL, FLOOR_Z, 540 - FLOOR_Z, P, 4, 1.0), {
       tone: "mid",
-      inner: L(deskSeam, { tone: "faint" }),
+      className: "room-wall-cool",
     })
   );
 
-  // Inset precision groove on desk top
-  out.push(L(k.planOutline(k.insetPlan(DESK, 5.5), 0, P, 8), { tone: "lo" }));
+  // Integrated Bedroom Casement Window Coordinates (starts right above the desk hutch at z=66)
+  const WIN_X = -42;
+  const WIN_W = 186;
+  const WIN_Z0 = 66;
+  const WIN_H = 96;
 
-  // 4 Corner mounting screws with rings
-  const deskScrews = k.corners(DESK, 11);
+  // Subtle vertical cool wallpaper texture lines on back wall (stopped cleanly around the window)
+  const wpLines = [];
+  for (let wx = -820; wx <= 820; wx += 26) {
+    if (wx >= WIN_X - 14 && wx <= WIN_X + WIN_W + 14) {
+      wpLines.push(`M${wx} ${-FLOOR_Z}V${-(WIN_Z0 - 4)}`);
+      wpLines.push(`M${wx} ${-(WIN_Z0 + WIN_H + 8)}V-480`);
+    } else {
+      wpLines.push(`M${wx} ${-FLOOR_Z}V-480`);
+    }
+  }
   out.push(
-    L(deskScrews.map(([sx, sy]) => k.ring(sx, sy, 2.4, 0, P, 16)).join(""), {
+    `<g transform="${planeOfY(WALL_Y)}">${L(wpLines.join(""), {
+      tone: "faint",
+      free: true,
+    })}</g>`
+  );
+
+  // Baseboard trim along the back wall floor
+  const BASEBOARD = { x: -860, y: -92, w: 1720, d: 2.2, r: 0.6 };
+  out.push(
+    S(k.slabOf(BASEBOARD, FLOOR_Z, 8, P, 2), {
       tone: "lo",
-    })
-  );
-  out.push(D(deskScrews.map(([sx, sy]) => at([sx, sy, 0])), { size: 0.55 }));
-
-  // Front Precision Ruler Strip along the front edge of the desk
-  const ruler = { x: -148, y: DESK.y + DESK.d - 14, w: 224, d: 7, r: 1.2 };
-  out.push(S(k.slabOf(ruler, 0, 0.7, P, 3), { tone: "lo", crease: "none" }));
-  const ticks = k.topTicks(
-    ruler.x + 6,
-    ruler.x + ruler.w - 6,
-    4,
-    5,
-    ruler.y + 0.8,
-    0.7,
-    [2.2, 4.0],
-    P
-  );
-  out.push(L(ticks.minor, { tone: "lo" }), L(ticks.major, { tone: "mid" }));
-
-  // Engraved Brass Nameplate on the front-right corner of the desk
-  const plate = { x: 92, y: DESK.y + DESK.d - 15, w: 62, d: 8.5, r: 1.4 };
-  out.push(S(k.slabOf(plate, 0, 0.9, P, 3), { tone: "mid", crease: "none" }));
-  out.push(
-    L(
-      [42, 30]
-        .map((w, i) =>
-          k.lineOnTop(
-            [plate.x + 5, plate.y + 2.8 + i * 2.8],
-            [plate.x + 5 + w, plate.y + 2.8 + i * 2.8],
-            0.9,
-            P
-          )
-        )
-        .join(""),
-      { tone: "lo", free: true }
-    )
-  );
-  out.push(
-    D(
-      [
-        at([plate.x + 2.5, plate.y + plate.d / 2, 0.9]),
-        at([plate.x + plate.w - 2.5, plate.y + plate.d / 2, 0.9]),
-      ],
-      { size: 0.45 }
-    )
-  );
-
-  // Architectural Back Wall Board behind the desk
-  const wallSeam = k.sideSeam(WALL, 44, P, 4);
-  out.push(
-    S(k.slabOf(WALL, 0, WALL_TOP, P, 4, 1.2), {
-      tone: "lo",
-      inner: L(wallSeam, { tone: "faint" }),
+      className: "room-floor-slab",
     })
   );
 
-  // Wall wainscoting rail & top pegboard dots
-  const rail = { x: WALL.x, y: WALL_FACE_Y, w: WALL.w, d: 2.2, r: 0.8 };
-  out.push(S(k.slabOf(rail, 42, 3.2, P, 3, 0.4), { tone: "mid" }));
-  const wallStuds = [-164, -82, 0, 82, 164].map((wx) =>
-    at([wx, WALL_FACE_Y, WALL_TOP - 8])
-  );
-  out.push(D(wallStuds, { size: 0.55, tone: "mid" }));
+  // Integrated Warm Teak Wood Bedroom Window Casing Frame (matching the room's wooden carpentry)
+  const WIN_FRAME = { x: WIN_X, y: WALL_Y - 1.5, w: WIN_W, d: 5.5, r: 2.5 };
+  const WIN_FRONT_Y = WIN_FRAME.y + WIN_FRAME.d;
 
-  return `<g class="desk-base" data-part="desk-base">${out.join("")}</g>`;
-}
-
-/**
- * 2. [02] Wall Portrait Frame ("About Me" Hotspot) — Back Wall Left
- */
-function buildWallPhoto(photoHref) {
-  const out = [];
-  const FRAME = { x: -156, y: WALL_FACE_Y, w: 84, d: 5.5, r: 3 };
-  const Z0 = 60;
-  const H = 92;
-  const FRONT_Y = FRAME.y + FRAME.d; // -86.5
-
-  // Soft shadow halo on the wall
-  out.push(`<path class="iso-halo" d="${k.haloOf(FRAME, Z0 - 2, H, P)}"/>`);
-
-  // Outer Gallery Frame Slab
   out.push(
-    S(k.slabOf(FRAME, Z0, H, P, 5, 1.0), {
+    `<path class="iso-halo" d="${k.haloOf(WIN_FRAME, WIN_Z0 - 3, WIN_H + 6, P)}"/>`
+  );
+  out.push(
+    S(k.slabOf(WIN_FRAME, WIN_Z0, WIN_H, P, 4, 0.8), {
       tone: "hi",
-      className: "hotspot-primary",
+      className: "wood-cabinet-solid",
     })
   );
 
-  // Recessed Polaroid Mat & Real Portrait Image
-  const PHOTO_WELL = {
-    x0: FRAME.x + 6,
-    x1: FRAME.x + FRAME.w - 6,
-    z0: Z0 + 18,
-    z1: Z0 + H - 6,
+  const WIN_WELL = {
+    x0: WIN_FRAME.x + 6,
+    x1: WIN_FRAME.x + WIN_FRAME.w - 6,
+    z0: WIN_Z0 + 6,
+    z1: WIN_Z0 + WIN_H - 6,
     r: 2,
-    depth: 2.2,
+    depth: 4.5,
   };
-  const imgW = PHOTO_WELL.x1 - PHOTO_WELL.x0;
-  const imgH = PHOTO_WELL.z1 - PHOTO_WELL.z0;
 
-  // In planeOfY, u is +x and v is -z, so top-left of [x0..x1, z0..z1] is (x0, -z1)
-  const imageMarkup = photoHref
-    ? `<image href="${photoHref}" x="${PHOTO_WELL.x0}" y="${-PHOTO_WELL.z1}" width="${imgW}" height="${imgH}" preserveAspectRatio="xMidYMid slice" class="desk-wall-photo"/>`
-    : "";
+  // Scenic Cool-Breezy Twilight Sky, Crescent Moon, Stars, Clouds & Mountain Silhouette inside Window
+  const x0 = WIN_WELL.x0;
+  const x1 = WIN_WELL.x1;
+  const z0 = WIN_WELL.z0;
+  const z1 = WIN_WELL.z1;
+  const midX = (x0 + x1) / 2;
 
-  // Subtle corner photo mounts + portrait silhouette fallback lines
-  const mountLines = [
-    `M${PHOTO_WELL.x0 + 3} ${-(PHOTO_WELL.z1 - 8)}L${PHOTO_WELL.x0 + 8} ${-(PHOTO_WELL.z1 - 3)}`,
-    `M${PHOTO_WELL.x1 - 8} ${-(PHOTO_WELL.z1 - 3)}L${PHOTO_WELL.x1 - 3} ${-(PHOTO_WELL.z1 - 8)}`,
+  const horizonGlow = `<rect class="window-horizon-glow" x="${x0}" y="${-(z0 + 48)}" width="${x1 - x0}" height="48"/>`;
+  const farMountain = `M${x0} ${-z0} L${x0} ${-(z0 + 34)} L${x0 + 42} ${-(z0 + 58)} L${x0 + 88} ${-(z0 + 38)} L${x0 + 134} ${-(z0 + 62)} L${x1} ${-(z0 + 40)} L${x1} ${-z0} Z`;
+  const nearMountain = `M${x0} ${-z0} L${x0} ${-(z0 + 20)} L${x0 + 52} ${-(z0 + 36)} L${x0 + 104} ${-(z0 + 22)} L${x0 + 144} ${-(z0 + 34)} L${x1} ${-(z0 + 18)} L${x1} ${-z0} Z`;
+  const cloudPath = `M${x0 + 22} ${-(z1 - 24)} H${x0 + 64} M${x0 + 96} ${-(z1 - 34)} H${x0 + 144}`;
+  const glassGlintPath = `M${x0 + 18} ${-(z0 + 14)} L${x0 + 44} ${-(z1 - 14)} M${x0 + 28} ${-(z0 + 14)} L${x0 + 50} ${-(z1 - 22)} M${midX + 20} ${-(z0 + 16)} L${midX + 44} ${-(z1 - 16)}`;
+
+  const starsMarkup = [
+    [x0 + 24, -(z1 - 13), 1.15],
+    [x0 + 52, -(z1 - 18), 0.9],
+    [x0 + 76, -(z1 - 10), 1.1],
+    [x0 + 112, -(z1 - 16), 0.95],
+    [x0 + 148, -(z1 - 12), 1.15],
+    [x0 + 92, -(z1 - 28), 0.85],
+  ]
+    .map(
+      ([sx, sy, sr]) =>
+        `<circle class="window-star" cx="${sx}" cy="${sy}" r="${sr}"/>`
+    )
+    .join("");
+
+  const moonMarkup = `<circle class="window-moon-glow" cx="${x1 - 30}" cy="${-(z1 - 22)}" r="11"/><circle class="window-moon" cx="${x1 - 30}" cy="${-(z1 - 22)}" r="6"/><circle class="desk-window-sky" cx="${x1 - 27.4}" cy="${-(z1 - 23.8)}" r="5"/>`;
+
+  const cityLights = [
+    x0 + 28,
+    x0 + 36,
+    x0 + 45,
+    x0 + 86,
+    x0 + 95,
+    x0 + 122,
+    x0 + 132,
+  ]
+    .map(
+      (lx, idx) =>
+        `<rect class="window-city-light" x="${lx}" y="${-(z0 + 6 + (idx % 3) * 3)}" width="2.8" height="1.8" rx="0.4"/>`
+    )
+    .join("");
+
+  const windowScene = [
+    horizonGlow,
+    starsMarkup,
+    moonMarkup,
+    `<path class="window-cloud" d="${cloudPath}"/>`,
+    `<path class="window-mountain-far" d="${farMountain}"/>`,
+    `<path class="window-mountain-near" d="${nearMountain}"/>`,
+    cityLights,
+    `<path class="window-glass-glint" d="${glassGlintPath}"/>`,
   ].join("");
 
   out.push(
     recessedWindow(
-      PHOTO_WELL,
-      FRONT_Y,
-      `${imageMarkup}<path class="iso-line" data-tone="lo" d="${mountLines}"/>`,
-      "desk-photo-well"
+      WIN_WELL,
+      WIN_FRONT_Y,
+      windowScene,
+      "desk-window-sky"
     )
   );
 
-  // Polaroid bottom caption lines on the frame face
-  const captionLines = [
-    `M${FRAME.x + 10} ${-(Z0 + 11)}H${FRAME.x + 54}`,
-    `M${FRAME.x + 10} ${-(Z0 + 7)}H${FRAME.x + 38}`,
-  ].join("");
+  // 3D Wooden Casement Center Mullion Post & Top Transom Bar inside the Window
+  const MULLION_V = { x: midX - 2.0, y: WALL_Y - 0.5, w: 4.0, d: 4.2, r: 0.6 };
+  const MULLION_H = {
+    x: WIN_WELL.x0,
+    y: WALL_Y - 0.5,
+    w: WIN_WELL.x1 - WIN_WELL.x0,
+    d: 3.8,
+    r: 0.6,
+  };
   out.push(
-    `<g transform="${planeOfY(FRONT_Y)}">${L(captionLines, {
+    S(k.slabOf(MULLION_V, WIN_WELL.z0, WIN_WELL.z1 - WIN_WELL.z0, P, 2, 0.3), {
       tone: "mid",
-      free: true,
-    })}<text class="iso-face-text" data-tone="hi" x="${FRAME.x + 58}" y="${-(Z0 + 7.5)}" font-size="4.2">ABOUT</text></g>`
-  );
-
-  // Yellow Masking Tape Strip at top center of the frame
-  const TAPE = { x: FRAME.x + 26, y: FRAME.y + 1, w: 32, d: 5, r: 1 };
-  out.push(
-    S(k.slabOf(TAPE, Z0 + H - 2, 6, P, 3, 0.3), {
+      className: "wood-door-solid",
+    }),
+    S(k.slabOf(MULLION_H, WIN_Z0 + 60, 3.4, P, 2, 0.3), {
       tone: "mid",
-      lit: true,
-      className: "desk-tape-accent",
+      className: "wood-door-solid",
     })
   );
 
-  // Small brass gallery label plaque under the portrait frame
-  const PLAQUE = { x: FRAME.x + 18, y: WALL_FACE_Y, w: 48, d: 2.4, r: 1 };
-  out.push(S(k.slabOf(PLAQUE, Z0 - 9, 5, P, 3), { tone: "lo" }));
+  // Deep Projecting Teak Wooden Window Sill Ledge (connects directly behind the desk hutch top rail!)
+  const SILL = { x: WIN_X - 5, y: WALL_Y - 0.5, w: WIN_W + 10, d: 9.0, r: 1.5 };
   out.push(
-    D(
-      [
-        at([PLAQUE.x + 3, WALL_FACE_Y + 2.4, Z0 - 6.5]),
-        at([PLAQUE.x + PLAQUE.w - 3, WALL_FACE_Y + 2.4, Z0 - 6.5]),
-      ],
-      { size: 0.4 }
+    S(k.slabOf(SILL, WIN_Z0 - 4, 4.5, P, 3, 0.5), {
+      tone: "hi",
+      className: "wood-top-slab",
+    })
+  );
+
+  // Wooden Window Pelmet / Curtain Valance Rod & Soft Draped Side Curtains framing the window
+  const CURTAIN_ROD = {
+    x: WIN_X - 12,
+    y: WALL_Y + 1.5,
+    w: WIN_W + 24,
+    d: 4.5,
+    r: 1.2,
+  };
+  out.push(
+    S(k.slabOf(CURTAIN_ROD, WIN_Z0 + WIN_H + 1, 4.0, P, 3, 0.4), {
+      tone: "hi",
+      className: "wood-top-slab",
+    })
+  );
+
+  const CURTAIN_L = { x: WIN_X - 8, y: WALL_Y + 1, w: 24, d: 6.5, r: 2 };
+  const CURTAIN_R = {
+    x: WIN_X + WIN_W - 16,
+    y: WALL_Y + 1,
+    w: 24,
+    d: 6.5,
+    r: 2,
+  };
+  out.push(
+    S(k.slabOf(CURTAIN_L, WIN_Z0 - 4, WIN_H + 5, P, 3, 0.5), {
+      tone: "mid",
+      className: "window-curtain-solid",
+    }),
+    S(k.slabOf(CURTAIN_R, WIN_Z0 - 4, WIN_H + 5, P, 3, 0.5), {
+      tone: "mid",
+      className: "window-curtain-solid",
+    })
+  );
+
+  // Vertical pleat lines on the left and right bedroom curtains
+  const pleatLines = [];
+  for (const cx of [
+    CURTAIN_L.x + 6,
+    CURTAIN_L.x + 12,
+    CURTAIN_L.x + 18,
+    CURTAIN_R.x + 6,
+    CURTAIN_R.x + 12,
+    CURTAIN_R.x + 18,
+  ]) {
+    pleatLines.push(
+      k.pathOf(
+        [
+          at([cx, WALL_Y + 7.5, WIN_Z0 - 2]),
+          at([cx, WALL_Y + 7.5, WIN_Z0 + WIN_H - 1]),
+        ],
+        false
+      )
+    );
+  }
+  out.push(L(pleatLines.join(""), { tone: "lo", free: true }));
+
+  return out.join("");
+}
+
+/**
+ * 2. Left Tall Teak Wooden Cabinet + Open Bookshelf + Hanging Blue Hanger & ID Lanyard
+ */
+function buildLeftCabinet() {
+  const out = [];
+
+  // Main Tall Cabinet Body on the left (x: -204..-84, y: -88..58 — flush depth & connected to Study Desk!)
+  const CAB_BASE = { x: -204, y: -88, w: 120, d: 146, r: 2 };
+  out.push(
+    `<path class="iso-halo" d="${k.haloOf(CAB_BASE, FLOOR_Z, 16, P)}"/>`
+  );
+
+  // Lower Cabinet Section (z: FLOOR_Z .. -8) — aligns with the under-desk height!
+  out.push(
+    S(k.slabOf(CAB_BASE, FLOOR_Z, -8 - FLOOR_Z, P, 4, 0.9), {
+      tone: "hi",
+      className: "wood-cabinet-solid",
+    })
+  );
+
+  // Continuous Waist Trim Slab (z: -8 .. 0) connecting directly into the Study Desk Tabletop!
+  const CAB_WAIST = { x: -205, y: -88, w: 121, d: 148, r: 2.5 };
+  out.push(
+    S(k.slabOf(CAB_WAIST, -8, 8, P, 4, 0.9), {
+      tone: "hi",
+      className: "wood-top-slab",
+    })
+  );
+
+  // 2 Lower Cabinet Doors on front face (y = 56) with silver handles (tall realistic lower cabinet!)
+  const LOW_DOOR_L = { x: -198, y: 56, w: 52, d: 2.5, r: 1 };
+  const LOW_DOOR_R = { x: -143, y: 56, w: 52, d: 2.5, r: 1 };
+  out.push(
+    S(k.slabOf(LOW_DOOR_L, FLOOR_Z + 6, 94, P, 3, 0.4), {
+      tone: "mid",
+      className: "wood-door-solid",
+    }),
+    S(k.slabOf(LOW_DOOR_R, FLOOR_Z + 6, 94, P, 3, 0.4), {
+      tone: "mid",
+      className: "wood-door-solid",
+    })
+  );
+  // Lower door silver handles
+  out.push(
+    S(
+      k.slabOf({ x: -153, y: 58.5, w: 2.2, d: 2, r: 0.5 }, -52, 18, P, 2),
+      { tone: "hi", className: "silver-hardware" }
+    ),
+    S(
+      k.slabOf({ x: -138, y: 58.5, w: 2.2, d: 2, r: 0.5 }, -52, 18, P, 2),
+      { tone: "hi", className: "silver-hardware" }
     )
+  );
+
+  // Upper Cabinet Left Back/Side Shell + Open Bookshelf Cubbies (x: -204..-145, z: 0..126)
+  const LEFT_WALL = { x: -204, y: -88, w: 7, d: 146, r: 1.5 };
+  const BACK_PANEL = { x: -204, y: -88, w: 62, d: 8, r: 1.5 };
+  out.push(
+    S(k.slabOf(LEFT_WALL, 0, 126, P, 3, 0.5), {
+      tone: "mid",
+      className: "wood-cabinet-solid",
+    }),
+    S(k.slabOf(BACK_PANEL, 0, 126, P, 3, 0.5), {
+      tone: "lo",
+      className: "wood-dark-solid",
+    })
+  );
+
+  // Horizontal Shelf Dividers inside the Open Left Bookshelf (z = 42, 84)
+  for (const sz of [42, 84]) {
+    const SHELF = { x: -198, y: -80, w: 55, d: 136, r: 1.5 };
+    out.push(
+      S(k.slabOf(SHELF, sz, 4, P, 3, 0.4), {
+        tone: "mid",
+        className: "wood-door-solid",
+      })
+    );
+  }
+
+  // Bottom Open Cubby Items (z = 0): White stacked paper ream (like the photo!)
+  const PAPERS = { x: -192, y: 4, w: 42, d: 46, r: 1.5 };
+  out.push(
+    S(k.slabOf(PAPERS, 0, 9, P, 3, 0.4), {
+      tone: "mid",
+      className: "paper-stack-solid",
+    })
+  );
+
+  // Middle Open Cubby Items (z = 46): Green/Black GPU Box & Purple Box (exact photo details!)
+  const GREEN_BOX = { x: -195, y: 8, w: 22, d: 42, r: 1.5 };
+  const PURPLE_BOX = { x: -171, y: 14, w: 24, d: 36, r: 1.5 };
+  out.push(
+    S(k.slabOf(GREEN_BOX, 46, 18, P, 3, 0.4), {
+      tone: "hi",
+      className: "box-green-solid",
+    }),
+    S(k.slabOf(PURPLE_BOX, 46, 15, P, 3, 0.4), {
+      tone: "mid",
+      className: "box-purple-solid",
+    })
   );
 
   return out.join("");
 }
 
 /**
- * 3. [05] Trophy & 7 Certificates Wall Shelf ("Credentials" Hotspot) — Back Wall Right
+ * 2B. Upper Right Wardrobe Compartment, Hanger/Lanyard & Top Crown Roof
+ * (Rendered after the open bookshelf books so the wardrobe divider & roof frame the books cleanly)
  */
-function buildTrophyShelf() {
+function buildCabinetFrontAndCrown() {
   const out = [];
-  const SHELF = { x: 54, y: WALL_FACE_Y, w: 110, d: 28, r: 3 };
-  const SHELF_Z = 82;
-  const SHELF_H = 4.5;
-  const TOP_Z = SHELF_Z + SHELF_H; // 86.5
 
-  // 2 Under-shelf support brackets
-  for (const bx of [66, 148]) {
+  // Upper Cabinet Right Tall Wardrobe Compartment (x: -145..-84, y: -88..58, z: 0..126)
+  const RIGHT_WARDROBE = { x: -145, y: -88, w: 61, d: 146, r: 2 };
+  out.push(
+    S(k.slabOf(RIGHT_WARDROBE, 0, 126, P, 4, 0.8), {
+      tone: "hi",
+      className: "wood-cabinet-solid",
+    })
+  );
+
+  // Tall Wardrobe Front Door (y = 56)
+  const TALL_DOOR = { x: -142, y: 56, w: 54, d: 2.8, r: 1.2 };
+  out.push(
+    S(k.slabOf(TALL_DOOR, 4, 118, P, 3, 0.5), {
+      tone: "mid",
+      className: "wood-door-solid",
+    })
+  );
+
+  // Cabinet Top Crown Roof Slab (z = 126..132) — caps the open bookshelf and supports Trophy & Certificates!
+  const CAB_CROWN = { x: -206, y: -90, w: 123, d: 150, r: 3 };
+  out.push(
+    S(k.slabOf(CAB_CROWN, 126, 6, P, 4, 0.9), {
+      tone: "hi",
+      className: "wood-top-slab",
+    })
+  );
+
+  return out.join("");
+}
+
+/**
+ * 3. Wooden Study Desk with Raised Hutch Backboard, Side Wing & Right 2-Drawer Pedestal
+ */
+function buildStudyDesk() {
+  const out = [];
+
+  // Under-Desk Left Side Support Panel (flush with the Left Cabinet at x=-88..-81, y=-88..58) & Top Apron Beam
+  const DESK_LEFT_LEG = { x: -88, y: -88, w: 7, d: 146, r: 1.5 };
+  const DESK_BACK_MODESTY = { x: -88, y: -88, w: 162, d: 6, r: 1.5 };
+  out.push(
+    S(k.slabOf(DESK_LEFT_LEG, FLOOR_Z, -8 - FLOOR_Z, P, 3, 0.5), {
+      tone: "mid",
+      className: "wood-cabinet-solid",
+    }),
+    S(k.slabOf(DESK_BACK_MODESTY, -20, 12, P, 3, 0.5), {
+      tone: "lo",
+      className: "wood-dark-solid",
+    })
+  );
+
+  // Under-Desk Right 2-Drawer Wooden Pedestal (x: 68..166, y: -84..58, z: FLOOR_Z..-8 — tall 104-unit height!)
+  const PEDESTAL = { x: 68, y: -84, w: 98, d: 142, r: 2.5 };
+  out.push(
+    `<path class="iso-halo" d="${k.haloOf(PEDESTAL, FLOOR_Z, 10, P)}"/>`
+  );
+  out.push(
+    S(k.slabOf(PEDESTAL, FLOOR_Z, -8 - FLOOR_Z, P, 4, 0.8), {
+      tone: "mid",
+      className: "wood-cabinet-solid",
+    })
+  );
+
+  // 2 Stacked Wooden Drawer Fronts (y = 56.5) with twin silver knobs (tall realistic drawers!)
+  const DRAWER_TOP = { x: 73, y: 56.5, w: 88, d: 2.8, r: 1.2 };
+  const DRAWER_BOT = { x: 73, y: 56.5, w: 88, d: 2.8, r: 1.2 };
+  out.push(
+    S(k.slabOf(DRAWER_TOP, -55, 43, P, 3, 0.4), {
+      tone: "hi",
+      className: "wood-door-solid",
+    }),
+    S(k.slabOf(DRAWER_BOT, -104, 43, P, 3, 0.4), {
+      tone: "hi",
+      className: "wood-door-solid",
+    })
+  );
+  // Drawer silver hardware knobs (matching real photo)
+  for (const [kx, kz] of [
+    [101, -34],
+    [131, -34],
+    [101, -83],
+    [131, -83],
+  ]) {
     out.push(
       S(
-        k.slabOf(
-          { x: bx, y: WALL_FACE_Y, w: 4.5, d: 22, r: 1 },
-          SHELF_Z - 12,
-          12,
-          P,
-          3,
-          0.4
-        ),
-        { tone: "lo" }
+        k.slabOf({ x: kx - 1.6, y: 59, w: 3.2, d: 2.2, r: 0.8 }, kz, 3.2, P, 2),
+        { tone: "hi", className: "silver-hardware" }
       )
     );
   }
 
-  // Main Shelf Slab
+  // Main Wooden Study Desk Tabletop Slab (x: -88..168, y: -88..60, z: -8..0 — connects seamlessly with CAB_WAIST!)
+  const TABLETOP = { x: -88, y: -88, w: 256, d: 148, r: 2.5 };
   out.push(
-    S(k.slabOf(SHELF, SHELF_Z, SHELF_H, P, 5, 0.8), {
-      tone: "mid",
+    S(k.slabOf(TABLETOP, -8, 8, P, 5, 1.1), {
+      tone: "hi",
+      className: "wood-top-slab",
     })
   );
+
+  // Raised Wooden Hutch Backboard behind the Desk (x: -86..168, y: -88..-78, z: 0..64)
+  const HUTCH_POST_L = { x: -86, y: -88, w: 7, d: 14, r: 1 };
+  const HUTCH_BOARD = { x: -86, y: -88, w: 254, d: 6.5, r: 1.5 };
+  const HUTCH_TOP_RAIL = { x: -86, y: -88, w: 254, d: 10, r: 2 };
   out.push(
-    L(k.planOutline(k.insetPlan(SHELF, 2.5), TOP_Z, P, 4), { tone: "faint" })
+    S(k.slabOf(HUTCH_POST_L, 0, 64, P, 3, 0.4), {
+      tone: "mid",
+      className: "wood-cabinet-solid",
+    }),
+    S(k.slabOf(HUTCH_BOARD, 36, 24, P, 3, 0.5), {
+      tone: "mid",
+      className: "wood-door-solid",
+    }),
+    S(k.slabOf(HUTCH_TOP_RAIL, 60, 4, P, 3, 0.6), {
+      tone: "hi",
+      className: "wood-top-slab",
+    })
   );
 
-  // Bookend on the left of the shelf
+  // Small Red/White Emblem Sticker in the center of the Hutch Board (exact photo detail!)
+  const STICKER = { x: 32, y: -81, w: 12, d: 1.2, r: 0.5 };
+  out.push(
+    S(k.slabOf(STICKER, 46, 5, P, 2, 0.2), {
+      tone: "hi",
+      lit: true,
+    })
+  );
+
+  return out.join("");
+}
+
+/**
+ * 4. [02] Hanging Name Tag / ID Card & Lanyard on Wardrobe Door ("About Me" Hotspot)
+ * (Matches the real bedroom photo where the ID badge & blue hanger hang on the left cabinet door handle!)
+ */
+function buildWallPhoto(photoHref) {
+  const out = [];
+  const H_X = -124;
+  const H_Y = 59.5;
+  const H_Z = 66;
+
+  // Silver Handle on Tall Wardrobe Door
   out.push(
     S(
       k.slabOf(
-        { x: 60, y: WALL_FACE_Y + 4, w: 3.5, d: 20, r: 1 },
-        TOP_Z,
-        24,
+        { x: H_X - 1.4, y: H_Y - 1, w: 2.8, d: 2.6, r: 0.6 },
+        H_Z,
+        14,
         P,
-        3,
-        0.4
+        2
       ),
-      { tone: "lo" }
+      { tone: "hi", className: "silver-hardware" }
     )
   );
 
-  // 7 Certificate Folios / Bound Volumes (representing all 7 verified certificates)
-  const certHeights = [34, 36, 33, 37, 35, 38, 36];
-  certHeights.forEach((ch, idx) => {
-    const cx = 64 + idx * 6.2;
-    const folio = { x: cx, y: WALL_FACE_Y + 3.5, w: 5.4, d: 21, r: 1 };
-    const isAward = idx === 4 || idx === 5;
-    const seam = k.sideSeam(folio, TOP_Z + ch - 6, P, 3);
-    out.push(
-      S(k.slabOf(folio, TOP_Z, ch, P, 3, 0.3), {
-        tone: isAward ? "hi" : "mid",
-        lit: isAward,
-        inner: L(seam, { tone: "faint" }),
-      })
-    );
-    // Spine seal dot
-    out.push(
-      D([at([cx + 2.7, folio.y + folio.d, TOP_Z + 9])], {
-        size: 0.45,
-        tone: isAward ? "hi" : "mid",
-      })
-    );
-  });
-
-  // Championship Trophy ("1st Runner Up") on the right side of the shelf
-  const TX = 138;
-  const TY = WALL_FACE_Y + 14;
-  const plinth = { x: TX - 11, y: TY - 11, w: 22, d: 22, r: 3 };
+  // Blue Coat Hanger Triangle hanging from the wardrobe handle
+  const hangerPts = [
+    at([H_X, H_Y + 1.2, H_Z + 6]),
+    at([H_X - 22, H_Y + 2.2, H_Z - 12]),
+    at([H_X + 22, H_Y + 2.2, H_Z - 12]),
+  ];
   out.push(
-    S(k.slabOf(plinth, TOP_Z, 8, P, 4, 0.6), {
-      tone: "lo",
+    `<path class="hanger-blue-wire" d="${k.pathOf(hangerPts, true)}"/>`
+  );
+
+  // Lanyard Ribbon Strap looping from the handle down to the ID Name Tag
+  const lanyardPath = k.pathOf(
+    [
+      at([H_X - 2.2, H_Y + 1.8, H_Z + 5]),
+      at([H_X - 3.6, H_Y + 2.2, H_Z - 21]),
+      at([H_X + 3.6, H_Y + 2.2, H_Z - 21]),
+      at([H_X + 2.2, H_Y + 1.8, H_Z + 5]),
+    ],
+    false
+  );
+  out.push(`<path class="lanyard-strap" d="${lanyardPath}"/>`);
+
+  // Silver Lanyard Clasp Clip above the Name Tag
+  out.push(
+    S(
+      k.slabOf(
+        { x: H_X - 2.5, y: H_Y + 1.4, w: 5, d: 2.0, r: 0.5 },
+        H_Z - 23.5,
+        3.5,
+        P,
+        2
+      ),
+      { tone: "hi", className: "silver-hardware" }
+    )
+  );
+
+  // Hanging ID Card / Name Tag Holder (x: -136..-112, y: 60.3..62.7, z: 10..43)
+  const BADGE = { x: H_X - 12, y: H_Y + 0.8, w: 24, d: 2.4, r: 1.5 };
+  const BZ0 = 10;
+  const BH = 33;
+  const B_FRONT_Y = BADGE.y + BADGE.d;
+
+  out.push(
+    S(k.slabOf(BADGE, BZ0, BH, P, 3, 0.4), {
+      tone: "hi",
+      className: "hotspot-primary paper-stack-solid",
     })
   );
+
+  // Blue ID Card Top Header Strip inside the Name Tag
+  const BADGE_HEADER = {
+    x: BADGE.x + 2,
+    y: BADGE.y + 0.5,
+    w: BADGE.w - 4,
+    d: 2.1,
+    r: 0.6,
+  };
+  out.push(
+    S(k.slabOf(BADGE_HEADER, BZ0 + BH - 5.5, 3.5, P, 2, 0.2), {
+      tone: "mid",
+      className: "coaster-blue-solid",
+    })
+  );
+
+  // Recessed Portrait Photo inside the Hanging Name Tag
+  const PHOTO_WELL = {
+    x0: BADGE.x + 2.8,
+    x1: BADGE.x + BADGE.w - 2.8,
+    z0: BZ0 + 7.5,
+    z1: BZ0 + BH - 6.5,
+    r: 1.0,
+    depth: 1.0,
+  };
+  const imgW = PHOTO_WELL.x1 - PHOTO_WELL.x0;
+  const imgH = PHOTO_WELL.z1 - PHOTO_WELL.z0;
+
+  const imageMarkup = photoHref
+    ? `<image href="${photoHref}" x="${PHOTO_WELL.x0}" y="${-PHOTO_WELL.z1}" width="${imgW}" height="${imgH}" preserveAspectRatio="xMidYMid slice" class="desk-wall-photo"/>`
+    : "";
+
+  out.push(
+    recessedWindow(PHOTO_WELL, B_FRONT_Y, imageMarkup, "desk-photo-well")
+  );
+
+  // Micro ID label at the bottom of the hanging Name Tag
+  out.push(
+    `<g transform="${planeOfY(B_FRONT_Y)}"><text class="iso-face-text" data-tone="hi" x="${BADGE.x + 3.2}" y="${-(BZ0 + 3.2)}" font-size="2.5">ABOUT ME</text></g>`
+  );
+
+  return out.join("");
+}
+
+/**
+ * 5. [05] Glowing Trophy & 7 Certificates on Top-Left Cabinet ("Credentials" Hotspot)
+ */
+function buildTrophyOnCabinet() {
+  const out = [];
+  const TOP_Z = 132; // Sits directly on top of the tall left cabinet!
+
+  // 7 Certificate Folios / Bound Volumes standing on the left of the cabinet top
+  const certSlabs = [];
+  const awardSlabs = [];
+  const certHeights = [26, 28, 25, 29, 27, 30, 28];
+  certHeights.forEach((ch, idx) => {
+    const cx = -194 + idx * 5.8;
+    const folio = { x: cx, y: -58, w: 5.0, d: 24, r: 1 };
+    const slab = k.slabOf(folio, TOP_Z, ch, P, 3, 0.3);
+    if (idx === 4 || idx === 5) {
+      awardSlabs.push(slab);
+    } else {
+      certSlabs.push(slab);
+    }
+  });
+
+  if (certSlabs.length) {
+    out.push(
+      S(mergeSlabs(certSlabs), {
+        tone: "mid",
+        className: "paper-stack-solid",
+      })
+    );
+  }
+  if (awardSlabs.length) {
+    out.push(
+      S(mergeSlabs(awardSlabs), {
+        tone: "hi",
+        lit: true,
+        className: "hotspot-primary",
+      })
+    );
+  }
+
+  // Championship Trophy on the right side of the top-left cabinet (x = -134, y = -42)
+  const TX = -134;
+  const TY = -42;
+  const plinth = { x: TX - 12, y: TY - 12, w: 24, d: 24, r: 3 };
+  out.push(
+    `<path class="iso-halo trophy-aura-halo" d="${k.haloOf(plinth, TOP_Z, 12, P)}"/>`
+  );
+  out.push(
+    S(k.slabOf(plinth, TOP_Z, 7.5, P, 4, 0.6), {
+      tone: "lo",
+      className: "dark-hardware-solid",
+    })
+  );
+
   // Brass plate on front of trophy plinth
   out.push(
     S(
       k.slabOf(
-        { x: TX - 7, y: TY + 10.5, w: 14, d: 1, r: 0.4 },
-        TOP_Z + 2,
+        { x: TX - 7.5, y: TY + 11.2, w: 15, d: 1.2, r: 0.4 },
+        TOP_Z + 1.8,
         4,
         P,
         2
@@ -415,342 +781,260 @@ function buildTrophyShelf() {
     )
   );
 
-  // Turned Trophy Pedestal & Cup via lathe.js
-  const trophyFrame = G.frameOf([TX, TY, TOP_Z + 8], [0, 0, 1], [1, 0, 0], [0, 1, 0]);
+  // Turned Golden Trophy Cup via lathe.js
+  const trophyFrame = G.frameOf(
+    [TX, TY, TOP_Z + 7.5],
+    [0, 0, 1],
+    [1, 0, 0],
+    [0, 1, 0]
+  );
   const trophyProfile = [
-    [0, 7.5],
-    [2.5, 7.5],
-    [4, 3.2, 1],
-    [12, 2.4, 1],
-    [16, 4.2, 1],
-    [19, 8.8, 1],
-    [32, 11.2, 1],
-    [35, 11.8],
+    [0, 7.8],
+    [2.5, 7.8],
+    [4.2, 3.2, 1],
+    [12, 2.5, 1],
+    [16, 4.5, 1],
+    [19, 9.2, 1],
+    [32, 11.8, 1],
+    [35, 12.4],
   ];
-  const cupPaths = G.solidOf(trophyProfile, trophyFrame, P, {
-    bevel: 0.5,
-  });
-  const cupSeam = G.arcOf(trophyFrame, 16, 4.2, P);
+  const cupPaths = G.solidOf(trophyProfile, trophyFrame, P, { bevel: 0.5 });
+  const cupSeam = G.arcOf(trophyFrame, 16, 4.5, P);
   out.push(
     S(cupPaths, {
       tone: "hi",
       lit: true,
-      className: "hotspot-primary",
+      className: "hotspot-primary trophy-cup-solid",
       inner: L(cupSeam, { tone: "lo" }),
     })
   );
-
-  // Trophy Top Rim Ring
-  out.push(L(k.ring(TX, TY, 9.2, TOP_Z + 43, P, 28), { tone: "lo" }));
+  out.push(L(k.ring(TX, TY, 9.6, TOP_Z + 42.5, P, 26), { tone: "lo" }));
 
   return out.join("");
 }
 
 /**
- * 4. [04] Open Lab Notebook & Technical Pen ("Skills" Hotspot) — Desk Left
+ * 6. [04] Clickable Books in the Left Cabinet Open Shelf ("What I Do" Hotspot)
  */
-function buildNotebookAndPen() {
+function buildBooksInLeftShelf() {
   const out = [];
-  const COVER = { x: -162, y: 8, w: 86, d: 64, r: 3.5 };
+  const SHELF_TOP = 88; // Upper open cubby of the left wooden cabinet (x: -197..-146, z: 88..122)
 
-  // Soft shadow halo under notebook
-  out.push(`<path class="iso-halo" d="${k.haloOf(COVER, 0, 5, P)}"/>`);
-
-  // Hardcover Base
-  out.push(S(k.slabOf(COVER, 0, 2.2, P, 5, 0.5), { tone: "lo" }));
-
-  // Left Page Stack & Right Page Stack
-  const LEFT_PAGE = { x: -159, y: 10.5, w: 39, d: 59, r: 1.8 };
-  const RIGHT_PAGE = { x: -118, y: 10.5, w: 39, d: 59, r: 1.8 };
-  const PAGE_TOP = 5.4;
-
-  out.push(
-    S(k.slabOf(LEFT_PAGE, 2.2, 3.2, P, 4, 0.4), {
-      tone: "hi",
-      className: "hotspot-primary",
-    })
-  );
-  out.push(
-    S(k.slabOf(RIGHT_PAGE, 2.2, 3.2, P, 4, 0.4), {
-      tone: "hi",
-      className: "hotspot-primary",
-    })
-  );
-
-  // Center Spine Binding Rings
-  const spineRings = Array.from({ length: 8 }, (_, i) =>
-    at([-119, 15 + i * 7, PAGE_TOP + 0.3])
-  );
-  out.push(D(spineRings, { size: 0.55, tone: "mid" }));
-
-  // Left Page: Engraved Coordinate Axes & Model Loss/Validation Curve
-  const axX0 = -153;
-  const axX1 = -125;
-  const axY0 = 20;
-  const axY1 = 44;
-  const axesPath =
-    k.lineOnTop([axX0, axY0], [axX0, axY1], PAGE_TOP, P) +
-    k.lineOnTop([axX0, axY1], [axX1, axY1], PAGE_TOP, P);
-  out.push(L(axesPath, { tone: "mid" }));
-
-  // Curve plotted on the left page
-  const curvePts = [
-    [axX0 + 2, axY1 - 3],
-    [axX0 + 8, axY1 - 12],
-    [axX0 + 15, axY1 - 10],
-    [axX0 + 21, axY1 - 19],
-    [axX0 + 26, axY1 - 21],
+  // Neat upright row of books standing inside the open shelf cubby
+  const regularBooks = [];
+  const featuredBooks = [];
+  const bookSpecs = [
+    { x: -195, w: 6.2, h: 27, featured: false },
+    { x: -188, w: 6.2, h: 29, featured: false },
+    { x: -181, w: 6.5, h: 28, featured: false },
+    { x: -173.5, w: 7.5, h: 31, featured: true }, // Featured golden "What I Do" Book slightly pulled forward!
+    { x: -165, w: 6.2, h: 28, featured: false },
+    { x: -158, w: 6.2, h: 26, featured: false },
   ];
-  out.push(L(k.onTop(curvePts, PAGE_TOP, P, false), { tone: "lit", free: true }));
-  out.push(
-    D(
-      curvePts.map(([px, py]) => at([px, py, PAGE_TOP])),
-      { size: 0.45, tone: "hi" }
-    )
-  );
 
-  // Left page bottom rule lines
-  const leftRules = [26, 20, 24]
-    .map((w, i) =>
-      k.lineOnTop(
-        [-153, 50 + i * 5],
-        [-153 + w, 50 + i * 5],
-        PAGE_TOP,
-        P
-      )
-    )
-    .join("");
-  out.push(L(leftRules, { tone: "lo", free: true }));
+  bookSpecs.forEach((b) => {
+    const pullY = b.featured ? 5 : 0;
+    const plan = {
+      x: b.x,
+      y: 26 + pullY,
+      w: b.w,
+      d: 20,
+      r: 1.0,
+    };
+    const slab = k.slabOf(plan, SHELF_TOP, b.h, P, 3, 0.35);
+    if (b.featured) {
+      featuredBooks.push(slab);
+    } else {
+      regularBooks.push(slab);
+    }
+  });
 
-  // Right Page: 5 Skill Engineering Rows + Engraved "SKILLS" header
-  out.push(
-    k.faceTextSvg(k.topMatrix([-112, 18], PAGE_TOP, P, "x"), "01 / SKILLS", {
-      size: 4.2,
-      tone: "hi",
-    })
-  );
-  const rightRules = [28, 25, 29, 22, 26]
-    .map((w, i) =>
-      k.lineOnTop(
-        [-112, 26 + i * 7.5],
-        [-112 + w, 26 + i * 7.5],
-        PAGE_TOP,
-        P
-      )
-    )
-    .join("");
-  out.push(L(rightRules, { tone: "lo", free: true }));
-  const rightDots = [0, 1, 2, 3, 4].map((i) =>
-    at([-114.5, 26 + i * 7.5, PAGE_TOP])
-  );
-  out.push(D(rightDots, { size: 0.5, tone: "hi" }));
-
-  // Bookmark Ribbon Tab sticking out of the front of the notebook
-  const TAB = { x: -116, y: 71, w: 9, d: 8, r: 1.2 };
-  out.push(
-    S(k.slabOf(TAB, 0.5, 1.8, P, 3, 0.2), {
-      tone: "hi",
-      lit: true,
-    })
-  );
-
-  // Technical Drafting Pen resting in front of the notebook
-  const penFrame = G.frameOf([-152, 82, 2.4], [1, 0, 0], [0, 1, 0], [0, 0, 1]);
-  const penProfile = [
-    [0, 1.8],
-    [48, 1.8],
-    [54, 0.9, 1],
-    [58, 0.2],
-  ];
-  out.push(
-    S(G.solidOf(penProfile, penFrame, P), {
-      tone: "mid",
-      inner: L(G.arcOf(penFrame, 38, 1.8, P), { tone: "lo" }),
-    })
-  );
-
-  return out.join("");
-}
-
-/**
- * 5. [01] Desktop PC & Monitor ("Projects" Hotspot) — Desk Center
- */
-function buildComputerAndMonitor() {
-  const out = [];
-
-  // Desktop PC Base Unit (Horizontal Workstation Chassis under the Monitor)
-  const PC = { x: -58, y: -74, w: 116, d: 80, r: 6 };
-  const PC_PLINTH = 3;
-  const PC_TOP = 24;
-  const PC_FRONT = PC.y + PC.d; // +6
-  const PC_SIDE = PC.x + PC.w; // +58
-
-  out.push(`<path class="iso-halo" d="${k.haloOf(PC, 0, 8, P)}"/>`);
-  out.push(
-    S(k.slabOf(k.insetPlan(PC, 3), 0, PC_PLINTH, P, 6), { tone: "lo" })
-  );
-
-  const pcSeam = k.sideSeam(PC, 14, P, 6);
-  out.push(
-    S(k.slabOf(PC, PC_PLINTH, PC_TOP - PC_PLINTH, P, 6, 1.2), {
-      tone: "mid",
-      inner: L(pcSeam, { tone: "faint" }),
-    })
-  );
-
-  // Front Bezel Outline, Optical/Disk Slot & Status LEDs on PC Front (y = PC_FRONT)
-  const DRIVE_SLOT = { x0: 8, x1: 46, z0: 11, z1: 16.5, r: 1.5, depth: 3.5 };
-  out.push(
-    recessedWindow(
-      DRIVE_SLOT,
-      PC_FRONT,
-      `<path class="iso-line" data-tone="lo" d="M${DRIVE_SLOT.x0} ${-(DRIVE_SLOT.z0 + 2.5)}H${DRIVE_SLOT.x1}"/>`,
-      "desk-dark-well"
-    )
-  );
-  // PC Front Vent Grilles
-  const pcFrontVents = Array.from({ length: 8 }, (_, i) =>
-    flatRect(-46 + i * 4.2, 8, -44 + i * 4.2, 18, 0.6, 4)
-  ).join("");
-  out.push(
-    `<g transform="${planeOfY(PC_FRONT)}">${L(pcFrontVents, { tone: "lo" })}</g>`
-  );
-  // Power & Disk LEDs on PC Front
-  out.push(
-    D([at([-6, PC_FRONT, 14]), at([0, PC_FRONT, 14])], {
-      size: 0.75,
-      tone: "hi",
-      pulse: true,
-    })
-  );
-
-  // Side I/O Port on PC right face (for Keyboard & Mouse cords)
-  out.push(
-    S(
-      k.slabOf(
-        { x: PC_SIDE, y: -22, w: 3.5, d: 14, r: 1.2 },
-        6,
-        8,
-        P,
-        3,
-        0.3
-      ),
-      { tone: "lo" }
-    )
-  );
-
-  // Monitor Swivel Turntable & Pedestal Neck on top of PC
-  out.push(S(k.cylinder(0, -34, 18, PC_TOP, 3.2, P, 36, 0.5), { tone: "lo" }));
-  out.push(
-    S(k.cylinder(0, -34, 9.5, PC_TOP + 3.2, 9.8, P, 32), {
-      tone: "mid",
-      crease: "none",
-    })
-  );
-  out.push(L(k.sideArc(0, -34, 9.5, PC_TOP + 8, P, 20), { tone: "faint" }));
-
-  // Main Monitor Housing
-  const MON = { x: -54, y: -64, w: 108, d: 64, r: 7 };
-  const MON_Z0 = 36;
-  const MON_H = 88;
-  const MON_TOP = MON_Z0 + MON_H; // 124
-  const MON_FRONT = MON.y + MON.d; // 0
-
-  const monSeam = k.sideSeam(MON, MON_Z0 + 10, P, 7);
-  out.push(
-    S(k.slabOf(MON, MON_Z0, MON_H, P, 7, 1.6), {
-      tone: "hi",
-      className: "hotspot-primary",
-      inner: L(monSeam, { tone: "faint" }),
-    })
-  );
-
-  // Top Cooling Vent Slots on Monitor
-  const topVents = Array.from({ length: 6 }, (_, i) =>
-    k.planOutline(
-      { x: -32, y: MON.y + 14 + i * 4.2, w: 64, d: 1.6, r: 0.7 },
-      MON_TOP,
-      P,
-      4
-    )
-  ).join("");
-  out.push(L(topVents, { tone: "faint" }));
-
-  // Recessed Outer Bezel & Inner CRT/LCD Screen on Monitor Front (y = MON_FRONT)
-  const BEZEL = {
-    x0: -46,
-    x1: 46,
-    z0: MON_Z0 + 8,
-    z1: MON_TOP - 7,
-    r: 5,
-    depth: 2.0,
-  };
-  const SCREEN = {
-    x0: -41,
-    x1: 41,
-    z0: MON_Z0 + 13,
-    z1: MON_TOP - 11,
-    r: 6,
-    depth: 4.2,
-  };
-
-  // Screen dashboard graphics in screen plane
-  const scanLines = [];
-  for (let z = SCREEN.z0 + 2; z < SCREEN.z1; z += 2.4) {
-    scanLines.push(`M${SCREEN.x0} ${(-z).toFixed(1)}H${SCREEN.x1}`);
+  if (regularBooks.length) {
+    out.push(
+      S(mergeSlabs(regularBooks), {
+        tone: "mid",
+        className: "book-shelf-regular",
+      })
+    );
   }
-  const screenGlow = flatRect(
-    SCREEN.x0 + 5,
-    SCREEN.z0 + 5,
-    SCREEN.x1 - 5,
-    SCREEN.z1 - 5,
-    14,
-    8
+  if (featuredBooks.length) {
+    out.push(
+      S(mergeSlabs(featuredBooks), {
+        tone: "hi",
+        lit: true,
+        className: "hotspot-primary book-shelf-featured",
+      })
+    );
+  }
+
+  return out.join("");
+}
+
+/**
+ * 7. [01] External Widescreen Monitor & Red-Backlit Gaming Laptop ("Projects" Hotspot)
+ */
+function buildMonitorAndLaptop() {
+  const out = [];
+
+  // --- A. Center-Left External Widescreen Monitor (x: -44..48, y: -58..-42) ---
+  const STAND_BASE = { x: -16, y: -56, w: 36, d: 24, r: 2.5 };
+  const STAND_NECK = { x: -4, y: -54, w: 12, d: 7, r: 1.2 };
+  out.push(
+    `<path class="iso-halo" d="${k.haloOf(STAND_BASE, 0, 6, P)}"/>`,
+    S(k.slabOf(STAND_BASE, 0, 2.5, P, 3, 0.4), {
+      tone: "lo",
+      className: "dark-hardware-solid",
+    }),
+    S(k.slabOf(STAND_NECK, 2.5, 14, P, 3, 0.3), {
+      tone: "lo",
+      className: "dark-hardware-solid",
+    })
   );
 
-  // 3 Mini Project Cards / Metric Bars inside the Monitor Screen
-  const card1 = flatRect(-36, 86, -14, 102, 1.8, 4);
-  const card2 = flatRect(-11, 86, 11, 102, 1.8, 4);
-  const card3 = flatRect(14, 86, 36, 102, 1.8, 4);
+  // Widescreen Flat Monitor Bezel Housing
+  const MON = { x: -46, y: -52, w: 96, d: 11, r: 3.5 };
+  const MON_Z0 = 14;
+  const MON_H = 56;
+  const MON_TOP = MON_Z0 + MON_H; // 70
+  const MON_FRONT = MON.y + MON.d; // -41
 
-  // Rising telemetry waveform inside the Monitor Screen
-  const wavePath = `M-35 -74 L-24 -78 L-14 -75 L-3 -82 L8 -79 L19 -84 L34 -81`;
+  out.push(
+    S(k.slabOf(MON, MON_Z0, MON_H, P, 5, 0.9), {
+      tone: "hi",
+      className: "hotspot-primary dark-hardware-solid",
+    })
+  );
+
+  // Recessed Widescreen Display with Dashboard & Project Cards Preview
+  const SCREEN = {
+    x0: MON.x + 4,
+    x1: MON.x + MON.w - 4,
+    z0: MON_Z0 + 5,
+    z1: MON_TOP - 4,
+    r: 2,
+    depth: 2.2,
+  };
+
+  const screenGlow = flatRect(
+    SCREEN.x0 + 3,
+    SCREEN.z0 + 3,
+    SCREEN.x1 - 3,
+    SCREEN.z1 - 3,
+    4,
+    5
+  );
+  const card1 = flatRect(-38, 36, -15, 52, 1.5, 4);
+  const card2 = flatRect(-11, 36, 12, 52, 1.5, 4);
+  const card3 = flatRect(16, 36, 39, 52, 1.5, 4);
+  const wavePath = `M-36 -28 L-24 -32 L-12 -29 L2 -34 L16 -30 L30 -35 L40 -32`;
 
   const screenContent = [
     `<path class="desk-screen-glow" d="${screenGlow}"/>`,
-    `<path class="desk-screen-scan" d="${scanLines.join("")}"/>`,
     `<path class="desk-screen-card" d="${card1}${card2}${card3}"/>`,
     `<path class="iso-line" data-tone="lit" d="${wavePath}"/>`,
-    `<text class="desk-screen-title" x="-36" y="-105" font-size="4.4">PORTFOLIO // 11 PROJECTS</text>`,
-    `<text class="desk-screen-sub" x="-36" y="-64" font-size="4.0">&gt; CLICK MONITOR TO OPEN</text>`,
-    `<rect class="desk-screen-cursor" x="22" y="-68" width="2.8" height="4.4"/>`,
+    `<text class="desk-screen-title" x="-38" y="-58" font-size="4.2">BAGAS_OS // 11 PROJECTS</text>`,
+    `<text class="desk-screen-sub" x="-38" y="-22" font-size="3.8">&gt; CLICK MONITOR TO ENTER</text>`,
+    `<rect class="desk-screen-cursor" x="28" y="-25.5" width="2.6" height="3.8"/>`,
   ].join("");
 
   out.push(
-    recessedWindow(
-      BEZEL,
-      MON_FRONT,
-      "",
-      "desk-bezel-well",
-      recessedWindow(SCREEN, MON_FRONT - BEZEL.depth, screenContent, "desk-screen-glass")
-    )
+    recessedWindow(SCREEN, MON_FRONT, screenContent, "desk-screen-glass")
   );
 
-  // Monitor Power Indicator LED
+  // Monitor Power LED
   out.push(
-    D([at([38, MON_FRONT, MON_Z0 + 4.2])], {
+    D([at([42, MON_FRONT, MON_Z0 + 2.5])], {
       size: 0.85,
       tone: "hi",
       pulse: true,
     })
   );
 
+  // --- B. Right-Side Gaming Laptop with Red Backlit Keyboard (x: 62..136, y: -26..22) ---
+  const LAP_BASE = { x: 62, y: -26, w: 74, d: 48, r: 3.5 };
+  out.push(
+    `<path class="iso-halo" d="${k.haloOf(LAP_BASE, 0, 5, P)}"/>`,
+    S(k.slabOf(LAP_BASE, 0, 3.8, P, 4, 0.6), {
+      tone: "hi",
+      className: "dark-hardware-solid",
+    })
+  );
+
+  // Red Backlit Gaming Keyboard Well on the Laptop Base (exact photo signature!)
+  const RED_KB = { x: 67, y: -18, w: 64, d: 22, r: 1.8 };
+  out.push(
+    S(k.slabOf(RED_KB, 3.8, 1.1, P, 3, 0.2), {
+      tone: "hi",
+      lit: true,
+      className: "laptop-red-keyboard",
+    })
+  );
+  // Key grid lines across the red backlit laptop keyboard
+  const lapKeyLines = [];
+  for (let ry = -13; ry <= 2; ry += 5) {
+    lapKeyLines.push(k.lineOnTop([69, ry], [129, ry], 5.0, P));
+  }
+  for (let rx = 74; rx <= 124; rx += 7) {
+    lapKeyLines.push(k.lineOnTop([rx, -17], [rx, 3], 5.0, P));
+  }
+  out.push(L(lapKeyLines.join(""), { tone: "hi", free: true }));
+
+  // Laptop Trackpad & GPU Wrist Sticker
+  out.push(
+    L(
+      k.planOutline({ x: 88, y: 6, w: 19, d: 11, r: 1.2 }, 3.8, P, 3),
+      { tone: "mid" }
+    )
+  );
+  out.push(
+    D([at([69, 11, 3.9]), at([74, 11, 3.9])], {
+      size: 0.9,
+      tone: "hi",
+    })
+  );
+
+  // Open Gaming Laptop Screen Housing hinged cleanly at the back of the laptop base
+  const LAP_SCR = { x: 63, y: -30, w: 72, d: 5.5, r: 2.5 };
+  const LAP_Z0 = 3.8;
+  const LAP_H = 44;
+  const LAP_FRONT = LAP_SCR.y + LAP_SCR.d; // -24.5
+  out.push(
+    S(k.slabOf(LAP_SCR, LAP_Z0, LAP_H, P, 4, 0.6), {
+      tone: "hi",
+      className: "hotspot-primary dark-hardware-solid",
+    })
+  );
+
+  const LAP_WELL = {
+    x0: LAP_SCR.x + 3.5,
+    x1: LAP_SCR.x + LAP_SCR.w - 3.5,
+    z0: LAP_Z0 + 3.5,
+    z1: LAP_Z0 + LAP_H - 3.5,
+    r: 1.5,
+    depth: 1.5,
+  };
+  const ideLines = [
+    `M70 -39 H102`,
+    `M74 -34 H122`,
+    `M74 -29 H114`,
+    `M70 -24 H126`,
+    `M74 -19 H108`,
+    `M70 -14 H96`,
+  ].join("");
+  out.push(
+    recessedWindow(
+      LAP_WELL,
+      LAP_FRONT,
+      `<path class="iso-line" data-tone="lit" d="${ideLines}"/>`,
+      "desk-screen-glass"
+    )
+  );
+
   return out.join("");
 }
 
 /**
- * 6. Mechanical Keyboard, Coiled Cord, Stitched Mousepad & 3D Ergonomic Mouse
- *    (Visually part of the central Workstation on the Desk)
+ * 8. Mechanical Keyboard, Mouse & Dark Mousepad in Front of Monitor
  */
 const KB_ROWS = [
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
@@ -759,76 +1043,52 @@ const KB_ROWS = [
   [2.2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2.8],
   [1.5, 1.5, 1.5, 6.5, 1.5, 1.5],
 ];
-const KB_ROW_H = [4.6, 4.3, 4.0, 3.7, 3.5];
+const KB_ROW_H = [3.2, 3.0, 2.8, 2.6, 2.5];
 
 function buildKeyboardAndMouse() {
   const out = [];
 
-  // Coiled Cable connecting PC Side Port to Keyboard
-  const kbCoil = k.coil(-16, 18, [64, 3.2], 2.8, 13, "y", P);
-  out.push(L(kbCoil.back, { tone: "lo" }), L(kbCoil.front, { tone: "mid" }));
-
-  // Mechanical Keyboard Chassis (Center-Front of Desk)
-  const KB = { x: -66, y: 20, w: 112, d: 46, r: 4 };
-  const KB_Z = 1.4;
-  const KB_TOP = 7.2;
-  const U = 7.4;
-  const KEYS_X = KB.x + 5;
-  const KEYS_Y = KB.y + 5.5;
-
-  out.push(`<path class="iso-halo" d="${k.haloOf(KB, 0, 4, P)}"/>`);
-  for (const [fx, fy] of byDepth(k.corners(KB, 6))) {
-    out.push(S(k.cylinder(fx, fy, 2.4, 0, KB_Z, P, 14), { tone: "lo" }));
-  }
-  out.push(S(k.slabOf(KB, KB_Z, KB_TOP - KB_Z, P, 5, 0.9), { tone: "mid" }));
-
-  // Key Well Outline & Status LEDs
-  const well = {
-    x: KEYS_X - 1.2,
-    y: KEYS_Y - 1.2,
-    w: U * 14 + 2.4,
-    d: U * 5 + 1.2,
-    r: 1.8,
-  };
-  out.push(L(k.planOutline(well, KB_TOP, P, 4), { tone: "lo" }));
+  // Dark Extended Mousepad under Mouse & Keyboard right edge (x: -10..42, separated cleanly from Laptop at x=62!)
+  const PAD = { x: -10, y: -10, w: 52, d: 40, r: 3 };
   out.push(
-    D(
-      [
-        at([KB.x + KB.w - 14, KB.y + 3, KB_TOP]),
-        at([KB.x + KB.w - 10, KB.y + 3, KB_TOP]),
-        at([KB.x + KB.w - 6, KB.y + 3, KB_TOP]),
-      ],
-      { size: 0.45, tone: "hi" }
-    )
+    S(k.slabOf(PAD, 0, 1.2, P, 4, 0.2), {
+      tone: "lo",
+      className: "dark-hardware-solid",
+    })
   );
 
-  // 5 Rows of Sculpted 3D Keycaps (batched into merged SVG paths for fast DOM traversal)
-  const regularCaps = [];
-  const shortcutCaps = [];
-  const litCaps = [];
-  const allDishes = [];
+  // Mechanical Keyboard Chassis (x: -48..20, y: -10..24)
+  const KB = { x: -48, y: -10, w: 68, d: 34, r: 2.5 };
+  const KB_Z = 1.2;
+  const KB_TOP = 4.6;
+  const U = 4.55;
+  const KEYS_X = KB.x + 3.0;
+  const KEYS_Y = KB.y + 3.5;
 
+  out.push(
+    `<path class="iso-halo" d="${k.haloOf(KB, 0, 3, P)}"/>`,
+    S(k.slabOf(KB, KB_Z, KB_TOP - KB_Z, P, 4, 0.6), {
+      tone: "hi",
+      className: "dark-hardware-solid",
+    })
+  );
+
+  const regularCaps = [];
+  const litCaps = [];
   KB_ROWS.forEach((row, rIdx) => {
     let x = KEYS_X;
     row.forEach((widthUnits, cIdx) => {
       const plan = {
-        x: x + 0.55,
-        y: KEYS_Y + rIdx * U + 0.55,
-        w: widthUnits * U - 1.1,
-        d: U - 1.3,
-        r: 1.1,
+        x: x + 0.35,
+        y: KEYS_Y + rIdx * U + 0.35,
+        w: widthUnits * U - 0.7,
+        d: U - 0.85,
+        r: 0.7,
       };
       const kh = KB_ROW_H[rIdx];
-      const slab = k.slabOf(plan, KB_TOP, kh, P, 3, 0.35);
-      allDishes.push(k.planOutline(k.insetPlan(plan, 1.3), KB_TOP + kh, P, 3));
-
+      const slab = k.slabOf(plan, KB_TOP, kh, P, 3, 0.25);
       if (rIdx === 0 && cIdx === 0) {
         litCaps.push(slab);
-      } else if (
-        (rIdx === 0 && cIdx >= 1 && cIdx <= 5) ||
-        (rIdx === 2 && cIdx === row.length - 1)
-      ) {
-        shortcutCaps.push(slab);
       } else {
         regularCaps.push(slab);
       }
@@ -841,62 +1101,61 @@ function buildKeyboardAndMouse() {
       S(mergeSlabs(regularCaps), {
         tone: "mid",
         crease: "faint",
-        inner: L(allDishes.join(""), { tone: "faint" }),
+        className: "dark-hardware-solid",
       })
     );
-  }
-  if (shortcutCaps.length) {
-    out.push(S(mergeSlabs(shortcutCaps), { tone: "hi", crease: "faint" }));
   }
   if (litCaps.length) {
     out.push(S(mergeSlabs(litCaps), { tone: "hi", lit: true, crease: "faint" }));
   }
 
-  // Stitched Mousepad (to the right of the keyboard)
-  const PAD = { x: 54, y: 22, w: 44, d: 44, r: 3.5 };
-  out.push(S(k.slabOf(PAD, 0, 1.2, P, 5, 0.3), { tone: "lo" }));
+  // Ergonomic Gaming Mouse on the Dark Mousepad (x: 24..37, y: 2..21)
+  const MOUSE = { x: 24, y: 2, w: 13, d: 19, r: 4.5 };
   out.push(
-    L(k.planOutline(k.insetPlan(PAD, 2.2), 1.2, P, 4), {
-      tone: "faint",
-      dashed: true,
+    S(k.slabOf(MOUSE, 1.2, 4.8, P, 5, 0.6), {
+      tone: "hi",
+      className: "dark-hardware-solid",
     })
   );
+  // Scroll wheel
+  out.push(
+    S(
+      k.slabOf({ x: 29.7, y: 4, w: 1.6, d: 4, r: 0.6 }, 6.0, 1.0, P, 2),
+      { tone: "hi", lit: true }
+    )
+  );
 
-  // Mouse Cord (3D tube from Mouse back to PC side port)
+  // Mouse Cord connecting back toward Monitor/Desk
   const mouseRoute = G.fillet(
     [
-      [76, 33, 2.6],
-      [76, 14, 2.2],
-      [68, 2, 2.4],
-      [61.5, -14, 9.5],
+      [30.5, 2, 2.2],
+      [30.5, -14, 1.8],
+      [22, -34, 2.0],
     ],
     4,
-    6,
-    { P, tube: 0.9 }
+    5,
+    { P, tube: 0.7 }
   );
-  for (const piece of tubePieces(mouseRoute, 0.9, P, { maxLength: 24 })) {
-    out.push(tubeSvg(piece, { tone: "mid" }));
+  for (const piece of tubePieces(mouseRoute, 0.7, P, { maxLength: 40 })) {
+    out.push(tubeSvg(piece, { tone: "lo" }));
   }
 
-  // Ergonomic 3D Mouse Body on the Mousepad
-  const MOUSE = { x: 66, y: 33, w: 20, d: 26, r: 6 };
-  out.push(`<path class="iso-halo" d="${k.haloOf(MOUSE, 1.2, 6, P)}"/>`);
-  const mouseSeam =
-    k.lineOnTop([66.5, 43], [85.5, 43], 7.4, P) +
-    k.lineOnTop([76, 33.5], [76, 43], 7.4, P);
+  // Right Side Partition Wall with Cutout Window (rendered in foreground on right edge of desk)
+  const SIDE_BACK = { x: 161, y: -86, w: 7, d: 34, r: 1.5 };
+  const SIDE_FRONT = { x: 161, y: 24, w: 7, d: 40, r: 1.5 };
+  const SIDE_TOP = { x: 161, y: -86, w: 7, d: 150, r: 2 };
   out.push(
-    S(k.slabOf(MOUSE, 1.2, 6.2, P, 6, 0.8), {
-      tone: "hi",
-      inner: L(mouseSeam, { tone: "lo" }),
-    })
-  );
-
-  // Scroll Wheel on the Mouse
-  const WHEEL = { x: 74.8, y: 35.5, w: 2.4, d: 5.2, r: 0.9 };
-  out.push(
-    S(k.slabOf(WHEEL, 7.4, 1.4, P, 3, 0.2), {
+    S(k.slabOf(SIDE_BACK, 0, 52, P, 3, 0.4), {
       tone: "mid",
-      lit: true,
+      className: "wood-cabinet-solid",
+    }),
+    S(k.slabOf(SIDE_FRONT, 0, 52, P, 3, 0.4), {
+      tone: "mid",
+      className: "wood-cabinet-solid",
+    }),
+    S(k.slabOf(SIDE_TOP, 52, 10, P, 3, 0.5), {
+      tone: "hi",
+      className: "wood-top-slab",
     })
   );
 
@@ -904,125 +1163,73 @@ function buildKeyboardAndMouse() {
 }
 
 /**
- * 7. [03] Desk Telephone & Coiled Cord ("Contact Me" Hotspot) — Desk Right
+ * 9. [03] Smartphone on Angled Desk Stand ("Contact Me" Hotspot) — Left of Monitor
  */
-function buildDeskPhone() {
+function buildSmartphoneOnStand() {
   const out = [];
-  const PHONE = { x: 108, y: 2, w: 54, d: 62, r: 5 };
-  const BASE_Z = 1.4;
-  const BASE_H = 12.6;
-  const BASE_TOP = BASE_Z + BASE_H; // 14
+  const SX = -68;
+  const SY = 6;
 
-  out.push(`<path class="iso-halo" d="${k.haloOf(PHONE, 0, 8, P)}"/>`);
-
-  // 4 Rubber feet
-  for (const [fx, fy] of byDepth(k.corners(PHONE, 6))) {
-    out.push(S(k.cylinder(fx, fy, 2.6, 0, BASE_Z, P, 14), { tone: "lo" }));
-  }
-
-  // Coiled Handset Cord on the left side of the phone
-  const phoneCoil = k.coil(12, 48, [104, 5.2], 3.0, 14, "y", P);
+  // Anodized Aluminum Smartphone Stand Base & Upright Cradle
+  const STAND_FOOT = { x: SX - 2, y: SY - 2, w: 22, d: 24, r: 2.5 };
+  const STAND_PILLAR = { x: SX + 4, y: SY + 2, w: 10, d: 6, r: 1.2 };
   out.push(
-    L(phoneCoil.back, { tone: "lo" }),
-    L(phoneCoil.front, { tone: "mid" })
-  );
-
-  // Main Phone Console Base
-  const phoneSeam = k.sideSeam(PHONE, 7.5, P, 5);
-  out.push(
-    S(k.slabOf(PHONE, BASE_Z, BASE_H, P, 5, 1.1), {
-      tone: "hi",
-      className: "hotspot-primary",
-      inner: L(phoneSeam, { tone: "faint" }),
-    })
-  );
-
-  // Caller-ID Display Strip & Pulsing Ring LED on the Phone Face
-  const lcd = { x: 126, y: 20, w: 30, d: 8, r: 1.4 };
-  out.push(S(k.slabOf(lcd, BASE_TOP, 0.8, P, 3), { tone: "lo" }));
-  out.push(
-    k.faceTextSvg(k.topMatrix([129, 25.5], BASE_TOP + 0.8, P, "x"), "CONTACT", {
-      size: 3.6,
-      tone: "hi",
-    })
-  );
-  // Pulsing Ring Indicator LED
-  out.push(
-    D([at([156, 56, BASE_TOP + 0.4])], {
-      size: 0.9,
-      tone: "hi",
-      pulse: true,
-    })
-  );
-
-  // Speaker Grille Perforation Dots (bottom-left of phone face)
-  out.push(
-    D(k.dotGrid(114, 46, 4, 3, 2.6, BASE_TOP, P), {
-      size: 0.42,
+    `<path class="iso-halo" d="${k.haloOf(STAND_FOOT, 0, 5, P)}"/>`,
+    S(k.slabOf(STAND_FOOT, 0, 2.2, P, 3, 0.4), {
       tone: "mid",
+      className: "silver-hardware",
+    }),
+    S(k.slabOf(STAND_PILLAR, 2.2, 12, P, 3, 0.3), {
+      tone: "mid",
+      className: "silver-hardware",
     })
   );
 
-  // 3x4 Tactile Numeric Keypad (12 sculpted buttons batched for fast DOM traversal)
-  const KP_X = 128;
-  const KP_Y = 31;
-  const BW = 6.2;
-  const BD = 5.0;
-  const GAP = 1.8;
-  const phoneMidBtns = [];
-  const phoneHiBtns = [];
-  const phoneLitBtns = [];
-  for (let row = 0; row < 4; row++) {
-    for (let col = 0; col < 3; col++) {
-      const btn = {
-        x: KP_X + col * (BW + GAP),
-        y: KP_Y + row * (BD + GAP),
-        w: BW,
-        d: BD,
-        r: 1.0,
-      };
-      const slab = k.slabOf(btn, BASE_TOP, 2.4, P, 3, 0.3);
-      if (row === 0 && col === 0) {
-        phoneLitBtns.push(slab);
-      } else if (row === 3 && col === 1) {
-        phoneHiBtns.push(slab);
-      } else {
-        phoneMidBtns.push(slab);
-      }
-    }
-  }
-  if (phoneMidBtns.length) {
-    out.push(S(mergeSlabs(phoneMidBtns), { tone: "mid", crease: "faint" }));
-  }
-  if (phoneHiBtns.length) {
-    out.push(S(mergeSlabs(phoneHiBtns), { tone: "hi", crease: "faint" }));
-  }
-  if (phoneLitBtns.length) {
-    out.push(S(mergeSlabs(phoneLitBtns), { tone: "mid", lit: true, crease: "faint" }));
-  }
-
-  // Cradle Plungers
-  out.push(
-    S(k.cylinder(117, 11, 2.4, BASE_TOP, 2.5, P, 16), { tone: "lo" }),
-    S(k.cylinder(117, 52, 2.4, BASE_TOP, 2.5, P, 16), { tone: "lo" })
-  );
-
-  // Sculpted Telephone Handset resting along the left cradle (x = 111..123, y = 4..60)
-  const EAR_BACK = { x: 111, y: 5, w: 12, d: 13, r: 3 };
-  const EAR_FRONT = { x: 111, y: 46, w: 12, d: 13, r: 3 };
-  const BAR = { x: 112.5, y: 8, w: 9, d: 48, r: 2.8 };
+  // Smartphone Body resting vertically on the Stand (x: SX..SX+18, y: SY+6..SY+12, z: 4..32)
+  const PHONE_BODY = { x: SX, y: SY + 6, w: 18, d: 4.5, r: 2.2 };
+  const PZ0 = 4;
+  const PH = 28;
+  const P_FRONT = PHONE_BODY.y + PHONE_BODY.d;
 
   out.push(
-    S(k.slabOf(EAR_BACK, BASE_TOP + 2, 6.5, P, 4, 0.5), { tone: "mid" })
-  );
-  out.push(
-    S(k.slabOf(EAR_FRONT, BASE_TOP + 2, 6.5, P, 4, 0.5), { tone: "mid" })
-  );
-  out.push(
-    S(k.slabOf(BAR, BASE_TOP + 6, 5.5, P, 4, 0.7), {
+    S(k.slabOf(PHONE_BODY, PZ0, PH, P, 4, 0.6), {
       tone: "hi",
       lit: true,
-      className: "desk-handset-bar",
+      className: "hotspot-primary phone-stand-body",
+    })
+  );
+
+  // Glowing Smartphone Screen on the front face
+  const PHONE_SCR = {
+    x0: PHONE_BODY.x + 1.6,
+    x1: PHONE_BODY.x + PHONE_BODY.w - 1.6,
+    z0: PZ0 + 2,
+    z1: PZ0 + PH - 2,
+    r: 1.4,
+    depth: 1.0,
+  };
+
+  const appCards = [
+    flatRect(SX + 3, PZ0 + 16, SX + 15, PZ0 + 21, 0.8, 3),
+    flatRect(SX + 3, PZ0 + 10, SX + 15, PZ0 + 14.5, 0.8, 3),
+    flatRect(SX + 3, PZ0 + 4, SX + 15, PZ0 + 8.5, 0.8, 3),
+  ].join("");
+
+  out.push(
+    recessedWindow(
+      PHONE_SCR,
+      P_FRONT,
+      `<path class="desk-screen-card" d="${appCards}"/><text class="desk-screen-title" x="${SX + 3}" y="${-(PZ0 + 23)}" font-size="2.8">CONTACT</text>`,
+      "desk-screen-glass"
+    )
+  );
+
+  // Notification Pulse LED at top of smartphone
+  out.push(
+    D([at([SX + 9, P_FRONT, PZ0 + PH - 1.2])], {
+      size: 0.75,
+      tone: "hi",
+      pulse: true,
     })
   );
 
@@ -1032,8 +1239,8 @@ function buildDeskPhone() {
 const SCENE_CACHE = new Map();
 
 /**
- * Build the complete precomputed workstation scene and 2D screen coordinates for all 5 hotspot pins.
- * Cached by `photoHref` so repeated mounts reuse the exact precomputed SVG strings in O(1).
+ * Build the complete precomputed bedroom & study desk scene and 2D screen coordinates
+ * for all 5 hotspot pins. Cached by `photoHref` for O(1) repeated renders.
  * @param {string} photoHref  Resolved URL/path to Bagas's portrait image (`profile.jpg`).
  */
 export function buildDeskScene(photoHref = "") {
@@ -1054,17 +1261,18 @@ export function buildDeskScene(photoHref = "") {
     height: VIEW_HEIGHT,
     pins,
     layers: {
-      deskAndWall: buildDeskAndWall(),
+      deskAndWall:
+        buildRoomAndWindow() + buildLeftCabinet() + buildStudyDesk(),
       photo: buildWallPhoto(key),
-      trophy: buildTrophyShelf(),
-      notebook: buildNotebookAndPen(),
-      monitor: buildComputerAndMonitor(),
+      notebook: buildBooksInLeftShelf(),
+      cabinetFrontAndCrown: buildCabinetFrontAndCrown(),
+      trophy: buildTrophyOnCabinet(),
+      monitor: buildMonitorAndLaptop(),
       keyboardAndMouse: buildKeyboardAndMouse(),
-      phone: buildDeskPhone(),
+      phone: buildSmartphoneOnStand(),
     },
   };
 
   SCENE_CACHE.set(key, scene);
   return scene;
 }
-

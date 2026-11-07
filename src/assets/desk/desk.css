@@ -1,52 +1,70 @@
 /* -------------------------------------------------------------------------- */
-/* Scoped "Lab Notebook × Anatomy" 4-Tone Isometric Workstation Palette       */
+/* Scoped "Bagas's Study Room" Palette: Cool Wallpaper + Warm Teak Wood       */
 /* -------------------------------------------------------------------------- */
 .iso-desk {
-  --anatomy-page: #f3efe6;
+  --anatomy-page: #e3ecf2;
   --anatomy-card: #fbf9f4;
-  --anatomy-text: #45413a;
+  --anatomy-text: #35322c;
   --anatomy-strong: #17150f;
-  --anatomy-muted: #67625a;
+  --anatomy-muted: #5b646d;
 
-  /* 4-tone warm paper & drafting-ink shading */
-  --anatomy-paper: #fbf9f4;
+  /* Default warm neutral base */
+  --anatomy-paper: #f6f3ec;
   --anatomy-face: #fffdf8;
-  --anatomy-top: #fffdf9;
-  --anatomy-shade-0: #d6ceb8;
-  --anatomy-shade-1: #e1dac7;
-  --anatomy-shade-2: #ebe5d5;
-  --anatomy-shade-3: #f4f0e4;
+  --anatomy-top: #fbf9f4;
+  --anatomy-shade-0: #cfc7b4;
+  --anatomy-shade-1: #dbd4c3;
+  --anatomy-shade-2: #e7e1d3;
+  --anatomy-shade-3: #f2eee2;
 
-  /* Lit accent surfaces (highlighter & signal) */
-  --anatomy-lit-top: #ffe373;
-  --anatomy-lit-shade: #f3c846;
+  /* Lit accent surfaces (golden trophy & warm highlights) */
+  --anatomy-lit-top: #ffe066;
+  --anatomy-lit-shade: #e8b931;
 
-  /* Line & stroke hierarchy */
+  /* Crisp architectural line hierarchy */
   --anatomy-hi: #17150f;
-  --anatomy-mid: #5c564c;
-  --anatomy-lo: #8c8578;
-  --anatomy-faint: #c4bcad;
+  --anatomy-mid: #4c4940;
+  --anatomy-lo: #7a7568;
+  --anatomy-faint: #b8b2a4;
   --anatomy-lit: #d93f12;
 
-  --anatomy-halo: #807764;
-  --anatomy-halo-opacity: 0.28;
+  --anatomy-halo: #2c3e50;
+  --anatomy-halo-opacity: 0.24;
   --anatomy-dot: #17150f;
 
-  --anatomy-red: #d93f12;
-  --anatomy-green: #267a4c;
-  --anatomy-blue: #2558b8;
-
-  --anatomy-weight: 0.7px;
+  --anatomy-weight: 0.72px;
   --anatomy-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --anatomy-mono: var(--font-mono);
 }
 
+/* Cool-toned soothing room stage background */
+.iso-desk .iso-desk-stage {
+  background: radial-gradient(
+      circle at 65% 24%,
+      rgba(176, 212, 235, 0.45) 0%,
+      rgba(214, 229, 240, 0.2) 48%,
+      transparent 75%
+    ),
+    linear-gradient(180deg, #d7e4ee 0%, #e5eef5 54%, #efeae0 100%);
+}
+
 .iso-desk .iso-svg {
   display: block;
-  width: 100%;
-  height: auto;
+  width: 100vw;
+  height: 100vh;
+  max-height: 100vh;
   overflow: visible;
   user-select: none;
+  transform-origin: var(--cam-origin-x, 50%) var(--cam-origin-y, 50%);
+  transition:
+    transform 680ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 480ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 420ms ease;
+}
+
+.iso-desk .iso-svg[data-zoomed="true"] {
+  transform: scale(var(--cam-scale, 2.2));
+  filter: blur(2.5px) brightness(0.82);
 }
 
 .iso-desk .iso-svg path,
@@ -95,6 +113,238 @@
   fill: var(--anatomy-lit-shade);
 }
 
+/* -------------------------------------------------------------------------- */
+/* Real Room Materials: Cool Wallpaper, Teak Wood, Dark Tech & Red Laptop     */
+/* -------------------------------------------------------------------------- */
+
+/* Cool-toned bedroom wallpaper */
+.iso-desk .room-wall-cool > .iso-top {
+  fill: #d5e3ed;
+}
+.iso-desk .room-wall-cool > .iso-shade[data-shade="0"] {
+  fill: #adc2d1;
+}
+.iso-desk .room-wall-cool > .iso-shade[data-shade="1"] {
+  fill: #b9cedd;
+}
+.iso-desk .room-wall-cool > .iso-shade[data-shade="2"] {
+  fill: #c5d8e6;
+}
+.iso-desk .room-wall-cool > .iso-shade[data-shade="3"] {
+  fill: #cfe0ec;
+}
+
+/* White ceramic tiled floor */
+.iso-desk .room-floor-slab > .iso-top {
+  fill: #f4f6f8;
+}
+.iso-desk .room-floor-slab > .iso-shade {
+  fill: #d5dce2;
+}
+
+/* Warm Teak Wood Study Desk & Left Cabinet (matching Bagas's real desk photo) */
+.iso-desk .wood-top-slab > .iso-top {
+  fill: #d48842;
+}
+.iso-desk .wood-top-slab > .iso-shade[data-shade="0"] {
+  fill: #8c501b;
+}
+.iso-desk .wood-top-slab > .iso-shade[data-shade="1"] {
+  fill: #a15e24;
+}
+.iso-desk .wood-top-slab > .iso-shade[data-shade="2"] {
+  fill: #b56d2f;
+}
+.iso-desk .wood-top-slab > .iso-shade[data-shade="3"] {
+  fill: #c67c39;
+}
+
+.iso-desk .wood-cabinet-solid > .iso-top {
+  fill: #c87b36;
+}
+.iso-desk .wood-cabinet-solid > .iso-shade[data-shade="0"] {
+  fill: #7d4516;
+}
+.iso-desk .wood-cabinet-solid > .iso-shade[data-shade="1"] {
+  fill: #93531e;
+}
+.iso-desk .wood-cabinet-solid > .iso-shade[data-shade="2"] {
+  fill: #a96328;
+}
+.iso-desk .wood-cabinet-solid > .iso-shade[data-shade="3"] {
+  fill: #bc7131;
+}
+
+.iso-desk .wood-door-solid > .iso-top {
+  fill: #d8904c;
+}
+.iso-desk .wood-door-solid > .iso-shade[data-shade="0"] {
+  fill: #965720;
+}
+.iso-desk .wood-door-solid > .iso-shade[data-shade="1"] {
+  fill: #ab6629;
+}
+.iso-desk .wood-door-solid > .iso-shade[data-shade="2"] {
+  fill: #bf7635;
+}
+.iso-desk .wood-door-solid > .iso-shade[data-shade="3"] {
+  fill: #ce8441;
+}
+
+.iso-desk .wood-dark-solid > .iso-top {
+  fill: #8a4e1b;
+}
+.iso-desk .wood-dark-solid > .iso-shade {
+  fill: #5e330e;
+}
+
+/* Matte Black Monitor, Gaming Laptop, Keyboard & Mouse */
+.iso-desk .dark-hardware-solid > .iso-top {
+  fill: #343842;
+}
+.iso-desk .dark-hardware-solid > .iso-shade[data-shade="0"] {
+  fill: #181a20;
+}
+.iso-desk .dark-hardware-solid > .iso-shade[data-shade="1"] {
+  fill: #20232a;
+}
+.iso-desk .dark-hardware-solid > .iso-shade[data-shade="2"] {
+  fill: #272b33;
+}
+.iso-desk .dark-hardware-solid > .iso-shade[data-shade="3"] {
+  fill: #2e323b;
+}
+
+/* Glowing Red Backlit Gaming Laptop Keyboard */
+.iso-desk .laptop-red-keyboard > .iso-top {
+  fill: #e02828 !important;
+}
+.iso-desk .laptop-red-keyboard > .iso-shade {
+  fill: #9e1414 !important;
+}
+.iso-desk .laptop-red-keyboard > .iso-edge {
+  stroke: #ff5252 !important;
+}
+
+/* Bookshelf & Peripherals in Left Cabinet */
+.iso-desk .book-shelf-regular > .iso-top {
+  fill: #4a7c9b;
+}
+.iso-desk .book-shelf-regular > .iso-shade {
+  fill: #2f5770;
+}
+.iso-desk .book-shelf-featured > .iso-top {
+  fill: #ffd84d;
+}
+.iso-desk .book-shelf-featured > .iso-shade {
+  fill: #e09f1f;
+}
+
+.iso-desk .box-green-solid > .iso-top {
+  fill: #68b836;
+}
+.iso-desk .box-green-solid > .iso-shade {
+  fill: #3a7517;
+}
+.iso-desk .box-purple-solid > .iso-top {
+  fill: #9b6b9e;
+}
+.iso-desk .box-purple-solid > .iso-shade {
+  fill: #6f4573;
+}
+.iso-desk .coaster-blue-solid > .iso-top {
+  fill: #4fc3f7;
+}
+.iso-desk .coaster-blue-solid > .iso-shade {
+  fill: #0288d1;
+}
+.iso-desk .silver-hardware > .iso-top {
+  fill: #eef2f6;
+}
+.iso-desk .silver-hardware > .iso-shade {
+  fill: #b0bcc8;
+}
+
+.iso-desk .hanger-blue-wire {
+  fill: none;
+  stroke: #2998d6;
+  stroke-width: 1.8px;
+  stroke-linejoin: round;
+}
+.iso-desk .lanyard-strap {
+  fill: none;
+  stroke: #d93f12;
+  stroke-width: 1.5px;
+  stroke-linecap: round;
+}
+
+/* Scenic Bedroom Window & Draped Curtain Styles */
+.iso-desk .window-frame-solid > .iso-top {
+  fill: #f7f9fb;
+}
+.iso-desk .window-frame-solid > .iso-shade {
+  fill: #cdd9e3;
+}
+.iso-desk .window-curtain-solid > .iso-top {
+  fill: #8daec6;
+}
+.iso-desk .window-curtain-solid > .iso-shade[data-shade="0"] {
+  fill: #55768f;
+}
+.iso-desk .window-curtain-solid > .iso-shade[data-shade="1"] {
+  fill: #6486a0;
+}
+.iso-desk .window-curtain-solid > .iso-shade[data-shade="2"] {
+  fill: #7396b0;
+}
+.iso-desk .window-curtain-solid > .iso-shade[data-shade="3"] {
+  fill: #81a3bd;
+}
+.iso-desk .desk-window-sky {
+  fill: #1b3b56;
+}
+.iso-desk .window-horizon-glow {
+  fill: rgba(114, 178, 222, 0.25);
+}
+.iso-desk .window-mountain-far {
+  fill: #275275;
+}
+.iso-desk .window-mountain-near {
+  fill: #32668f;
+}
+.iso-desk .window-moon {
+  fill: #ffe885;
+}
+.iso-desk .window-moon-glow {
+  fill: rgba(255, 232, 133, 0.24);
+}
+.iso-desk .window-star {
+  fill: #fff8d6;
+  animation: iso-pulse 2.6s ease-in-out infinite;
+}
+.iso-desk .window-cloud {
+  fill: none;
+  stroke: rgba(196, 228, 248, 0.42);
+  stroke-width: 3.2px;
+  stroke-linecap: round;
+}
+.iso-desk .window-glass-glint {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.22);
+  stroke-width: 1.6px;
+  stroke-linecap: round;
+}
+.iso-desk .window-city-light {
+  fill: #ffd84d;
+  opacity: 0.85;
+}
+.iso-desk .window-mullion {
+  fill: none;
+  stroke: rgba(240, 246, 252, 0.65);
+  stroke-width: 1.2px;
+}
+
+/* Seamless Lathe Solids (Trophy Cup) */
 .iso-desk .iso-solid[data-seamless] > .iso-shade,
 .iso-desk .iso-solid[data-seamless] > .iso-top {
   stroke-width: 0.4;
@@ -124,6 +374,12 @@
   transform: translateY(3px);
 }
 
+.iso-desk .trophy-aura-halo {
+  fill: #ffd84d;
+  opacity: 0.55;
+  filter: blur(10px);
+}
+
 .iso-desk .iso-line {
   fill: none;
   stroke: var(--anatomy-lo);
@@ -146,96 +402,70 @@
   stroke: var(--anatomy-faint);
 }
 .iso-desk .iso-line[data-tone="lit"] {
-  stroke: var(--anatomy-lit);
-  stroke-width: 1.1px;
-}
-
-.iso-desk .iso-line[data-dotted] {
-  stroke-dasharray: 0.01 3.5;
-  stroke-width: 1;
-}
-.iso-desk .iso-line[data-dashed] {
-  stroke-dasharray: 2.5 2.5;
+  stroke: #ff6b3d;
+  stroke-width: 1.15px;
 }
 
 .iso-desk .iso-dots circle {
   fill: var(--anatomy-dot);
   stroke: none;
-  opacity: 0.35;
+  opacity: 0.45;
 }
 .iso-desk .iso-dots[data-tone="hi"] circle {
-  fill: #d93f12;
-  opacity: 0.92;
-}
-.iso-desk .iso-dots[data-tone="mid"] circle {
-  opacity: 0.5;
-}
-.iso-desk .iso-dots[data-tone="lo"] circle {
-  opacity: 0.25;
+  fill: #ff4422;
+  opacity: 0.95;
 }
 
 .iso-desk .iso-face-text {
   fill: var(--anatomy-hi);
   font-family: var(--anatomy-mono);
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.05em;
 }
 
 /* 3D Tubes & Cords */
 .iso-desk .tb-body {
-  fill: var(--anatomy-shade-1);
+  fill: #30343d;
   stroke: none;
 }
 .iso-desk .tb-shine {
-  fill: var(--anatomy-top);
+  fill: #525866;
   stroke: none;
 }
 .iso-desk .tb-shade {
-  fill: var(--anatomy-shade-0);
+  fill: #181a20;
   stroke: none;
 }
 
-/* Monitor Screen & Recessed Wells */
-.iso-desk .desk-bezel-well {
-  fill: #dbd3be;
-}
-.iso-desk .desk-dark-well {
-  fill: #2a261d;
-}
+/* Monitor & Smartphone Recessed Screens */
 .iso-desk .desk-screen-glass {
-  fill: #1c1912;
+  fill: #101824;
   transition: fill 250ms var(--anatomy-ease);
 }
 .iso-desk .desk-screen-glow {
-  fill: rgba(217, 63, 18, 0.14);
+  fill: rgba(56, 189, 248, 0.16);
   transition: fill 250ms var(--anatomy-ease);
 }
-.iso-desk .desk-screen-scan {
-  fill: none;
-  stroke: rgba(243, 239, 230, 0.06);
-  stroke-width: 0.5px;
-}
 .iso-desk .desk-screen-card {
-  fill: rgba(255, 216, 77, 0.14);
-  stroke: rgba(255, 216, 77, 0.55);
+  fill: rgba(255, 216, 77, 0.18);
+  stroke: rgba(255, 216, 77, 0.65);
   stroke-width: 0.6px;
 }
 .iso-desk .desk-screen-title {
   fill: #ffd84d;
   font-family: var(--anatomy-mono);
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
 }
 .iso-desk .desk-screen-sub {
-  fill: #f3efe6;
+  fill: #e0f2fe;
   font-family: var(--anatomy-mono);
   letter-spacing: 0.04em;
 }
 .iso-desk .desk-screen-cursor {
-  fill: #d93f12;
+  fill: #38bdf8;
   animation: deskCursorBlink 1.1s steps(2, start) infinite;
 }
-
 .iso-desk .desk-photo-well {
   fill: #e9e3d5;
 }
@@ -252,51 +482,247 @@
 .iso-desk .desk-hotspot:hover,
 .iso-desk .desk-hotspot:focus-visible,
 .iso-desk .desk-hotspot[data-active="true"] {
-  transform: translateY(-3px);
-}
-
-.iso-desk .desk-hotspot:hover .hotspot-primary > .iso-top,
-.iso-desk .desk-hotspot:focus-visible .hotspot-primary > .iso-top,
-.iso-desk .desk-hotspot[data-active="true"] .hotspot-primary > .iso-top {
-  fill: #ffe885;
+  transform: translateY(-4px);
+  filter: drop-shadow(0 6px 14px rgba(217, 63, 18, 0.28));
 }
 
 .iso-desk .desk-hotspot:hover .hotspot-primary > .iso-edge,
 .iso-desk .desk-hotspot:focus-visible .hotspot-primary > .iso-edge,
 .iso-desk .desk-hotspot[data-active="true"] .hotspot-primary > .iso-edge {
-  stroke: #d93f12;
-  stroke-width: 1.25px;
+  stroke: #ffd84d;
+  stroke-width: 1.5px;
+}
+
+.iso-desk .desk-hotspot[data-hotspot="monitor"]:hover .desk-screen-glass,
+.iso-desk .desk-hotspot[data-hotspot="monitor"]:focus-visible .desk-screen-glass,
+.iso-desk .desk-hotspot[data-hotspot="monitor"][data-active="true"] .desk-screen-glass {
+  fill: #152b44;
 }
 
 .iso-desk .desk-hotspot[data-hotspot="monitor"]:hover .desk-screen-glow,
 .iso-desk .desk-hotspot[data-hotspot="monitor"]:focus-visible .desk-screen-glow,
 .iso-desk .desk-hotspot[data-hotspot="monitor"][data-active="true"] .desk-screen-glow {
-  fill: rgba(217, 63, 18, 0.32);
+  fill: rgba(56, 189, 248, 0.38);
 }
 
-/* Phone Handset subtle ring wiggle on hover */
-@keyframes deskPhoneRing {
-  0%, 100% { transform: translateY(0); }
-  25% { transform: translate(-1px, -2px); }
-  75% { transform: translate(1px, -1.5px); }
+/* -------------------------------------------------------------------------- */
+/* 5 Signature Object Click Stage Animations                                  */
+/* -------------------------------------------------------------------------- */
+
+/* 01. Monitor Screen Power-On & Dive-In */
+@keyframes stageMonitorDiveIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.38) translateY(18px);
+    filter: brightness(2.2);
+  }
+  45% {
+    opacity: 1;
+    filter: brightness(1.25);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: brightness(1);
+  }
 }
 
-.iso-desk .desk-hotspot[data-hotspot="phone"]:hover .desk-handset-bar,
-.iso-desk .desk-hotspot[data-hotspot="phone"]:focus-visible .desk-handset-bar {
-  animation: deskPhoneRing 360ms ease-in-out infinite;
+.stage-monitor-dive {
+  animation: stageMonitorDiveIn 560ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.stage-monitor-dive .reveal {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* 05. Glowing Trophy Zoom-In & Slide-Aside */
+@keyframes stageTrophySlideAside {
+  0% {
+    opacity: 0;
+    transform: translateX(110px) scale(0.55);
+  }
+  55% {
+    opacity: 1;
+    transform: translateX(65px) scale(1.12);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes trophyGoldenAura {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 18px rgba(255, 216, 77, 0.65))
+      drop-shadow(0 0 36px rgba(217, 63, 18, 0.35));
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    filter: drop-shadow(0 0 30px rgba(255, 224, 102, 0.95))
+      drop-shadow(0 0 54px rgba(255, 179, 0, 0.6));
+    transform: translateY(-5px) scale(1.03);
+  }
+}
+
+.stage-trophy-hero {
+  animation:
+    stageTrophySlideAside 680ms cubic-bezier(0.22, 1, 0.36, 1) forwards,
+    trophyGoldenAura 2.8s ease-in-out 680ms infinite;
+}
+
+/* 04. Book Pull-Out from Shelf & 2-Page Unfold */
+@keyframes stageBookPullAndOpen {
+  0% {
+    opacity: 0;
+    transform: perspective(1200px) translate3d(-120px, -20px, -80px)
+      rotateY(-65deg) rotateZ(-6deg) scale(0.48);
+  }
+  55% {
+    opacity: 1;
+    transform: perspective(1200px) translate3d(0, 0, 20px) rotateY(-12deg)
+      rotateZ(0deg) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: perspective(1200px) translate3d(0, 0, 0) rotateY(0deg)
+      rotateZ(0deg) scale(1);
+  }
+}
+
+.stage-book-unfold {
+  transform-style: preserve-3d;
+  animation: stageBookPullAndOpen 680ms cubic-bezier(0.18, 1, 0.32, 1) forwards;
+}
+
+/* 03. Smartphone Lift off Stand & Zoom-In */
+@keyframes stagePhoneZoomIn {
+  0% {
+    opacity: 0;
+    transform: perspective(1000px) translate3d(-70px, 60px, -100px)
+      rotateX(28deg) rotateZ(-8deg) scale(0.42);
+  }
+  65% {
+    opacity: 1;
+    transform: perspective(1000px) translate3d(0, -6px, 0) rotateX(0deg)
+      rotateZ(0deg) scale(1.03);
+  }
+  100% {
+    opacity: 1;
+    transform: perspective(1000px) translate3d(0, 0, 0) rotateX(0deg)
+      rotateZ(0deg) scale(1);
+  }
+}
+
+.stage-phone-zoom {
+  animation: stagePhoneZoomIn 580ms cubic-bezier(0.2, 1, 0.32, 1) forwards;
+}
+
+/* 02. Portrait Zoom & Slide-Aside */
+@keyframes stagePortraitSlide {
+  0% {
+    opacity: 0;
+    transform: translateX(70px) scale(0.6) rotate(4deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1) rotate(-1.5deg);
+  }
+}
+
+.stage-portrait-slide {
+  animation: stagePortraitSlide 580ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 @keyframes deskCursorBlink {
-  to { opacity: 0.15; }
+  to {
+    opacity: 0.15;
+  }
 }
 
 @keyframes iso-pulse {
-  0%, 100% { opacity: 0.25; }
-  50% { opacity: 1; }
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 .iso-desk .iso-dots circle[data-pulse] {
   animation: iso-pulse 1.8s ease-in-out infinite;
+}
+
+/* Equalizer bars for Musik Syahdu button */
+@keyframes audioEqBounce {
+  0%,
+  100% {
+    transform: scaleY(0.35);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+.audio-eq-bar {
+  transform-origin: bottom;
+  animation: audioEqBounce 900ms ease-in-out infinite;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Bedroom Entrance Door ("My Portofolio") Styles & 3D Swing Animation        */
+/* -------------------------------------------------------------------------- */
+.room-entrance-backdrop {
+  background: linear-gradient(180deg, #c8dce9 0%, #d5e3ed 100%);
+  perspective: 1400px;
+  transition:
+    opacity 480ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.room-entrance-backdrop[data-opening="true"] {
+  opacity: 0;
+  transform: scale(1.28);
+}
+
+.room-entrance-wall {
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent 0,
+    transparent 68px,
+    rgba(122, 117, 104, 0.22) 68px,
+    rgba(122, 117, 104, 0.22) 69.5px
+  );
+}
+
+.room-entrance-floor {
+  background-color: #f4f6f8;
+  background-image:
+    linear-gradient(90deg, rgba(122, 117, 104, 0.28) 1.5px, transparent 1.5px),
+    linear-gradient(180deg, rgba(122, 117, 104, 0.22) 1.5px, transparent 1.5px);
+  background-size: 96px 32px;
+}
+
+.room-door-frame {
+  perspective: 1200px;
+}
+
+.room-door-leaf {
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  transition:
+    transform 520ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 520ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.room-door-leaf:hover {
+  transform: rotateY(-8deg);
+}
+
+.room-door-leaf.is-opening {
+  transform: rotateY(-82deg);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -304,6 +730,7 @@
 /* -------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
   .iso-desk .desk-hotspot,
+  .iso-desk .iso-svg,
   .iso-desk .iso-shade,
   .iso-desk .iso-top,
   .iso-desk .iso-line {
@@ -314,11 +741,15 @@
   .iso-desk .desk-hotspot[data-active="true"] {
     transform: none;
   }
+  .stage-monitor-dive,
+  .stage-trophy-hero,
+  .stage-book-unfold,
+  .stage-phone-zoom,
+  .stage-portrait-slide,
+  .audio-eq-bar,
   .iso-desk .desk-screen-cursor,
   .iso-desk .iso-dots circle[data-pulse],
-  .iso-desk .desk-hotspot[data-hotspot="phone"]:hover .desk-handset-bar,
-  .iso-desk .desk-hotspot[data-hotspot="phone"]:focus-visible .desk-handset-bar {
+  .iso-desk .window-star {
     animation: none;
   }
 }
-

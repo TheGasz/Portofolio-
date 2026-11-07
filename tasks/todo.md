@@ -17,11 +17,11 @@
 2. Membuat [`src/assets/desk/ambientAudio.js`](file:///d:/Bagas/Portofolio/Portofolio/src/assets/desk/ambientAudio.js) menggunakan Web Audio API untuk menghasilkan **Musik Syahdu** (*warm ambient electric piano chords + gentle night breeze pad*) dengan fungsi `start()`, `stop()`, `toggle()`, `setVolume()`, dan fallback aman untuk environment test (Vitest/jsdom).
 
 **Acceptance criteria:**
-- [ ] `deskModel.js` mengekspor kelima hotspot baru lengkap dengan properti `cameraZoom` (`scale`, `originX`, `originY`) dan `readout`.
-- [ ] `ambientAudio.js` dapat dinyalakan/dimatikan tanpa file audio eksternal dan tidak melempar error di lingkungan test tanpa `AudioContext`.
+- [x] `deskModel.js` mengekspor kelima hotspot baru lengkap dengan properti `cameraZoom` (`scale`, `originX`, `originY`) dan `readout`.
+- [x] `ambientAudio.js` dapat dinyalakan/dimatikan tanpa file audio eksternal dan tidak melempar error di lingkungan test tanpa `AudioContext`.
 
 **Verification:**
-- [ ] `npm run lint`
+- [x] `npm run lint`
 
 ---
 
@@ -40,11 +40,11 @@
    - **Bingkai Foto Dinding (`[02]`)** dengan foto [`src/assets/profile.jpg`](file:///d:/Bagas/Portofolio/Portofolio/src/assets/profile.jpg).
 
 **Acceptance criteria:**
-- [ ] Seluruh elemen khas meja asli Bagas (lemari kiri ber-rak buku, hanger lanyard, meja ber-*hutch*, laci kanan, monitor + laptop berlampu merah, HP di stand, trophy di kiri atas, dan jendela pemandangan sejuk) ter-render proporsional dalam urutan *painter's depth* yang benar.
-- [ ] Tidak ada nilai `NaN` pada path SVG.
+- [x] Seluruh elemen khas meja asli Bagas (lemari kiri ber-rak buku, hanger lanyard, meja ber-*hutch*, laci kanan, monitor + laptop berlampu merah, HP di stand, trophy di kiri atas, dan jendela pemandangan sejuk) ter-render proporsional dalam urutan *painter's depth* yang benar.
+- [x] Tidak ada nilai `NaN` pada path SVG.
 
 **Verification:**
-- [ ] `npm run lint` dan `npm run build`
+- [x] `npm run lint` dan `npm run build`
 
 ---
 
@@ -66,12 +66,12 @@
    - Menambahkan tombol `🎵 Musik Syahdu` (Play/Pause + equalizer animasi) di bar kamar.
 
 **Acceptance criteria:**
-- [ ] Kelima objek memiliki animasi masuk/keluar yang unik sesuai skenario di atas (bukan sekadar *pop-up* biasa di bawah).
-- [ ] Klik Monitor menampilkan seluruh `ProjectCard` langsung di dalam tampilan layar monitor (tanpa harus pindah halaman, namun tetap menyediakan link `/project`).
-- [ ] Tombol `← Kembali ke Kamar [ESC]` mengembalikan kamera secara mulus ke tampilan kamar utuh.
+- [x] Kelima objek memiliki animasi masuk/keluar yang unik sesuai skenario di atas (bukan sekadar *pop-up* biasa di bawah).
+- [x] Klik Monitor menampilkan seluruh `ProjectCard` langsung di dalam tampilan layar monitor (tanpa harus pindah halaman, namun tetap menyediakan link `/project`).
+- [x] Tombol `← Kembali ke Kamar [ESC]` mengembalikan kamera secara mulus ke tampilan kamar utuh.
 
 **Verification:**
-- [ ] `npm run lint` dan `npm run build`
+- [x] `npm run lint` dan `npm run build`
 
 ---
 
@@ -89,11 +89,11 @@
    - Tombol *Musik Syahdu* dapat di-*toggle* dengan aman.
 
 **Acceptance criteria:**
-- [ ] Website tampil sebagai satu halaman penuh kamar & meja belajar Bagas.
-- [ ] Seluruh 36 file test (`npm test -- --run`) lulus 100%.
+- [x] Website tampil sebagai satu halaman penuh kamar & meja belajar Bagas.
+- [x] Seluruh 36 file test (`npm test -- --run`) lulus 100%.
 
 **Verification:**
-- [ ] `npm test -- --run`
+- [x] `npm test -- --run`
 
 ---
 
@@ -101,10 +101,10 @@
 **Description:** Menjalankan `capture.mjs` untuk menangkap *screenshot* kamar 3D baru pada resolusi desktop (`1440px`), mobile (`390px`), serta saat animasi Monitor/Trophy/Buku/HP aktif, lalu menginspeksi hasilnya secara visual.
 
 **Acceptance criteria:**
-- [ ] Tampilan meja kayu, lemari kiri, laptop berlampu merah, monitor, HP di stand, trophy di kiri atas, dan jendela pemandangan sejuk terlihat jelas, rapi, dan proporsional.
-- [ ] `npm test`, `npm run lint`, dan `npm run build` lulus 100%.
+- [x] Tampilan meja kayu, lemari kiri, laptop berlampu merah, monitor, HP di stand, trophy di kiri atas, dan jendela pemandangan sejuk terlihat jelas, rapi, dan proporsional.
+- [x] `npm test`, `npm run lint`, dan `npm run build` lulus 100%.
 
 **Verification:**
-- [ ] `npm test -- --run`
-- [ ] `npm run lint`
-- [ ] `npm run build`
+- [x] `npm test -- --run`
+- [x] `npm run lint`
+- [x] `npm run build`
