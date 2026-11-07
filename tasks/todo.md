@@ -1,170 +1,110 @@
-# Task List: Interactive 3D/Isometric Workstation Landing Page ("Anatomy Desk" Edition)
+# Task List: Single-Page Interactive 3D Bedroom & Real Study Desk ("Bagas's Room" Edition)
 
-> **Aturan Eksekusi Wajib (Mandatory Skill Gate):**
-> Saat mengeksekusi setiap task di bawah ini, agent **WAJIB** menggunakan dan menerapkan pedoman dari:
-> - **`anatomy`** (`C:\Users\bagas\.gemini\config\skills\anatomy\SKILL.md`, `references/craft.md`, `references/kit.md`, `references/motion.md`, `references/react.md`)
-> - **`ui-ux-pro-max`** (`C:\Users\bagas\.gemini\config\skills\ui-ux-pro-max\SKILL.md`)
-> - **`frontend-ui-engineering`** (`C:\Users\bagas\.gemini\config\skills\frontend-ui-engineering\SKILL.md`)
-> - **`ui-styling`** (`C:\Users\bagas\.gemini\config\skills\ui-styling\SKILL.md`)
-> - **`web-design-guidelines`** (`C:\Users\bagas\.gemini\config\skills\web-design-guidelines\SKILL.md`)
-> - **`vercel-react-best-practices`** (`C:\Users\bagas\.gemini\config\skills\react-best-practices\SKILL.md`)
+> **Referensi Utama:** Foto meja kerja asli Bagas di [`src/assets/WhatsApp Image 2026-11-07 at 20.53.34.jpeg`](file:///d:/Bagas/Portofolio/Portofolio/src/assets/WhatsApp%20Image%202026-11-07%20at%2020.53.34.jpeg) serta spesifikasi di [`SPEC.md`](file:///d:/Bagas/Portofolio/Portofolio/SPEC.md) dan [`tasks/plan.md`](file:///d:/Bagas/Portofolio/Portofolio/tasks/plan.md).
 
 ---
 
-## Phase 1: Skill Setup, Isometric Kit Vendoring & Workstation Geometry
+## Phase 1: 3D Bedroom, Window Background & Real Study Desk Geometry
 
-## Task 1: Install `wheresryan22/anatomy` Skill & Vendor Core Isometric Kit (`src/assets/iso/`)
-**Description:** Memasang skill `wheresryan22/anatomy` ke direktori global skills Antigravity (`C:\Users\bagas\.gemini\config\skills\anatomy`) dari hasil audit, lalu menyalin modul geometri intinya (`kit/iso-kit.mjs`, `kit/lathe.mjs`, `kit/tube.mjs`) ke dalam `src/assets/iso/` agar dapat di-import secara langsung oleh komponen React & Vite tanpa tambahan dependency npm.
+### Task 1: Update Hotspot Model (`deskModel.js`) & Build Serene Ambient Music Engine (`ambientAudio.js`)
+**Description:**
+1. Memperbarui [`src/assets/desk/deskModel.js`](file:///d:/Bagas/Portofolio/Portofolio/src/assets/desk/deskModel.js) agar kelima hotspot mencerminkan objek asli pada meja/kamar Bagas beserta koordinat 3D dan target *camera zoom*-nya:
+   - `[01]` **Monitor & Gaming Laptop** (Tengah meja → *Dive into Monitor* menampilkan semua `ProjectCard`).
+   - `[02]` **Framed Wall Portrait & Lanyard** (Dinding kamar → *Portrait Zoom & Slide-Aside* untuk *About Me*).
+   - `[03]` **Smartphone on Stand** (Kiri meja → *Phone Zoom-In* berisi Email, Copy Email, LinkedIn, GitHub).
+   - `[04]` **Books in Left Cabinet Shelf** (Rak terbuka lemari kiri → *Book Pull-Out & Open* menampilkan *What I Do*).
+   - `[05]` **Trophy on Top-Left Cabinet** (Puncak lemari kiri atas → *Trophy Glow, Zoom & Slide-Aside* menampilkan *Achievement & Sertifikat*).
+2. Membuat [`src/assets/desk/ambientAudio.js`](file:///d:/Bagas/Portofolio/Portofolio/src/assets/desk/ambientAudio.js) menggunakan Web Audio API untuk menghasilkan **Musik Syahdu** (*warm ambient electric piano chords + gentle night breeze pad*) dengan fungsi `start()`, `stop()`, `toggle()`, `setVolume()`, dan fallback aman untuk environment test (Vitest/jsdom).
 
 **Acceptance criteria:**
-- [ ] Skill `anatomy` terpasang lengkap di `C:\Users\bagas\.gemini\config\skills\anatomy\SKILL.md`.
-- [ ] File `src/assets/iso/iso-kit.js`, `src/assets/iso/lathe.js`, dan `src/assets/iso/tube.js` tersedia dan bebas warning ESLint.
-- [ ] Fungsi proyeksi dasar (`fitProjection`, `slabOf`, `cylinder`, `extrude`, `coil`, `tubePieces`) dapat di-import dan dijalankan di Vitest.
+- [ ] `deskModel.js` mengekspor kelima hotspot baru lengkap dengan properti `cameraZoom` (`scale`, `originX`, `originY`) dan `readout`.
+- [ ] `ambientAudio.js` dapat dinyalakan/dimatikan tanpa file audio eksternal dan tidak melempar error di lingkungan test tanpa `AudioContext`.
 
 **Verification:**
-- [ ] Tests pass: `npm test`
-- [ ] Lint passes: `npm run lint`
-- [ ] Build succeeds: `npm run build`
-
-**Dependencies:** None (Menunggu persetujuan Spec & Plan dari user)
-**Files likely touched:**
-- `C:\Users\bagas\.gemini\config\skills\anatomy\*`
-- `src/assets/iso/iso-kit.js`
-- `src/assets/iso/lathe.js`
-- `src/assets/iso/tube.js`
-- `eslint.config.js` (jika perlu penyesuaian aturan untuk file vendored `src/assets/iso/`)
-**Estimated scope:** Small (3–4 files)
+- [ ] `npm run lint`
 
 ---
 
-## Task 2: Build Workstation World Model (`deskModel.js`) & 60+ Part Isometric Geometry (`deskGeometry.js`)
-**Description:** Membuat model data murni (`src/assets/desk/deskModel.js`) untuk 5 hotspot interaktif (`monitor`, `photo`, `phone`, `notebook`, `trophy`), *readout* status, serta terminal prompt; dilanjutkan dengan menyusun geometri isometrik detail tinggi (`src/assets/desk/deskGeometry.js`) menggunakan `iso-kit`, `lathe`, dan `tube` yang mencakup:
-1. **Meja Kerja & Dinding Belakang** (permukaan meja ber-bevel, kaki meja, sekrup sudut, *nameplate*, bidang dinding).
-2. **PC Desktop & Monitor CRT/Widescreen (`[01] Projects Hotspot`)** lengkap dengan layar cekung (*recessed screen*), grafik metrik ML, dan lampu indikator.
-3. **Keyboard Mekanis (baris keycaps 3D) & Mouse + Mousepad + Kabel** yang siap digerakkan secara dinamis.
-4. **Bingkai Foto Dinding (`[02] About Me Hotspot`)** yang membingkai foto `profile.jpg` pada perspektif dinding lengkap dengan *masking tape* kuning.
-5. **Telepon Meja (`[03] Contact Me Hotspot`)** dengan gagang telepon, *keypad* 3×4, kabel spiral (*coiled cord*), dan lampu LED.
-6. **Lab Notebook + Pena (`[04] Skills Hotspot`)** dan **Trophy + Rak Sertifikat (`[05] Credentials Hotspot`)**.
+### Task 2: Rebuild 3D Isometric Geometry Matching Bagas's Real Study Desk & Cool-Toned Window Room (`deskGeometry.js`)
+**Description:** Merombak [`src/assets/desk/deskGeometry.js`](file:///d:/Bagas/Portofolio/Portofolio/src/assets/desk/deskGeometry.js) agar mereplikasi secara detail foto [`src/assets/WhatsApp Image 2026-11-07 at 20.53.34.jpeg`](file:///d:/Bagas/Portofolio/Portofolio/src/assets/WhatsApp%20Image%202026-11-07%20at%2020.53.34.jpeg) beserta latar belakang kamar sejuk:
+1. **Kamar Wallpaper Sejuk & Jendela Pemandangan (`buildRoomAndWindow`)**:
+   - Dinding kamar dengan *tone* wallpaper sejuk (*cool slate/misty teal*), lantai keramik, pintu kayu di sisi kanan, serta **Jendela Kamar** dengan pemandangan langit senja/malam yang sejuk, siluet pegunungan/pepohonan, bintang, dan cahaya jendela lembut.
+2. **Lemari & Rak Buku Kayu Jati di Sebelah Kiri (`buildLeftCabinet`)**:
+   - Lemari kayu tinggi di kiri meja dengan **3 Rak Terbuka** di kiri (berisi **Buku-Buku yang bisa diklik `[04]`**, kotak hijau/hitam, kotak ungu, tumpukan kertas), pintu kabinet bawah, serta pintu lemari kanan dengan **Hanger Biru + Lanyard ID Card**.
+   - **Trophy & Deretan Sertifikat (`[05]`)** diletakkan tepat di **sebelah kiri atas meja (di atas lemari kiri)**.
+3. **Meja Belajar Kayu dengan Hutch Atas, Laci Kanan & Setup Komputer (`buildStudyDeskAndGear`)**:
+   - Meja kayu jati dengan papan sandaran atas (*hutch*), stiker tengah, *power strip* putih di tiang kiri, dinding samping kanan berlubang, dan **2 Laci Kayu** di kanan bawah.
+   - **Monitor Widescreen Hitam (`[01]`)** di tengah-kiri meja + **Keyboard Mekanis** + **Mouse & Mousepad Hitam**.
+   - **Gaming Laptop Hitam dengan Keyboard Menyala Merah (*Red Backlit Keyboard*)** dan layar kode di sisi kanan meja.
+   - **HP di Atas Stand (`[03]`)** dan kipas mini putih di sisi kiri meja.
+   - **Bingkai Foto Dinding (`[02]`)** dengan foto [`src/assets/profile.jpg`](file:///d:/Bagas/Portofolio/Portofolio/src/assets/profile.jpg).
 
 **Acceptance criteria:**
-- [ ] `deskModel.js` mengekspor daftar hotspot, metadata aksi/tujuan, teks *readout* untuk setiap state, dan helper terminal.
-- [ ] `deskGeometry.js` menghasilkan minimal 60 *solid parts* dalam urutan *painter's depth* yang benar (belakang ke depan, bawah ke atas) tanpa *z-fighting*.
-- [ ] Menyediakan fungsi pembangun dinamis untuk bagian yang bergerak: posisi mouse + kabelnya (`mouseArt(mx, my)`), *keycaps* keyboard (`keycapArt(pressedKey)`), dan gagang telepon (`phoneHandsetArt(ringing)`).
+- [ ] Seluruh elemen khas meja asli Bagas (lemari kiri ber-rak buku, hanger lanyard, meja ber-*hutch*, laci kanan, monitor + laptop berlampu merah, HP di stand, trophy di kiri atas, dan jendela pemandangan sejuk) ter-render proporsional dalam urutan *painter's depth* yang benar.
+- [ ] Tidak ada nilai `NaN` pada path SVG.
 
 **Verification:**
-- [ ] Tests pass: `npm test`
-- [ ] Build succeeds: `npm run build`
-- [ ] Manual/Script check: Pastikan `buildDeskScene()` mengembalikan struktur path SVG lengkap tanpa nilai `NaN` di atribut `d`.
-
-**Dependencies:** Task 1
-**Files likely touched:**
-- `src/assets/desk/deskModel.js`
-- `src/assets/desk/deskGeometry.js`
-**Estimated scope:** Medium (2 files)
+- [ ] `npm run lint` dan `npm run build`
 
 ---
 
-## Checkpoint 1: Engine & Geometry Foundation
-- [ ] `npm test` dan `npm run build` lulus tanpa error
-- [ ] Geometri menghasilkan path SVG valid tanpa koordinat `NaN`
+## Phase 2: Cinematic Object Click Animations & Serene Audio UI
 
----
-
-## Phase 2: Interactive Workstation Component, Styles & Hotspot Overlays
-
-## Task 3: Scoped Lab-Notebook Isometric Styles (`desk.css`) & Core `<DeskWorkstation />` Component
-**Description:** Membuat stylesheet `src/assets/desk/desk.css` yang memetakan 4-nada shading `anatomy` (`--iso-paper`, `--iso-top`, `--iso-shade-0..3`, `--iso-line`, `--iso-lit`) ke palet **Lab Notebook** (`#f3efe6`, `#fbf9f4`, `#e9e3d5`, `#17150f`, `#d93f12`, `#ffd84d`), serta membangun komponen `<DeskWorkstation />` (`src/assets/desk/DeskWorkstation.jsx`) lengkap dengan bingkai kartu `Fig 01`, *live readout bar*, tombol `[I] Inspect Hotspots`, dan **Quick Hotspot Dock** di bawah meja.
+### Task 3: Implement 5 Cinematic Stage Animations & Cool Room Palette (`desk.css` & `DeskWorkstation.jsx`)
+**Description:** Mengganti *pop-up* bawah lama di [`src/assets/desk/DeskWorkstation.jsx`](file:///d:/Bagas/Portofolio/Portofolio/src/assets/desk/DeskWorkstation.jsx) dan [`src/assets/desk/desk.css`](file:///d:/Bagas/Portofolio/Portofolio/src/assets/desk/desk.css) dengan **5 Koreografi Animasi Kamera & Objek** serta tombol kontrol **Musik Syahdu**:
+1. **Klik `[01]` Monitor → *Monitor Power-On & Dive-In* (`Projects`)**:
+   - Layar monitor menyala, kamera *zoom-in* masuk ke dalam layar monitor, lalu menampilkan antarmuka penuh **Monitor Screen (`BagasOS // Projects`)** berisi filter kategori dan **seluruh 11 `ProjectCard`**.
+2. **Klik `[05]` Trophy (Kiri Atas) → *Trophy Glow, Zoom & Slide-Aside* (`Achievements & Certifications`)**:
+   - Trophy melakukan *zoom-in*, menyala keemasan (*glowing golden aura*), lalu bergeser ke samping kiri sementara daftar **Achievement & 7 Sertifikat** (dengan tombol buka PDF/Credly) muncul di samping kanannya.
+3. **Klik `[04]` Buku (Rak Kiri) → *Book Pull-Out & Page Unfold* (`What I Do`)**:
+   - Buku terambil dari rak lemari kiri, melayang ke tengah, lalu **membuka 2 halamannya (*open book spread*)** menampilkan 5 keahlian **What I Do** di halaman kiri dan **16 Toolbelt** di halaman kanan.
+4. **Klik `[03]` HP di Stand → *Smartphone Zoom-In* (`Contact Me`)**:
+   - HP melakukan *zoom-in* ke depan menjadi layar Smartphone interaktif berisi tombol **Email (`mailto:`)**, **Copy Email** (dengan feedback `"Copied!"`), **GitHub**, dan **LinkedIn**.
+5. **Klik `[02]` Foto Dinding → *Portrait Zoom & Slide-Aside* (`About Me`)**:
+   - Bingkai foto Bagas *zoom-in* dan bergeser ke kiri dengan sorotan hangat, menampilkan cerita **About Me** dan fakta utama di sebelahnya.
+6. **Kontrol Musik Syahdu**:
+   - Menambahkan tombol `🎵 Musik Syahdu` (Play/Pause + equalizer animasi) di bar kamar.
 
 **Acceptance criteria:**
-- [ ] Ilustrasi meja menggunakan warna hangat *Lab Notebook* dan menyorot objek dengan aksen `signal` (`#d93f12`) / `marker` (`#ffd84d`) saat hotspot di-*hover* atau difokuskan via keyboard (`Tab`).
-- [ ] Mengeklik **Monitor (`[01]`)** menavigasi pengunjung langsung ke halaman `/project`.
-- [ ] Tombol `[I] Inspect Hotspots` menyalakan/mematikan *pin badge* bernomor (`01` s/d `05`) di atas setiap objek interaktif.
-- [ ] **Quick Hotspot Dock** di bawah meja menyediakan tombol akses cepat (`min-h-[44px] focus-ring`) untuk kelima objek sehingga sangat nyaman di layar mobile (`390px`).
+- [ ] Kelima objek memiliki animasi masuk/keluar yang unik sesuai skenario di atas (bukan sekadar *pop-up* biasa di bawah).
+- [ ] Klik Monitor menampilkan seluruh `ProjectCard` langsung di dalam tampilan layar monitor (tanpa harus pindah halaman, namun tetap menyediakan link `/project`).
+- [ ] Tombol `← Kembali ke Kamar [ESC]` mengembalikan kamera secara mulus ke tampilan kamar utuh.
 
 **Verification:**
-- [ ] Tests pass: `npm test`
-- [ ] Build succeeds: `npm run build`
-
-**Dependencies:** Task 2
-**Files likely touched:**
-- `src/assets/desk/desk.css`
-- `src/assets/desk/DeskWorkstation.jsx`
-**Estimated scope:** Medium (2 files)
+- [ ] `npm run lint` dan `npm run build`
 
 ---
 
-## Task 4: Interactive Hotspot Overlays (About Me, Contact Hub, Skills & Credentials) + Hover/Focus Polish
-**Description:** Menambahkan **Interactive Overlay Cards / Drawers** bergaya *Lab Notebook* yang muncul tepat di atas meja saat objek selain Monitor diklik:
-1. **About Me Overlay (Klik Foto Dinding `[02]`):** Menampilkan foto Polaroid & bio *About Me* Bagas, fakta singkat (`Focus`, `Toolkit`, `Credentials`), serta tombol *"Jump to About Section ↓"* (`#about`).
-2. **Contact Hub Overlay (Klik Telepon Meja `[03]`):** Menampilkan panel kontak cepat berisi tombol **Email (`mailto:bagasadjie2006@gmail.com`)**, **Copy Email** (dengan feedback `"Copied!"`), **LinkedIn**, **GitHub**, serta tombol *"Jump to Contact Section ↓"* (`#contact`).
-3. **Skills Overlay (Klik Buku Catatan Lab `[04]`):** Menampilkan ringkasan 5 keahlian utama (*Data Science & ML*, *Data Engineering*, *EDA*, *Evaluation*, *Deployment*) + *toolbelt* serta tombol menuju `#skills`.
-4. **Credentials Overlay (Klik Trophy & Rak Sertifikat `[05]`):** Menampilkan daftar 7 sertifikat & penghargaan terverifikasi (dengan link langsung untuk membuka PDF/Credly) serta tombol menuju `#credentials`.
+## Phase 3: Single-Page Room Consolidation, Testing & Visual Verification
+
+### Task 4: Consolidate `core.jsx` into a Single-Page Room Landing Page & Update Unit Tests
+**Description:**
+1. Memperbarui [`src/assets/core.jsx`](file:///d:/Bagas/Portofolio/Portofolio/src/assets/core.jsx) sehingga tampilan visual utama website adalah **Satu Landing Page Kamar & Meja Belajar** yang imersif (tanpa *scroll* panjang ke section-section di bawahnya), sambil tetap menjaga kompatibilitas semantik penuh dengan *screen reader* dan seluruh 36 file test yang ada.
+2. Memperbarui [`src/assets/DeskWorkstation.unit.test.jsx`](file:///d:/Bagas/Portofolio/Portofolio/src/assets/DeskWorkstation.unit.test.jsx) untuk menguji:
+   - Klik Monitor menyalakan layar dan menampilkan daftar `ProjectCard` di dalam layar monitor.
+   - Klik Trophy di kiri atas menampilkan piala yang menyala di samping daftar achievement & sertifikat.
+   - Klik Buku di rak kiri membuka buku dua halaman berisi *What I Do* & *Toolbelt*.
+   - Klik HP di stand melakukan zoom-in HP berisi kontak Email, Copy Email, GitHub, dan LinkedIn.
+   - Klik Foto Dinding menampilkan *About Me*.
+   - Tombol *Musik Syahdu* dapat di-*toggle* dengan aman.
 
 **Acceptance criteria:**
-- [ ] Klik pada **Foto Dinding (`[02]`)** membuka kartu overlay *About Me* dan dapat ditutup via tombol `Close`, klik backdrop, atau tombol `Escape`.
-- [ ] Klik pada **Telepon Meja (`[03]`)** membuka kartu overlay *Contact Me* dengan link Email, Copy Email, LinkedIn, dan GitHub yang valid dan aksesibel.
-- [ ] Klik pada **Lab Notebook (`[04]`)** dan **Trophy (`[05]`)** membuka kartu overlay *Skills* / *Credentials* (beserta tombol loncat ke `#skills` dan `#credentials`).
-- [ ] Semua animasi transisi menghormati `prefers-reduced-motion: reduce`.
+- [ ] Website tampil sebagai satu halaman penuh kamar & meja belajar Bagas.
+- [ ] Seluruh 36 file test (`npm test -- --run`) lulus 100%.
 
 **Verification:**
-- [ ] Tests pass: `npm test`
-- [ ] Build succeeds: `npm run build`
-
-**Dependencies:** Task 3
-**Files likely touched:**
-- `src/assets/desk/DeskWorkstation.jsx`
-- `src/assets/desk/desk.css`
-**Estimated scope:** Small–Medium (2 files)
+- [ ] `npm test -- --run`
 
 ---
 
-## Checkpoint 2: Interactive Workstation Ready
-- [ ] Semua 5 hotspot, ketikan keyboard, gerakan mouse, dan overlay About/Contact berfungsi penuh
-- [ ] `npm run lint` dan `npm run build` bersih
-
----
-
-## Phase 3: Home Page Integration, Testing & Visual Audit
-
-## Task 5: Integrate `<DeskWorkstation />` into `src/assets/core.jsx` & Add Unit Tests
-**Description:** Mengintegrasikan `<DeskWorkstation />` sebagai centerpiece utama di bagian atas `src/assets/core.jsx` (menggantikan layout Hero 2-kolom lama namun tetap mempertahankan `<h1>` `"Hi, I'm Bagas."` dengan `span.animated-gradient-text` serta CTA utama agar kompatibel dengan seluruh test lama), menambahkan `id="skills"`, `id="featured-works"`, `id="credentials"`, dan `id="about"` pada section terkait, serta menulis unit test komprehensif di `src/assets/DeskWorkstation.unit.test.jsx`.
+### Task 5: Visual Capture Verification (`1440px`, `390px`, & Active Stage Animations)
+**Description:** Menjalankan `capture.mjs` untuk menangkap *screenshot* kamar 3D baru pada resolusi desktop (`1440px`), mobile (`390px`), serta saat animasi Monitor/Trophy/Buku/HP aktif, lalu menginspeksi hasilnya secara visual.
 
 **Acceptance criteria:**
-- [ ] `<DeskWorkstation />` tampil sebagai Hero utama di `/`.
-- [ ] Unit test baru `src/assets/DeskWorkstation.unit.test.jsx` memverifikasi:
-  - Render kelima hotspot (`Monitor`, `Wall Photo`, `Desk Phone`, `Lab Notebook`, `Trophy`).
-  - Klik `Monitor` berpindah route ke `/project`.
-  - Klik `Wall Photo` memunculkan informasi *About Me* Bagas.
-  - Klik `Desk Phone` memunculkan opsi kontak (*Email*, *Copy email*, *LinkedIn*, *GitHub*).
-  - Penekanan tombol keyboard memperbarui layar terminal monitor.
-- [ ] Seluruh test yang sudah ada (`Hero.glowup.unit.test.jsx`, `core.unit.test.jsx`, `heading-structure.glowup.property.test.jsx`, `accessible-names.glowup.property.test.jsx`, dll.) tetap lulus 100%.
+- [ ] Tampilan meja kayu, lemari kiri, laptop berlampu merah, monitor, HP di stand, trophy di kiri atas, dan jendela pemandangan sejuk terlihat jelas, rapi, dan proporsional.
+- [ ] `npm test`, `npm run lint`, dan `npm run build` lulus 100%.
 
 **Verification:**
-- [ ] Tests pass: `npx vitest run src/assets/DeskWorkstation.unit.test.jsx src/assets/core.unit.test.jsx src/assets/Hero.glowup.unit.test.jsx src/assets/heading-structure.glowup.property.test.jsx src/assets/accessible-names.glowup.property.test.jsx`
-- [ ] Build succeeds: `npm run build`
-
-**Dependencies:** Task 4
-**Files likely touched:**
-- `src/assets/core.jsx`
-- `src/assets/DeskWorkstation.unit.test.jsx`
-**Estimated scope:** Medium (2 files)
-
----
-
-## Task 6: Visual Verification (`capture.mjs`), Full Regression Suite, Lint & Production Build
-**Description:** Menjalankan dev server dan menggunakan script `capture.mjs` dari skill `anatomy` untuk memeriksa hasil render meja kerja 3D di ukuran desktop (`1440px`) dan mobile (`390px`), memeriksa kualitas visual & kontras sesuai `ui-ux-pro-max`, lalu menjalankan `npm test`, `npm run lint`, dan `npm run build`.
-
-**Acceptance criteria:**
-- [ ] Tangkapan layar desktop (`1440px`) dan mobile (`390px`) terverifikasi rapi, proporsional, tanpa garis melayang atau *horizontal scroll overflow*.
-- [ ] `npm test` lulus 100% di seluruh test suite.
-- [ ] `npm run lint` keluar dengan kode `0`.
-- [ ] `npm run build` keluar dengan kode `0`.
-
-**Verification:**
-- [ ] Tests pass: `npm test`
-- [ ] Lint passes: `npm run lint`
-- [ ] Build succeeds: `npm run build`
-
-**Dependencies:** Task 5
-**Files likely touched:** Semua file pada Task 1–5 (jika ada polesan visual akhir).
-**Estimated scope:** Small
+- [ ] `npm test -- --run`
+- [ ] `npm run lint`
+- [ ] `npm run build`

@@ -1,0 +1,324 @@
+/* -------------------------------------------------------------------------- */
+/* Scoped "Lab Notebook × Anatomy" 4-Tone Isometric Workstation Palette       */
+/* -------------------------------------------------------------------------- */
+.iso-desk {
+  --anatomy-page: #f3efe6;
+  --anatomy-card: #fbf9f4;
+  --anatomy-text: #45413a;
+  --anatomy-strong: #17150f;
+  --anatomy-muted: #67625a;
+
+  /* 4-tone warm paper & drafting-ink shading */
+  --anatomy-paper: #fbf9f4;
+  --anatomy-face: #fffdf8;
+  --anatomy-top: #fffdf9;
+  --anatomy-shade-0: #d6ceb8;
+  --anatomy-shade-1: #e1dac7;
+  --anatomy-shade-2: #ebe5d5;
+  --anatomy-shade-3: #f4f0e4;
+
+  /* Lit accent surfaces (highlighter & signal) */
+  --anatomy-lit-top: #ffe373;
+  --anatomy-lit-shade: #f3c846;
+
+  /* Line & stroke hierarchy */
+  --anatomy-hi: #17150f;
+  --anatomy-mid: #5c564c;
+  --anatomy-lo: #8c8578;
+  --anatomy-faint: #c4bcad;
+  --anatomy-lit: #d93f12;
+
+  --anatomy-halo: #807764;
+  --anatomy-halo-opacity: 0.28;
+  --anatomy-dot: #17150f;
+
+  --anatomy-red: #d93f12;
+  --anatomy-green: #267a4c;
+  --anatomy-blue: #2558b8;
+
+  --anatomy-weight: 0.7px;
+  --anatomy-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --anatomy-mono: var(--font-mono);
+}
+
+.iso-desk .iso-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  user-select: none;
+}
+
+.iso-desk .iso-svg path,
+.iso-desk .iso-svg circle,
+.iso-desk .iso-svg rect {
+  vector-effect: non-scaling-stroke;
+}
+
+.iso-desk .iso-fill {
+  fill: var(--anatomy-paper);
+  stroke: none;
+}
+
+.iso-desk .iso-solid[data-lit] > .iso-fill {
+  fill: var(--anatomy-face);
+}
+
+.iso-desk .iso-shade,
+.iso-desk .iso-top {
+  stroke: none;
+  transition: fill 220ms var(--anatomy-ease);
+}
+
+.iso-desk .iso-shade[data-shade="0"] {
+  fill: var(--anatomy-shade-0);
+}
+.iso-desk .iso-shade[data-shade="1"] {
+  fill: var(--anatomy-shade-1);
+}
+.iso-desk .iso-shade[data-shade="2"] {
+  fill: var(--anatomy-shade-2);
+}
+.iso-desk .iso-shade[data-shade="3"] {
+  fill: var(--anatomy-shade-3);
+}
+
+.iso-desk .iso-top {
+  fill: var(--anatomy-top);
+}
+
+.iso-desk .iso-solid[data-lit] > .iso-top {
+  fill: var(--anatomy-lit-top);
+}
+
+.iso-desk .iso-solid[data-lit] > .iso-shade {
+  fill: var(--anatomy-lit-shade);
+}
+
+.iso-desk .iso-solid[data-seamless] > .iso-shade,
+.iso-desk .iso-solid[data-seamless] > .iso-top {
+  stroke-width: 0.4;
+  stroke-linejoin: round;
+}
+.iso-desk .iso-solid[data-seamless] > .iso-shade[data-shade="0"] {
+  stroke: var(--anatomy-shade-0);
+}
+.iso-desk .iso-solid[data-seamless] > .iso-shade[data-shade="1"] {
+  stroke: var(--anatomy-shade-1);
+}
+.iso-desk .iso-solid[data-seamless] > .iso-shade[data-shade="2"] {
+  stroke: var(--anatomy-shade-2);
+}
+.iso-desk .iso-solid[data-seamless] > .iso-shade[data-shade="3"] {
+  stroke: var(--anatomy-shade-3);
+}
+.iso-desk .iso-solid[data-seamless] > .iso-top {
+  stroke: var(--anatomy-top);
+}
+
+.iso-desk .iso-halo {
+  fill: var(--anatomy-halo);
+  stroke: none;
+  filter: blur(8px);
+  opacity: var(--anatomy-halo-opacity);
+  transform: translateY(3px);
+}
+
+.iso-desk .iso-line {
+  fill: none;
+  stroke: var(--anatomy-lo);
+  stroke-width: var(--anatomy-weight);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke 220ms var(--anatomy-ease), stroke-width 220ms var(--anatomy-ease);
+}
+
+.iso-desk .iso-line[data-tone="hi"] {
+  stroke: var(--anatomy-hi);
+}
+.iso-desk .iso-line[data-tone="mid"] {
+  stroke: var(--anatomy-mid);
+}
+.iso-desk .iso-line[data-tone="lo"] {
+  stroke: var(--anatomy-lo);
+}
+.iso-desk .iso-line[data-tone="faint"] {
+  stroke: var(--anatomy-faint);
+}
+.iso-desk .iso-line[data-tone="lit"] {
+  stroke: var(--anatomy-lit);
+  stroke-width: 1.1px;
+}
+
+.iso-desk .iso-line[data-dotted] {
+  stroke-dasharray: 0.01 3.5;
+  stroke-width: 1;
+}
+.iso-desk .iso-line[data-dashed] {
+  stroke-dasharray: 2.5 2.5;
+}
+
+.iso-desk .iso-dots circle {
+  fill: var(--anatomy-dot);
+  stroke: none;
+  opacity: 0.35;
+}
+.iso-desk .iso-dots[data-tone="hi"] circle {
+  fill: #d93f12;
+  opacity: 0.92;
+}
+.iso-desk .iso-dots[data-tone="mid"] circle {
+  opacity: 0.5;
+}
+.iso-desk .iso-dots[data-tone="lo"] circle {
+  opacity: 0.25;
+}
+
+.iso-desk .iso-face-text {
+  fill: var(--anatomy-hi);
+  font-family: var(--anatomy-mono);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+/* 3D Tubes & Cords */
+.iso-desk .tb-body {
+  fill: var(--anatomy-shade-1);
+  stroke: none;
+}
+.iso-desk .tb-shine {
+  fill: var(--anatomy-top);
+  stroke: none;
+}
+.iso-desk .tb-shade {
+  fill: var(--anatomy-shade-0);
+  stroke: none;
+}
+
+/* Monitor Screen & Recessed Wells */
+.iso-desk .desk-bezel-well {
+  fill: #dbd3be;
+}
+.iso-desk .desk-dark-well {
+  fill: #2a261d;
+}
+.iso-desk .desk-screen-glass {
+  fill: #1c1912;
+  transition: fill 250ms var(--anatomy-ease);
+}
+.iso-desk .desk-screen-glow {
+  fill: rgba(217, 63, 18, 0.14);
+  transition: fill 250ms var(--anatomy-ease);
+}
+.iso-desk .desk-screen-scan {
+  fill: none;
+  stroke: rgba(243, 239, 230, 0.06);
+  stroke-width: 0.5px;
+}
+.iso-desk .desk-screen-card {
+  fill: rgba(255, 216, 77, 0.14);
+  stroke: rgba(255, 216, 77, 0.55);
+  stroke-width: 0.6px;
+}
+.iso-desk .desk-screen-title {
+  fill: #ffd84d;
+  font-family: var(--anatomy-mono);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+.iso-desk .desk-screen-sub {
+  fill: #f3efe6;
+  font-family: var(--anatomy-mono);
+  letter-spacing: 0.04em;
+}
+.iso-desk .desk-screen-cursor {
+  fill: #d93f12;
+  animation: deskCursorBlink 1.1s steps(2, start) infinite;
+}
+
+.iso-desk .desk-photo-well {
+  fill: #e9e3d5;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Interactive Hotspot Hover, Focus & Active Choreography                     */
+/* -------------------------------------------------------------------------- */
+.iso-desk .desk-hotspot {
+  cursor: pointer;
+  outline: none;
+  transition: transform 260ms var(--anatomy-ease), filter 260ms var(--anatomy-ease);
+}
+
+.iso-desk .desk-hotspot:hover,
+.iso-desk .desk-hotspot:focus-visible,
+.iso-desk .desk-hotspot[data-active="true"] {
+  transform: translateY(-3px);
+}
+
+.iso-desk .desk-hotspot:hover .hotspot-primary > .iso-top,
+.iso-desk .desk-hotspot:focus-visible .hotspot-primary > .iso-top,
+.iso-desk .desk-hotspot[data-active="true"] .hotspot-primary > .iso-top {
+  fill: #ffe885;
+}
+
+.iso-desk .desk-hotspot:hover .hotspot-primary > .iso-edge,
+.iso-desk .desk-hotspot:focus-visible .hotspot-primary > .iso-edge,
+.iso-desk .desk-hotspot[data-active="true"] .hotspot-primary > .iso-edge {
+  stroke: #d93f12;
+  stroke-width: 1.25px;
+}
+
+.iso-desk .desk-hotspot[data-hotspot="monitor"]:hover .desk-screen-glow,
+.iso-desk .desk-hotspot[data-hotspot="monitor"]:focus-visible .desk-screen-glow,
+.iso-desk .desk-hotspot[data-hotspot="monitor"][data-active="true"] .desk-screen-glow {
+  fill: rgba(217, 63, 18, 0.32);
+}
+
+/* Phone Handset subtle ring wiggle on hover */
+@keyframes deskPhoneRing {
+  0%, 100% { transform: translateY(0); }
+  25% { transform: translate(-1px, -2px); }
+  75% { transform: translate(1px, -1.5px); }
+}
+
+.iso-desk .desk-hotspot[data-hotspot="phone"]:hover .desk-handset-bar,
+.iso-desk .desk-hotspot[data-hotspot="phone"]:focus-visible .desk-handset-bar {
+  animation: deskPhoneRing 360ms ease-in-out infinite;
+}
+
+@keyframes deskCursorBlink {
+  to { opacity: 0.15; }
+}
+
+@keyframes iso-pulse {
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 1; }
+}
+
+.iso-desk .iso-dots circle[data-pulse] {
+  animation: iso-pulse 1.8s ease-in-out infinite;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Reduced Motion Safety Net                                                  */
+/* -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .iso-desk .desk-hotspot,
+  .iso-desk .iso-shade,
+  .iso-desk .iso-top,
+  .iso-desk .iso-line {
+    transition: none;
+  }
+  .iso-desk .desk-hotspot:hover,
+  .iso-desk .desk-hotspot:focus-visible,
+  .iso-desk .desk-hotspot[data-active="true"] {
+    transform: none;
+  }
+  .iso-desk .desk-screen-cursor,
+  .iso-desk .iso-dots circle[data-pulse],
+  .iso-desk .desk-hotspot[data-hotspot="phone"]:hover .desk-handset-bar,
+  .iso-desk .desk-hotspot[data-hotspot="phone"]:focus-visible .desk-handset-bar {
+    animation: none;
+  }
+}
+

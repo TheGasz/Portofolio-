@@ -6,6 +6,7 @@ import { Icon } from "./icons.jsx";
 import profilePhoto from "./profile.jpg";
 import { Reveal } from "./useScrollReveal.js";
 import { projectsData, ProjectCard } from "./project.jsx";
+import { DeskWorkstation } from "./desk/DeskWorkstation.jsx";
 
 /**
  * @typedef {Object} SocialLink
@@ -199,7 +200,10 @@ export const SkillsSection = ({ skills: items = [] }) => {
   if (items.length === 0) return null;
 
   return (
-    <section className="border-b border-ink bg-paper-2 px-6 py-20 md:py-28">
+    <section
+      id="skills"
+      className="scroll-mt-20 border-b border-ink bg-paper-2 px-6 py-20 md:py-28"
+    >
       <div className="mx-auto max-w-7xl">
         <SectionHeader
           index="01"
@@ -257,7 +261,10 @@ export const FeaturedWorksSection = () => {
   const topProjects = projectsData.slice(0, 3);
 
   return (
-    <section className="border-b border-ink bg-paper px-6 py-20 md:py-28">
+    <section
+      id="featured-works"
+      className="scroll-mt-20 border-b border-ink bg-paper px-6 py-20 md:py-28"
+    >
       <div className="mx-auto max-w-7xl">
         <SectionHeader
           index="02"
@@ -326,7 +333,10 @@ export const CertificationsSection = ({ certifications: items = [] }) => {
     "group grid grid-cols-[2.5rem_minmax(0,1fr)_auto] items-center gap-x-4 px-2 py-5 transition-colors duration-200 md:grid-cols-[4rem_minmax(0,1fr)_auto] md:px-4 md:py-6";
 
   return (
-    <section className="border-b border-ink px-6 py-20 md:py-28">
+    <section
+      id="credentials"
+      className="scroll-mt-20 border-b border-ink px-6 py-20 md:py-28"
+    >
       <div className="mx-auto max-w-7xl">
         <SectionHeader
           index="03"
@@ -441,96 +451,79 @@ export const Core = () => {
     <div className="flex min-h-screen flex-col bg-paper text-ink">
       {/* ---------------------------------------------------------- Hero */}
       <section className="paper-dots relative overflow-hidden border-b border-ink">
-        <div className="mx-auto grid max-w-7xl items-center gap-14 px-6 pb-20 pt-12 md:pt-20 lg:grid-cols-12 lg:gap-10 lg:pb-28">
-          <div className="lg:col-span-7">
-            <p className="inline-flex items-center gap-2 rounded-full border border-ink bg-card px-3 py-1.5 font-mono text-xs text-ink animate-fade-in-up motion-reduce:animate-none sm:text-sm">
-              <span aria-hidden="true" className="h-2 w-2 rounded-full bg-signal"></span>
-              Data Scientist &amp; Data Engineer
-            </p>
+        <div className="mx-auto max-w-7xl px-6 pb-16 pt-10 md:pb-24 md:pt-16">
+          <div className="grid items-end gap-8 lg:grid-cols-12 lg:gap-10">
+            <div className="lg:col-span-7">
+              <p className="inline-flex items-center gap-2 rounded-full border border-ink bg-card px-3 py-1.5 font-mono text-xs text-ink animate-fade-in-up motion-reduce:animate-none sm:text-sm">
+                <span aria-hidden="true" className="h-2 w-2 rounded-full bg-signal"></span>
+                Data Scientist &amp; Data Engineer
+              </p>
 
-            <h1 className="mt-7 text-[3.75rem] font-extrabold leading-[0.9] tracking-[-0.045em] text-ink animate-fade-in-up animation-delay-200 motion-reduce:animate-none sm:text-8xl lg:text-[8.5rem]">
-              Hi, I'm
-              <br />{" "}
-              <span className="relative inline-block">
-                <span className="animated-gradient-text bg-[linear-gradient(90deg,#d93f12,#f06a2a,#d93f12)] pr-[0.08em] font-serif font-normal italic tracking-[-0.02em]">
-                  Bagas
+              <h1 className="mt-5 text-[3.5rem] font-extrabold leading-[0.9] tracking-[-0.045em] text-ink animate-fade-in-up animation-delay-200 motion-reduce:animate-none sm:text-7xl lg:text-[6.5rem]">
+                Hi, I'm{" "}
+                <span className="relative inline-block">
+                  <span className="animated-gradient-text bg-[linear-gradient(90deg,#d93f12,#f06a2a,#d93f12)] pr-[0.08em] font-serif font-normal italic tracking-[-0.02em]">
+                    Bagas
+                  </span>
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 400 30"
+                    preserveAspectRatio="none"
+                    className="absolute -bottom-1 left-0 h-4 w-[92%] text-ink sm:h-5"
+                    fill="none"
+                  >
+                    <path
+                      className="animate-draw"
+                      d="M4 20 C 60 6, 110 28, 170 16 S 280 4, 330 18 S 380 22, 396 10"
+                      stroke="currentColor"
+                      strokeWidth="5"
+                      strokeLinecap="round"
+                    />
+                  </svg>
                 </span>
-                <svg
-                  aria-hidden="true"
-                  viewBox="0 0 400 30"
-                  preserveAspectRatio="none"
-                  className="absolute -bottom-1 left-0 h-4 w-[92%] text-ink sm:h-5"
-                  fill="none"
+                <span className="-ml-[0.06em]">.</span>
+              </h1>
+            </div>
+
+            <div className="lg:col-span-5">
+              <p className="text-base leading-relaxed text-ink-soft animate-fade-in-up animation-delay-400 motion-reduce:animate-none md:text-lg">
+                I build data science models and the engineering pipelines that
+                feed them. I love wrangling{" "}
+                <span className="marker marker-sweep text-ink">messy, multi-source data</span>{" "}
+                and untangling tricky problems to ship insights and predictions
+                you can trust.
+              </p>
+
+              <div className="mt-6 flex flex-wrap items-center gap-5 animate-fade-in-up animation-delay-600 motion-reduce:animate-none">
+                <Link
+                  to="/project"
+                  className="focus-ring group inline-flex min-h-[48px] items-center justify-center rounded-xl border-2 border-ink bg-ink px-6 py-2.5 text-base font-semibold text-paper shadow-[5px_5px_0_0_#d93f12] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[7px_7px_0_0_#d93f12] active:translate-x-1 active:translate-y-1 active:shadow-none motion-reduce:transform-none sm:text-lg"
                 >
-                  <path
-                    className="animate-draw"
-                    d="M4 20 C 60 6, 110 28, 170 16 S 280 4, 330 18 S 380 22, 396 10"
-                    stroke="currentColor"
-                    strokeWidth="5"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </span>
-              <span className="-ml-[0.06em]">.</span>
-            </h1>
-
-            <p className="mt-8 max-w-xl text-lg leading-relaxed text-ink-soft animate-fade-in-up animation-delay-400 motion-reduce:animate-none md:text-xl">
-              I build data science models and the engineering pipelines that
-              feed them. I love wrangling{" "}
-              <span className="marker marker-sweep text-ink">messy, multi-source data</span>{" "}
-              and untangling tricky problems to ship insights and predictions
-              you can trust.
-            </p>
-
-            <div className="mt-10 flex flex-col items-start gap-5 animate-fade-in-up animation-delay-600 motion-reduce:animate-none sm:flex-row sm:items-center sm:gap-8">
-              <Link
-                to="/project"
-                className="focus-ring group inline-flex min-h-[48px] items-center justify-center rounded-xl border-2 border-ink bg-ink px-7 py-3 text-lg font-semibold text-paper shadow-[5px_5px_0_0_#d93f12] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[7px_7px_0_0_#d93f12] active:translate-x-1 active:translate-y-1 active:shadow-none motion-reduce:transform-none"
-              >
-                View My Work
-                <span aria-hidden="true" className="ml-2 transition-transform duration-200 group-hover:translate-x-1 motion-reduce:transform-none">→</span>
-              </Link>
-              <a
-                href="#contact"
-                className="focus-ring inline-flex min-h-[44px] items-center rounded-md text-lg font-semibold text-ink underline decoration-signal decoration-2 underline-offset-[6px] transition-colors hover:decoration-4"
-              >
-                Get in Touch
-              </a>
+                  View My Work
+                  <span aria-hidden="true" className="ml-2 transition-transform duration-200 group-hover:translate-x-1 motion-reduce:transform-none">→</span>
+                </Link>
+                <a
+                  href="#contact"
+                  className="focus-ring inline-flex min-h-[44px] items-center rounded-md text-base font-semibold text-ink underline decoration-signal decoration-2 underline-offset-[6px] transition-colors hover:decoration-4 sm:text-lg"
+                >
+                  Get in Touch
+                </a>
+              </div>
             </div>
           </div>
 
-          {/* Polaroid portrait with tape. */}
-          <div className="relative mx-auto w-full max-w-[18rem] animate-fade-in-up animation-delay-400 motion-reduce:animate-none sm:max-w-xs lg:col-span-5 lg:max-w-sm">
-            <figure className="relative rotate-[3deg] border border-ink/10 bg-card p-3 pb-10 shadow-[0_24px_50px_-20px_rgba(23,21,15,0.45)] transition-transform duration-500 hover:rotate-0 motion-reduce:rotate-0 motion-reduce:transition-none">
-              <div aria-hidden="true" className="tape absolute -top-3 left-1/2 h-7 w-28 -translate-x-1/2 -rotate-3"></div>
-              {imgError ? (
-                <div
-                  aria-hidden="true"
-                  className="flex aspect-[4/5] w-full items-center justify-center bg-paper-2"
-                >
-                  <svg
-                    className="h-16 w-16 text-muted"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={1.5}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
-                    />
-                  </svg>
-                </div>
-              ) : (
-                <img
-                  src={profilePhoto}
-                  alt="Bagas Adjie Pamungkas smiling, wearing a black shirt"
-                  onError={() => setImgError(true)}
-                  className="aspect-[4/5] w-full object-cover object-[center_30%]"
-                />
-              )}
-            </figure>
+          {/* Interactive 3D Isometric Workstation Centerpiece */}
+          <div className="mt-10 animate-fade-in-up animation-delay-400 motion-reduce:animate-none">
+            <DeskWorkstation
+              siteConfig={siteConfig}
+              skills={skills}
+              certifications={certifications}
+              aboutNarrative={aboutNarrative}
+              aboutFacts={aboutFacts}
+              toolbelt={toolbelt}
+              profilePhoto={profilePhoto}
+              projectCount={projectsData.length}
+            />
           </div>
         </div>
       </section>
@@ -566,7 +559,10 @@ export const Core = () => {
       <CertificationsSection certifications={certifications} />
 
       {/* -------------------------------------------------------- About */}
-      <section className="paper-dots border-b border-ink px-6 py-20 md:py-28">
+      <section
+        id="about"
+        className="paper-dots scroll-mt-20 border-b border-ink px-6 py-20 md:py-28"
+      >
         <div className="mx-auto grid max-w-7xl gap-12 md:grid-cols-12">
           <Reveal className="md:col-span-4">
             <p className="font-mono text-sm text-muted">
@@ -575,7 +571,39 @@ export const Core = () => {
             <h2 className="mt-4 text-4xl font-extrabold leading-[0.95] tracking-[-0.03em] text-ink sm:text-5xl md:text-6xl">
               About <span className="font-serif font-normal italic">me</span>
             </h2>
-            <dl className="mt-10 space-y-5 border-t border-ink pt-6">
+
+            <figure className="relative mt-8 max-w-[15rem] rotate-[2deg] border border-ink/15 bg-card p-2.5 pb-8 shadow-[0_18px_40px_-18px_rgba(23,21,15,0.4)] transition-transform duration-500 hover:rotate-0 motion-reduce:rotate-0 motion-reduce:transition-none">
+              <div aria-hidden="true" className="tape absolute -top-3 left-1/2 h-6 w-24 -translate-x-1/2 -rotate-3"></div>
+              {imgError ? (
+                <div
+                  aria-hidden="true"
+                  className="flex aspect-[4/5] w-full items-center justify-center bg-paper-2"
+                >
+                  <svg
+                    className="h-14 w-14 text-muted"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={1.5}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+                    />
+                  </svg>
+                </div>
+              ) : (
+                <img
+                  src={profilePhoto}
+                  alt="Bagas Adjie Pamungkas smiling, wearing a black shirt"
+                  onError={() => setImgError(true)}
+                  className="aspect-[4/5] w-full object-cover object-[center_30%]"
+                />
+              )}
+            </figure>
+
+            <dl className="mt-8 space-y-5 border-t border-ink pt-6">
               {aboutFacts.map((fact) => (
                 <div key={fact.label}>
                   <dt className="font-mono text-xs uppercase tracking-wider text-muted">{fact.label}</dt>
