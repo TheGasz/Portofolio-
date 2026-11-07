@@ -1,205 +1,258 @@
-# Spec: Portfolio Holistic Refinement & Motion Polish ("Lab Notebook" Edition)
+# Spec: Interactive 3D/Isometric Workstation Landing Page ("Anatomy Desk" Edition)
 
 ## 1. Objective
 
-Refine and elevate Bagas Adjie Pamungkas's personal Data Science & Data Engineering portfolio (`d:\Bagas\Portofolio\Portofolio`) across **navigation ergonomics, scroll-driven micro-interactions, content credibility, discovery UX, and brand metadata**—while strictly preserving the "Lab Notebook" aesthetic (`paper`, `ink`, `signal`, `marker`) and maintaining 100% compatibility with the existing Vitest + `fast-check` property-based test suite.
+Merombak konsep *landing page* (`/`) portofolio Data Science & Data Engineering **Bagas Adjie Pamungkas** (`d:\Bagas\Portofolio\Portofolio`) menjadi sebuah **Interactive 3D/Isometric Workstation ("Bagas's Desk")** menggunakan pendekatan dan *drawing kit* dari skill **`wheresryan22/anatomy`**, sambil tetap mempertahankan identitas warna hangat **"Lab Notebook"** (`paper`, `ink`, `signal`, `marker`).
 
-### Scope of Refinements (All 11 Selected Items)
+Pengunjung yang membuka halaman utama tidak lagi hanya melihat teks statis, melainkan **sebuah meja kerja fisik 3D/isometrik yang hidup dan bisa diklik (*clickable & reactive*)**, di mana setiap objek di meja dan dinding adalah pintu navigasi menuju bagian portofolio:
 
-1. **Smooth Sliding Pill Indicator in Navbar (`Navbar.jsx`)**
-   - Replace the abrupt active-background swap between `Home` (`/`) and `Projects` (`/project`) with a continuous, hardware-accelerated sliding capsule indicator (`bg-ink`) that smoothly glides (`translateX` + `width`) between active navigation items, while hiding gracefully on unknown routes.
-2. **Subtle Scroll-Reveal Choreography Across Home & Projects (`core.jsx`, `project.jsx`, `useScrollReveal.js`)**
-   - Extend the existing `useScrollReveal` (`IntersectionObserver` + `.reveal` / `.reveal-visible`) beyond `ProjectCard` to cover:
-     - Home `SectionHeader` blocks (`01 / Skills`, `02 / Credentials`, `03 / About`, `04 / Contact`)
-     - Staggered reveal on `SkillsSection` cards (`0ms`, `100ms`, `200ms`...)
-     - Staggered reveal on `CertificationsSection` ledger rows
-     - `About me` narrative + facts column
-     - `Contact` section content
-     - `Projects` page header (`Featured Works` + total project counter + `Selected Projects` divider)
-3. **Route Scroll Restoration & Page Enter Transition (`App.jsx`, `index.css`)**
-   - Automatically reset scroll position to `(0, 0)` on route pathname changes (`/` ↔ `/project`) unless navigating to an in-page hash (`#contact`), paired with a subtle compositor-safe page entrance transition (`.page-transition`).
-4. **Home "Featured Works" Preview Section (`core.jsx`, `project.jsx`)**
-   - Export `projectsData` (and top featured projects) from `src/assets/project.jsx` and add a curated 3-card **"Selected Works" (`02 / Featured Works`)** preview section on `Home` (`core.jsx`) with a direct CTA to `/project`, ensuring visitors who scroll down `Home` see concrete project proof before reaching `Contact`. (Renumber subsequent Home sections cleanly: `01 / Skills`, `02 / Featured Works`, `03 / Credentials`, `04 / About`, `05 / Contact`).
-5. **Interactive Category Filter Pills on `/project` (`project.jsx`)**
-   - Add domain category metadata to `projectsData` (`"All"`, `"GenAI & Agents"`, `"Computer Vision"`, `"Time-Series & Geo"`, `"Tabular & ML"`) and render an accessible filter bar with a sliding active pill indicator on `/project`, updating the displayed `ProjectGrid` and project count dynamically.
-6. **Highlighter Sweep (`.marker-sweep`) & Hero Polaroid Entrance (`index.css`, `core.jsx`)**
-   - Animate the `.marker` yellow highlighter background from `0%` to `100%` width when revealed in the viewport, and add a staggered entrance (`animate-fade-in-up animation-delay-400`) to the Hero Polaroid figure so the right column matches the left column's choreography.
-7. **Key Impact / Metric Badge on `ProjectCard` (`project.jsx`)**
-   - Surface each project's headline quantitative outcome (e.g., `"0.98 macro-F1 · 30/30 traps caught"`, `"0% false auto-approve"`, `"0.987 PR-AUC · <25ms p95"`, `"0.9962 F1 (Satria Data)"`) as a crisp `font-mono` impact badge inside `ProjectCard` so recruiters grasp project impact in under 2 seconds.
-8. **Quick "Copy Email" Button with Live Feedback in Contact Section (`core.jsx`)**
-   - Add a keyboard-accessible **"Copy email"** button next to the `mailto:` CTA in `#contact` that copies `siteConfig.contactEmail` to the clipboard and shows a 2-second `"Copied!"` confirmation state (`aria-live="polite"`).
-9. **Complete & Verified Certificate Metadata + 7th Certificate (`core.jsx`, `public/certificates/`)**
-   - Replace all `TODO` issuer strings and blank `date: ""` fields in `certifications` (`core.jsx`) using the verified OCR data from the official PDF certificates:
-     - `Pelatihan Data Science` → Issuer: `"Divisi Workshop KMTETI FT UGM"`, Date: `"Nov 2025"`
-     - `Cleaning Data in Python` → Issuer: `"DataCamp"`, Date: `"Sep 2026"`
-     - `Exploratory Data Analysis in Python` → Issuer: `"DataCamp"`, Date: `"Sep 2026"`
-     - `Dimensionality Reduction in Python` → Issuer: `"DataCamp"`, Date: `"Sep 2026"`
-     - `1st Runner Up — Final Project Bootcamp TETI AI` (Juara 2 AI) → Issuer: `"Divisi Workshop KMTETI FT UGM"`, Date: `"Jul 2025"`
-     - Copy `src/assets/Sertifikat/SERTIF JUARA MOBDEV.pdf` to `public/certificates/juara-2-mobdev.pdf` and register it in `certifications` (`1st Runner Up — Final Project Bootcamp TETI Mobile Dev`, Issuer: `"Divisi Workshop KMTETI FT UGM"`, Date: `"Jul 2026"`, Icon: `"trophy"`).
-     - `AWS Academy Graduate — Cloud Web Application Builder` → Issuer: `"AWS Academy (Credly)"`, Date: `"Oct 2026"`
-10. **On-Brand Monogram `"b"` Favicon & SEO/OpenGraph Metadata (`index.html`, `public/favicon.svg`)**
-    - Create `public/favicon.svg` matching the Navbar's `"b"` italic serif monogram on an `#17150f` (`ink`) circle with `#f3efe6` (`paper`) glyph, replace `/vite.svg` in `index.html`, and add `<meta name="description">` and OpenGraph tags.
+### Core Interactive Objects (Kebutuhan Utama User)
+1. **Meja Kerja dengan PC, Monitor, Keyboard & Mouse (`Workstation Centerpiece`)**
+   - **Monitor (Klik → Projects `/project`):** Menampilkan *live dashboard/terminal* mini (metrik model ML, status pipeline, dan prompt interaktif). Saat di-*hover*, layar menyala dengan aksen `signal` (`#d93f12`) / `lit` dan menampilkan petunjuk `"Click to explore 11 ML & Data Engineering Projects"`. Saat diklik, menavigasi langsung ke halaman `/project`.
+   - **Keyboard & Mouse (Reaktif):**
+     - Keyboard mekanis isometrik dengan *keycaps* detail: saat pengunjung menekan tombol keyboard fisik (`1`–`5` atau huruf) maupun mengeklik keyboard di layar, *keycap* bergerak turun (`translateAlong` Z) dan teks/perintah tampil di layar monitor.
+     - Mouse di atas *mousepad* lengkap dengan kabel (`kit/tube.mjs`): bergeser halus di bidang meja mengikuti pergerakan kursor pengunjung (*pointer tracking*).
+2. **Foto Bingkai di Dinding (Klik → About Me)**
+   - Di bidang dinding belakang meja (`wallX` / `wallY`), tergantung bingkai foto Bagas (`profile.jpg` yang diproyeksikan secara isometrik atau terintegrasi di dalam bingkai dinding lengkap dengan *masking tape* kuning & *nameplate* logam).
+   - Saat di-*hover*, bingkai menampilkan efek *spotlight/elevation*. Saat diklik, membuka **Interactive About Drawer / Modal** (atau *smooth-scroll* ke `#about`) yang menampilkan cerita personal Bagas, fokus keahlian, dan fakta singkat.
+3. **Telepon Meja (Klik → Contact Me: Email, LinkedIn, GitHub)**
+   - Telepon meja di sudut meja lengkap dengan gagang (*handset*), kabel spiral (*coiled cord*), tombol *keypad*, dan lampu indikator LED (`signal` orange).
+   - Saat di-*hover*, gagang telepon sedikit terangkat/bergetar halus (*ringing micro-interaction*) dan lampu LED menyala. Saat diklik, membuka **Quick Contact Popover / Panel** (atau menuju `#contact`) yang berisi tombol langsung ke **Email (`mailto:` + `Copy email`)**, **LinkedIn**, dan **GitHub**.
 
 ---
 
-## 2. Mandatory UI/UX Skills Enforcement
+### Usulan Refinement Tambahan (Agar Portofolio Makin Lengkap & Berkelas)
+Untuk memastikan seluruh aset portofolio kamu (Skills & 7 Sertifikat/Penghargaan) juga terwakili di meja kerja tanpa membuat meja berantakan, berikut **4 refinement** yang dimasukkan ke dalam desain:
 
-When executing any task in this specification, the implementer **MUST** actively apply and adhere to the following global and workspace UI/UX skills:
-
-1. **`ui-ux-pro-max`** (`C:\Users\bagas\.gemini\config\skills\ui-ux-pro-max\SKILL.md`)
-   - Priority 1 (Accessibility): WCAG AA contrast (4.5:1 body, 3:1 large text), visible `focus-ring`, non-empty accessible names on all links/buttons, `prefers-reduced-motion: reduce` fallbacks.
-   - Priority 2 (Touch & Interaction): Minimum `44×44px` tap targets (`min-h-[44px] min-w-[44px]`), immediate feedback on click/hover/copy.
-   - Priority 3 & 7 (Performance & Animation): Animate **only** compositor-safe properties (`transform`, `opacity`, `background-position`, `background-size`, `stroke-dashoffset`). Never animate layout properties (`top`, `left`, `margin`, `padding`, `height`) that trigger layout thrashing.
-2. **`frontend-ui-engineering`** (`C:\Users\bagas\.gemini\config\skills\frontend-ui-engineering\SKILL.md`)
-   - Strict adherence to the existing "Lab Notebook" design system (`bg-paper`, `bg-paper-2`, `bg-card`, `text-ink`, `text-ink-soft`, `text-muted`, `text-signal`, `bg-marker`). Zero generic AI purple/indigo gradients on visible UI surfaces.
-3. **`ui-styling`** (`C:\Users\bagas\.gemini\config\skills\ui-styling\SKILL.md`)
-   - Mobile-first Tailwind v4 utility classes (`sm:`, `md:`, `lg:`), consistent border radii (`rounded-2xl` for cards, `rounded-full` for pills/tags, `rounded-xl` for primary CTAs) and hard-offset ink/signal shadows.
-4. **`web-design-guidelines`** (`C:\Users\bagas\.gemini\config\skills\web-design-guidelines\SKILL.md`) & **`vercel-react-best-practices`** (`C:\Users\bagas\.gemini\config\skills\react-best-practices\SKILL.md`)
-   - Clean React 19 state/effect patterns, stable list keys, semantic HTML landmarks (`<nav>`, `<main>`, `<header>`, `<section>`, `<figure>`), and strict heading order (`h1` → `h2` → `h3`).
-5. **Workspace Skills** (`.kiro/skills/ux-design/SKILL.md` & `.kiro/skills/visual-design/SKILL.md`)
-   - Preserve warm first-person voice, 3-second primary action clarity, and scannable hierarchy.
+4. **Refinement 1 — Lab Notebook Terbuka di Meja (Klik → Skills & Toolbelt `#skills`)**
+   - Di sebelah kiri keyboard terdapat **Buku Catatan Lab ("Lab Notebook") terbuka + pena** dengan sketsa kurva model & arsitektur pipeline.
+   - Saat diklik, mengarahkan pengunjung ke bagian **What I Do (`#skills`)** (Data Science, Data Engineering, EDA, Evaluation, Deployment).
+5. **Refinement 2 — Plakat Trophy & Rak Dokumen di Sudut Meja/Dinding (Klik → Certifications & Awards `#credentials`)**
+   - Menampilkan miniatur **Trophy Juara (`1st Runner Up`) + Map Sertifikat (`7 Credentials`)** untuk merepresentasikan 7 sertifikat & kemenangan kompetisi (Bootcamp TETI AI, Mobile Dev, AWS Academy, DataCamp).
+   - Saat diklik, mengarahkan ke bagian **Certifications & Awards (`#credentials`)**.
+6. **Refinement 3 — "Inspect / Explode View" Toggle & Live Status Readout Bar (`Anatomy` Signature)**
+   - Mengadopsi ciri khas terbaik dari `wheresryan22/anatomy`: sebuah **Readout Bar (`font-mono`)** di bagian bawah bingkai meja yang berubah *real-time* saat kursor menyentuh objek (contoh: `TARGET: CRT MONITOR · 11 PROJECTS · CLICK TO OPEN (/project)`), ditambah tombol/shortcut **`[I] Inspect Hotspots`** untuk menyalakan *pin label* bernomor (`01 Projects`, `02 About Me`, `03 Contact`, `04 Skills`, `05 Credentials`) sehingga pengunjung awam langsung tahu bagian mana saja yang bisa diklik dalam < 2 detik.
+7. **Refinement 4 — Arsitektur Hibrida (Interactive 3D Desk di Atas + Full Scannable Sections & Mobile Dock di Bawah)**
+   - Di layar desktop maupun mobile (`390px`), pengunjung mendapatkan pengalaman visual 3D/isometrik di bagian atas (Hero Workstation), dilengkapi **Quick Action Dock** (baris tombol akses cepat di bawah meja untuk pengguna layar sentuh/keyboard) serta section lengkap (`#skills`, `#featured-works`, `#credentials`, `#about`, `#contact`) di bawahnya. Dengan ini, pengalaman visual tetap *mind-blowing*, namun aksesibilitas (WCAG AA), SEO, dan seluruh 112 *property-based tests* yang sudah ada tetap 100% terjaga.
 
 ---
 
-## 3. Tech Stack & Commands
+## 2. Visual & Interactive Architecture (`Bagas's Workstation`)
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  FIG 01 / BAGAS'S WORKSTATION                   [I] Hotspots   [Theme/Sound]│
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │                     [ DINDING / BACK WALL ]                           │  │
+│  │        ┌──────────────┐                   ┌──────────────────┐        │  │
+│  │        │  [02] FOTO   │                   │ [05] TROPHY &    │        │  │
+│  │        │   BAGAS      │                   │  7 CERTIFICATES  │        │  │
+│  │        │ (About Me)   │                   │  SHELF (Awards)  │        │  │
+│  │        └──────────────┘                   └──────────────────┘        │  │
+│  │  ───────────────────────────────────────────────────────────────────  │  │
+│  │                      [ PERMUKAAN MEJA / DESK ]                        │  │
+│  │                                                                       │  │
+│  │   ┌─────────────┐     ┌───────────────────────┐     ┌──────────────┐  │  │
+│  │   │ [04] LAB    │     │  [01] MONITOR & PC    │     │ [03] TELEPON │  │  │
+│  │   │  NOTEBOOK   │     │   (Klik -> /project)  │     │    MEJA      │  │  │
+│  │   │  (Skills)   │     └───────────┬───────────┘     │  (Contact:   │  │  │
+│  │   └─────────────┘     ┌───────────┴───────────┐     │  Email/LI/GH)│  │  │
+│  │                       │   KEYBOARD   [MOUSE]  │     └──────────────┘  │  │
+│  │                       └───────────────────────┘                       │  │
+│  └───────────────────────────────────────────────────────────────────────┘  │
+│  HINT: Click Monitor · Photo · Phone · or press [1–5]   READOUT: READY      │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Pemetaan Hotspot Interaktif
+
+| No | Objek di Scene 3D/Isometrik | Aksi Hover / Pointer | Aksi Klik / Enter | Shortcut Keyboard |
+|---|---|---|---|---|
+| **01** | **Monitor & PC Unit** | Layar menyala aksen `signal`/`lit`, grafik bergerak, *readout* menampilkan info 11 project | Navigasi ke `/project` (atau buka preview + CTA ke `/project`) | `1` |
+| **02** | **Foto Bingkai di Dinding** | Bingkai sedikit terangkat + *halo* hangat, *readout* menampilkan `"ABOUT BAGAS"` | Buka panel/modal **About Me** atau *scroll* ke `#about` | `2` |
+| **03** | **Telepon Meja + Kabel Spiral** | Gagang telepon bergetar halus + LED menyala, *readout* menampilkan `"CONTACT ME"` | Buka **Quick Contact Popover** (Email, Copy Email, LinkedIn, GitHub) / *scroll* ke `#contact` | `3` |
+| **04** | **Lab Notebook & Pena** | Halaman buku tersorot warna `marker` (`#ffd84d`), *readout* menampilkan `"5 CORE SKILLS"` | *Smooth-scroll* ke `#skills` (`What I Do`) | `4` |
+| **05** | **Trophy & Rak Sertifikat** | Kilau pada piala & map sertifikat, *readout* menampilkan `"7 CERTIFICATES & AWARDS"` | *Smooth-scroll* ke `#credentials` (`Certifications & Awards`) | `5` |
+| **—** | **Keyboard & Mouse** | Mouse bergeser mengikuti kursor; keycaps turun saat diketik | Mengetik karakter ke layar terminal monitor | `A–Z` |
+
+---
+
+## 3. Mandatory Skills Enforcement
+
+Dalam mengimplementasikan spesifikasi ini, agent **WAJIB** membaca dan menerapkan:
+
+1. **`anatomy` (`wheresryan22/anatomy`)** — Akan dipasang ke `C:\Users\bagas\.gemini\config\skills\anatomy` setelah spec & plan ini disetujui:
+   - Menggunakan *drawing kit* (`kit/iso-kit.mjs`, `kit/lathe.mjs`, `kit/tube.mjs`) untuk membangun geometri benda padat (*solids, not wireframes*), *four-tone shading* (`lo`, `mid`, `hi`, `lit`), *painter's depth order* (`depthOf` / `A.settle`), *recessed screen* untuk layar monitor & bingkai foto, serta *coiled cord* untuk kabel telepon & mouse.
+   - Wajib memiliki minimal 60–100 *solid parts* yang presisi (meja dengan kaki & sekrup sudut, casing PC dengan *vent slots*, monitor dengan bezel cekung, keyboard dengan baris *keycaps*, mouse + mousepad, telepon dengan gagang + *keypad* + kabel spiral, bingkai foto dinding dengan *tape*, buku catatan, dan piala).
+   - Mematuhi aturan `anatomy`: setiap garis berakhir pada *stroke/dot/outline*, proporsi konsisten di desktop (`1440px`) dan mobile (`390px`), serta berhenti tenang (*still pose*) saat `prefers-reduced-motion: reduce` aktif.
+2. **`ui-ux-pro-max` (`C:\Users\bagas\.gemini\config\skills\ui-ux-pro-max\SKILL.md`)**
+   - Aksesibilitas WCAG AA, indikator fokus jelas (`focus-ring`), target sentuh minimal `44×44px` pada kontrol/dock hotspot, dan animasi yang hanya memakai properti *compositor-safe* (`transform`, `opacity`).
+3. **`frontend-ui-engineering` & `ui-styling`**
+   - Menyelaraskan palet 4-nada `anatomy` (`--iso-*`) dengan palet **Lab Notebook** (`#f3efe6` paper, `#e9e3d5` paper-2, `#fbf9f4` card, `#17150f` ink, `#d93f12` signal orange, `#ffd84d` marker yellow) sehingga ilustrasi meja 3D menyatu 100% dengan halaman.
+4. **`web-design-guidelines` & `vercel-react-best-practices`**
+   - Memisahkan perhitungan geometri statis (`deskGeometry.js`) dari *client interactivity* (`DeskWorkstation.jsx`) agar *render* awal instan dan bebas *re-render* per frame (menggunakan DOM refs untuk animasi mouse/keycap/readout).
+
+---
+
+## 4. Tech Stack & Commands
 
 - **Framework:** React 19 (`^19.0.0`), React Router DOM 7 (`^7.8.2`)
 - **Build Tool:** Vite 6 (`^6.2.0`)
-- **Styling:** Tailwind CSS 4 (`^4.0.15` via `@tailwindcss/vite`)
-- **Testing:** Vitest 4 (`^4.1.11`), `@testing-library/react` (`^16.3.3`), `@testing-library/user-event` (`^14.6.7`), `fast-check` (`^4.10.2`), `jsdom` (`^29.1.1`)
+- **Styling:** Tailwind CSS 4 (`^4.0.15` via `@tailwindcss/vite`) + Scoped Isometric CSS (`iso-desk.css`)
+- **3D/Isometric Engine:** Vendored `wheresryan22/anatomy` kit (`src/assets/iso/iso-kit.js`, `lathe.js`, `tube.js`) — *zero external npm runtime dependencies*
+- **Testing:** Vitest 4 (`^4.1.11`), `@testing-library/react`, `@testing-library/user-event`, `fast-check`, `jsdom`
 
 ### Executable Commands
 ```bash
-# Run full unit + property-based test suite
+# Jalankan seluruh test suite (unit + property-based tests)
 npm test
 
-# Run specific test file
-npx vitest run src/assets/Navbar.unit.test.jsx
+# Jalankan test spesifik
+npx vitest run src/assets/DeskWorkstation.unit.test.jsx
 
-# Run linter
+# Jalankan linter
 npm run lint
 
-# Build production bundle
+# Build bundle produksi
 npm run build
 
-# Start development server
+# Jalankan dev server lokal
 npm run dev
 ```
 
 ---
 
-## 4. Project Structure
+## 5. Project Structure
 
 ```text
 .
-├── index.html                  # App entry HTML, favicon, meta description & OG tags
+├── index.html                           # App entry HTML, favicon, meta description & OG tags
 ├── public/
-│   ├── favicon.svg             # Lab-notebook "b" monogram SVG icon
-│   └── certificates/           # Static PDF certificates served at /certificates/*.pdf
+│   ├── favicon.svg                      # Lab-notebook "b" monogram SVG icon
+│   └── certificates/                    # Static PDF certificates served at /certificates/*.pdf
 ├── src/
-│   ├── main.jsx                # React root bootstrap
-│   ├── App.jsx                 # Router, ScrollToTop / route transition wrapper, Header, Routes, Footer
-│   ├── index.css               # Tailwind v4 @theme tokens, motion keyframes, .reveal, .marker, .focus-ring
+│   ├── main.jsx                         # React root bootstrap
+│   ├── App.jsx                          # Router, ScrollToTop, Header, Routes, Footer
+│   ├── index.css                        # Tailwind v4 @theme tokens, motion keyframes, .reveal, .focus-ring
 │   ├── assets/
-│   │   ├── Navbar.jsx          # Fixed top navigation with sliding active capsule
-│   │   ├── core.jsx            # Home page (Hero, Marquee, Skills, Featured Works Preview, Certifications, About, Contact)
-│   │   ├── project.jsx         # Projects page (Header, Category Filter Pills, ProjectGrid, ProjectCard, projectsData)
-│   │   ├── projectCovers.js    # Data-URI SVG covers for project cards
-│   │   ├── icons.jsx           # Line-art SVG icon dictionary
-│   │   ├── useScrollReveal.js  # IntersectionObserver one-shot reveal hook
-│   │   ├── usePointerTilt.js   # Fine-pointer 3D card tilt hook
-│   │   ├── url.js              # HTTP(S) URL validator
-│   │   └── *.test.{js,jsx}     # Colocated unit and property-based tests
+│   │   ├── iso/                         # Vendored & adapted core modules from wheresryan22/anatomy
+│   │   │   ├── iso-kit.js               # Isometric projection, extrude, slabOf, cylinder, coil, etc.
+│   │   │   ├── lathe.js                 # Round/turned parts (trophy, phone handset, knobs)
+│   │   │   └── tube.js                  # 3D cables & cords (mouse wire, phone cord, monitor cable)
+│   │   ├── desk/                        # Interactive 3D/Isometric Desk Workstation modules
+│   │   │   ├── deskModel.js             # Pure state & readout model (hotspots, terminal text, shortcuts)
+│   │   │   ├── deskGeometry.js          # Precomputed isometric SVG paths (desk, PC, monitor, phone, wall photo, notebook, trophy)
+│   │   │   ├── DeskWorkstation.jsx      # Interactive React component (hover/click hotspots, pointer tracking, keyboard typing, quick modal/popover)
+│   │   │   └── desk.css                 # Scoped Lab-Notebook 4-tone isometric shading & hotspot highlight styles
+│   │   ├── Navbar.jsx                   # Fixed top navigation with sliding active capsule
+│   │   ├── core.jsx                     # Home page integrating <DeskWorkstation /> + Skills, Featured Works, Credentials, About, Contact
+│   │   ├── project.jsx                  # Projects page (Header, Category Filter Pills, ProjectGrid, ProjectCard, projectsData)
+│   │   ├── projectCovers.js             # Data-URI SVG covers for project cards
+│   │   ├── icons.jsx                    # Line-art SVG icon dictionary
+│   │   ├── useScrollReveal.js           # IntersectionObserver one-shot reveal hook
+│   │   ├── usePointerTilt.js            # Fine-pointer 3D card tilt hook
+│   │   ├── url.js                       # HTTP(S) URL validator
+│   │   └── *.test.{js,jsx}              # Unit & property-based test suites
 │   └── test/
 │       ├── design-tokens.test.js
 │       ├── motion-primitives.test.js
 │       ├── smoke.test.jsx
 │       └── structure.test.js
-├── SPEC.md                     # This specification document
+├── SPEC.md                              # Dokumen spesifikasi ini
 └── tasks/
-    ├── plan.md                 # Technical implementation plan
-    └── todo.md                 # Ordered task checklist with checkpoints
+    ├── plan.md                          # Rencana implementasi teknis
+    └── todo.md                          # Daftar task terurut beserta checkpoint verifikasi
 ```
 
 ---
 
-## 5. Code Style & Existing Test Invariants
+## 6. Code Style & Existing Test Invariants
 
-### Code Style Example
+### Code Style Example (Interactive Hotspot & Geometry Separation)
 ```jsx
-// Named + Default export convention in src/assets/*.jsx
-export const RevealBlock = ({ delayMs = 0, className = "", children }) => {
-  const { ref, revealed } = useScrollReveal();
-  return (
-    <div
-      ref={ref}
-      style={delayMs ? { transitionDelay: `${delayMs}ms` } : undefined}
-      className={`reveal${revealed ? " reveal-visible" : ""}${className ? ` ${className}` : ""}`}
-    >
-      {children}
-    </div>
-  );
-};
+// Semua hotspot di dalam SVG meja memiliki role/link/button yang aksesibel,
+// aria-label deskriptif, focus-ring, dan keyboard handler:
+<g
+  role="link"
+  tabIndex={0}
+  data-hotspot="monitor"
+  aria-label="Monitor: View my 11 Data Science and Data Engineering projects"
+  onClick={() => navigate("/project")}
+  onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && navigate("/project")}
+  onPointerEnter={() => setActiveHotspot("monitor")}
+  className="desk-hotspot cursor-pointer focus-ring"
+>
+  {/* Precomputed isometric solid & recessed screen paths */}
+</g>
 ```
 
-### Non-Negotiable Test Invariants (Must Never Break)
-1. **`Navbar.property.test.jsx`**:
-   - Active `<Link>` must retain `aria-current="page"` and classes `text-blue-600` and `font-bold`. Inactive `<Link>` must omit all three.
-2. **`heading-structure.glowup.property.test.jsx`**:
-   - Both `Core` (`/`) and `Projects` (`/project`) must render **exactly one `<h1>`** and never skip a heading level (`h1` → `h2` → `h3`).
-3. **`accessible-names.glowup.property.test.jsx`**:
-   - Every rendered `<a href>` and `<button>` on `Core` and `Projects` must have a non-empty accessible name.
-4. **`ProjectCard.structure.glowup.unit.test.jsx` & `ProjectCard.reveal-content.property.test.jsx`**:
-   - Inside `ProjectCard`:
-     - Only the project title may use `<h3>`.
-     - Only technology tags (`tech`) may carry the `shimmer-pill` class (`span.shimmer-pill`).
-     - Outer wrapper keeps `.reveal`; inner card keeps `.card-tilt` and `.group`.
-5. **`motion-primitives.test.js`**:
-   - In `src/index.css`, `.reveal` may only declare `opacity`, `transform`, and `transition` (referencing only `transform` and `opacity`). `.reveal-visible` may only declare `opacity` and `transform`. Any new CSS animations (e.g. `.marker-sweep`, `.page-enter`) must live in their own distinct selectors.
+### Non-Negotiable Test Invariants (Wajib Tetap Lulus 100%)
+1. **`Hero.glowup.unit.test.jsx` & `heading-structure.glowup.property.test.jsx`**:
+   - Halaman `Core` (`/`) wajib merender **tepat satu `<h1>`** yang teks lengkapnya `"Hi, I'm Bagas."` dan di dalamnya memuat `<span class="animated-gradient-text">Bagas</span>`, serta urutan heading tidak boleh melompat (`h1` → `h2` → `h3`).
+2. **`core.unit.test.jsx`**:
+   - Tetap memiliki teks peran `"Data Scientist & Data Engineer"`, link `/project` (`View My Work` + hotspot Monitor), link `#contact` (`Get in Touch` + hotspot Telepon), serta link `mailto:` dan tombol `Copy email`.
+3. **`accessible-names.glowup.property.test.jsx` & `external-links.glowup.property.test.jsx`**:
+   - Semua elemen `<a href>` dan `<button>` (termasuk kontrol hotspot meja, modal About, dan popover Contact) wajib memiliki *accessible name* yang tidak kosong, dan semua link eksternal (`target="_blank"`) wajib memiliki `rel="noopener noreferrer"`.
+4. **`motion-primitives.test.js` & `design-tokens.test.js`**:
+   - Aturan `.reveal`, `.reveal-visible`, `.card-tilt`, `.animated-gradient-text`, dan `.page-enter` di `src/index.css` tidak boleh dirusak. Styling spesifik meja isometrik ditempatkan di `src/assets/desk/desk.css` atau selector terpisah.
 
 ---
 
-## 6. Testing Strategy
+## 7. Testing Strategy
 
-- **Framework:** Vitest + React Testing Library + `fast-check` under `jsdom`.
-- **Unit Tests:** Verify new interactive behaviors:
-  - Sliding pill indicator presence and active index/position states in `Navbar.unit.test.jsx`.
-  - Scroll-reveal classes applied across `Core` and `Projects` sections.
-  - Category filter pill selection, filtered card counts, and `"All"` reset in `Projects.unit.test.jsx`.
-  - Impact metric badge rendering in `ProjectCard`.
-  - Copy-email button clipboard interaction and `"Copied!"` status feedback in `core.unit.test.jsx`.
-  - Verified certificate metadata (no `"TODO"` strings, all 7 certificates have non-empty `issuer` and `date`) in `core.content.test.js`.
-- **Property-Based Regression Suite:** All existing `*.property.test.{js,jsx}` and `src/test/*.test.{js,jsx}` suites must pass 100%.
+- **Unit Tests Baru (`src/assets/DeskWorkstation.unit.test.jsx`):**
+  - Memastikan seluruh hotspot utama ter-render dengan *accessible name* yang jelas:
+    1. **Monitor Hotspot** → klik menavigasi ke `/project`.
+    2. **Wall Photo Hotspot (About Me)** → klik menampilkan panel/informasi About Me (atau mengarah ke `#about`) yang memuat foto & narasi Bagas.
+    3. **Desk Phone Hotspot (Contact Me)** → klik menampilkan panel Contact cepat (Email `bagasadjie2006@gmail.com`, tombol Copy Email, LinkedIn, GitHub) atau mengarah ke `#contact`.
+    4. **Lab Notebook & Trophy Hotspots** → mengarah ke `#skills` dan `#credentials`.
+  - Memastikan penekanan tombol keyboard fisik/virtual memperbarui teks terminal di layar monitor dan menggerakkan *readout* status.
+  - Memastikan mode `[I] Inspect Hotspots` menampilkan/menyembunyikan *pin badge* bantuan.
+- **Visual & Geometry Verification (via `anatomy` scripts / browser):**
+  - Memastikan urutan *painter's depth* meja, monitor, keyboard, mouse, kabel, telepon, dan bingkai dinding rapi tanpa garis yang melayang (*floating line ends*) baik di viewport desktop (`1440px`) maupun mobile (`390px`).
+- **Regression Suite:**
+  - Seluruh 35 file test yang sudah ada (`npm test`) harus tetap lulus 100%.
 
 ---
 
-## 7. Boundaries
+## 8. Boundaries
 
 - **Always do:**
-  - Consult and apply `ui-ux-pro-max` and the global/workspace UI/UX skills before modifying any component or stylesheet.
-  - Run `npm test`, `npm run lint`, and `npm run build` after each task to confirm zero regressions.
-  - Respect `prefers-reduced-motion: reduce` on every new animation or transition.
-  - Ensure all new interactive controls have `focus-ring` and `min-h-[44px]`.
+  - Gunakan *drawing kit* `anatomy` (`iso-kit`, `lathe`, `tube`) dengan *four-tone paper/ink shading* yang disesuaikan ke palet **Lab Notebook**.
+  - Pastikan semua objek yang bisa diklik memiliki *hover state* yang jelas (perubahan *tone* ke `lit`/`signal`, perubahan *cursor*, dan pembaruan teks *readout*), serta bisa diakses via keyboard (`Tab`, `Enter`, `Space`, atau angka `1`–`5`).
+  - Jalankan `npm test`, `npm run lint`, dan `npm run build` di setiap tahapan.
 - **Ask first:**
-  - Adding any new npm dependencies to `package.json` (none should be needed; everything can be built cleanly with React 19 + Tailwind v4).
-  - Deleting any existing files or existing test suites.
+  - Menambahkan library npm eksternal (seperti Three.js) — **tidak diperlukan** karena `anatomy` kit berbasis SVG/Canvas isometrik presisi yang jauh lebih ringan, tajam, dan terintegrasi langsung dengan React 19.
+  - Menghapus section informasi di bawah Hero jika masih diperlukan oleh penguji/recruiter atau test suite.
 - **Never do:**
-  - Alter or weaken existing property-based test assertions to force a failing test to pass.
-  - Introduce generic AI purple/blue neon styling onto visible surfaces (keep the warm Lab Notebook palette).
-  - Use array indices as React keys on dynamic/filtered project lists (always use `project.id`).
+  - Membuat ilustrasi kotak-kotak datar (*flat bland boxes*) yang melanggar prinsip `anatomy` (*"Every creation is highly detailed: at least 40–80 purposeful solid parts"*).
+  - Merusak invariant test yang sudah ada di `src/assets/*.test.jsx` dan `src/test/*.test.js`.
 
 ---
 
-## 8. Success Criteria
+## 9. Success Criteria
 
-- [ ] **SC-1 (Navbar Sliding Pill):** Navigating between `/` and `/project` animates a sliding `bg-ink` pill smoothly (`duration-300`) behind the active link; unknown routes hide the pill; `Navbar.property.test.jsx` passes.
-- [ ] **SC-2 (Scroll-Reveal Choreography):** `Core` sections (`Skills`, `Featured Works`, `Certifications`, `About`, `Contact`) and `Projects` header use `useScrollReveal` with subtle staggered delays (`<= 1000ms` total) and instant visibility under `prefers-reduced-motion: reduce`.
-- [ ] **SC-3 (Scroll Restoration & Page Transition):** Changing routes scrolls the window to `(0, 0)` (when no hash is present) and plays a subtle `.page-enter` animation.
-- [ ] **SC-4 (Home Featured Works Preview):** `Home` renders a `02 / Featured Works` section showcasing 3 flagship projects with a `"View All 11 Projects"` link to `/project`, maintaining strict `h1 → h2 → h3` heading order.
-- [ ] **SC-5 (Projects Category Filter):** `/project` renders accessible filter buttons (`All`, `GenAI & Agents`, `Computer Vision`, `Time-Series & Geo`, `Tabular & ML`) with `aria-pressed`, dynamically filtering the grid without breaking `ProjectGrid` tests.
-- [ ] **SC-6 (Highlighter Sweep & Hero Polaroid):** `.marker` elements sweep in smoothly on reveal, and the Hero Polaroid portrait animates in with `animate-fade-in-up`.
-- [ ] **SC-7 (ProjectCard Metric Badge):** All 11 entries in `projectsData` include a concise `metric` string rendered as a mono badge on `ProjectCard` without altering `span.shimmer-pill` or `<h3>` counts.
-- [ ] **SC-8 (Copy Email UX):** Clicking `"Copy email"` in `#contact` copies `bagasadjie2006@gmail.com` and displays `"Copied!"` feedback.
-- [ ] **SC-9 (Certificates Complete):** All 7 certificates (including `juara-2-mobdev.pdf` copied to `public/certificates/`) have accurate, non-empty `title`, `issuer`, `date`, and `href`, with zero `"TODO"` comments remaining.
-- [ ] **SC-10 (Branding & Build):** `public/favicon.svg` and meta tags are wired in `index.html`, and `npm test`, `npm run lint`, and `npm run build` all exit with code `0`.
+- [ ] **SC-1 (Skill Installation & Kit Vendoring):** Skill `wheresryan22/anatomy` terpasang di `C:\Users\bagas\.gemini\config\skills\anatomy` dan modul intinya (`iso-kit`, `lathe`, `tube`) terintegrasi bersih di `src/assets/iso/`.
+- [ ] **SC-2 (Detailed Isometric Workstation):** Landing page (`/`) menampilkan ilustrasi meja kerja 3D/isometrik bergaya *Lab Notebook × Anatomy* dengan 60+ *solid parts* (meja, PC, monitor, keyboard dengan *keycaps*, mouse + mousepad + kabel, telepon meja + kabel spiral + LED, bingkai foto dinding dengan foto asli Bagas, buku catatan lab, dan piala/sertifikat).
+- [ ] **SC-3 (Clickable Monitor → Projects):** Mengeklik monitor (atau menekan tombol `1`) membawa pengunjung ke halaman `/project`; saat di-*hover*, layar monitor menyala dan menampilkan preview status project.
+- [ ] **SC-4 (Clickable Wall Photo → About Me):** Mengeklik bingkai foto Bagas di dinding (atau menekan tombol `2`) membuka **About Me Drawer/Modal** (serta terhubung ke `#about`) yang menampilkan foto, bio naratif, dan fakta singkat Bagas.
+- [ ] **SC-5 (Clickable Desk Phone → Contact Me):** Mengeklik telepon di meja (atau menekan tombol `3`) membuka **Quick Contact Popover/Modal** (serta terhubung ke `#contact`) dengan akses 1-klik ke Email (`mailto:` + `Copy email`), LinkedIn, dan GitHub.
+- [ ] **SC-6 (Reactive Keyboard, Mouse & Secondary Hotspots):** Mengetik di keyboard mengetikkan teks ke layar monitor & menekan *keycap* secara visual; menggerakkan kursor di atas meja menggerakkan mouse 3D secara halus; klik Lab Notebook & Trophy mengarah ke `#skills` dan `#credentials`.
+- [ ] **SC-7 (Zero Test/Build Regressions):** `npm test` (termasuk unit test baru untuk `DeskWorkstation`), `npm run lint`, dan `npm run build` semuanya lulus dengan exit code `0`.
+
+---
+
+## 10. Resolved Design Decisions (Approved by User)
+
+1. **Interaksi Klik Hotspot (Interactive Overlay Card + Scroll):**
+   - Mengeklik **Monitor (`01`)** langsung menavigasi pengunjung ke halaman `/project`.
+   - Mengeklik **Foto Dinding (`02 About Me`)**, **Telepon Meja (`03 Contact Me`)**, **Buku Catatan Lab (`04 Skills`)**, atau **Trophy & Sertifikat (`05 Credentials`)** akan memunculkan **Interactive Overlay Card / Drawer** bergaya *Lab Notebook* tepat di atas meja (sehingga pengunjung bisa langsung membaca isi atau mengeklik link Email/LinkedIn/GitHub/Sertifikat tanpa harus meninggalkan meja), dilengkapi tombol *"Jump to Full Section ↓"* untuk *smooth-scroll* ke section terkait di bawah halaman.
+2. **Objek Fungsional di Meja & Dinding:**
+   - **Disertakan penuh:**
+     1. **PC, Monitor, Keyboard & Mouse** di tengah meja (Monitor sebagai hotspot utama menuju `/project`; Keyboard & Mouse tampil detail lengkap sebagai kesatuan workstation).
+     2. **Foto Bagas di Dinding** (Hotspot *About Me*).
+     3. **Telepon Meja** (Hotspot *Contact Me*: Email, Copy Email, LinkedIn, GitHub).
+     4. **Buku Catatan Lab + Pena di Meja** (Hotspot *Skills / What I Do*).
+     5. **Trophy & Rak Sertifikat** (Hotspot *7 Certifications & Awards*).
+   - **Disederhanakan:** Animasi ketikan bebas non-fungsional pada keyboard dihapus agar fokus 100% pada fungsi navigasi portofolio yang jelas dan responsif.
 
