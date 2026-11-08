@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./desk.css";
 import { DESK_HOTSPOTS, getHotspotById, getReadoutText } from "./deskModel.js";
 import { buildDeskScene } from "./deskGeometry.js";
@@ -105,6 +105,7 @@ export const DeskWorkstation = ({
   profilePhoto = "",
   projects = projectsData,
 }) => {
+  const navigate = useNavigate();
   const [activeHotspotId, setActiveHotspotId] = useState(null);
   const [openStageId, setOpenStageId] = useState(null);
   const [showPins, setShowPins] = useState(true);
@@ -114,6 +115,15 @@ export const DeskWorkstation = ({
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
   const [hasEnteredRoom, setHasEnteredRoom] = useState(false);
   const [isDoorOpening, setIsDoorOpening] = useState(false);
+  const [isDivingIntoProject, setIsDivingIntoProject] = useState(false);
+
+  const handleOpenFullProjectPage = () => {
+    if (isDivingIntoProject) return;
+    setIsDivingIntoProject(true);
+    setTimeout(() => {
+      navigate("/project");
+    }, 380);
+  };
 
   const audioEngineRef = useRef(null);
 
@@ -251,7 +261,9 @@ export const DeskWorkstation = ({
           aria-modal="false"
           aria-labelledby="desk-overlay-heading"
           data-testid="desk-overlay-monitor"
-          className="stage-monitor-dive flex max-h-full w-full max-w-6xl flex-col overflow-hidden rounded-2xl border-4 border-[#252830] bg-[#0f1722] text-paper shadow-[0_24px_60px_rgba(0,0,0,0.65)]"
+          className={`stage-monitor-dive flex max-h-full w-full max-w-6xl flex-col overflow-hidden rounded-2xl border-4 border-[#252830] bg-[#0f1722] text-paper shadow-[0_24px_60px_rgba(0,0,0,0.65)] ${
+            isDivingIntoProject ? "is-diving-thru" : ""
+          }`}
         >
           {/* Monitor Bezel Top Status Bar */}
           <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-sky-400/25 bg-[#162232] px-4 py-2.5 sm:px-6">
@@ -271,18 +283,19 @@ export const DeskWorkstation = ({
             </div>
 
             <div className="flex flex-wrap items-center gap-2.5">
-              <Link
-                to="/project"
-                className="focus-ring inline-flex min-h-[38px] items-center gap-1.5 rounded-xl border border-sky-300/40 bg-sky-500/15 px-3.5 py-1.5 font-mono text-xs font-semibold text-sky-200 transition-colors hover:bg-sky-500/30"
+              <button
+                type="button"
+                onClick={handleOpenFullProjectPage}
+                aria-label="Open Full Project Page"
+                className="focus-ring inline-flex min-h-[38px] cursor-pointer items-center rounded-xl border border-sky-300/40 bg-sky-500/20 px-3.5 py-1.5 font-mono text-xs font-semibold text-sky-200 transition-all hover:bg-sky-500/35 hover:scale-105 active:scale-95"
               >
-                <span>Open Full /project Page</span>
-                <span aria-hidden="true">↗</span>
-              </Link>
+                <span>Open Full Project Page</span>
+              </button>
               <button
                 type="button"
                 onClick={() => setOpenStageId(null)}
                 aria-label="Exit Monitor and return to room"
-                className="focus-ring inline-flex min-h-[38px] items-center gap-1.5 rounded-xl border-2 border-amber-300 bg-amber-300 px-3.5 py-1.5 font-mono text-xs font-bold text-ink transition-transform hover:-translate-y-0.5"
+                className="focus-ring inline-flex min-h-[38px] cursor-pointer items-center gap-1.5 rounded-xl border-2 border-amber-300 bg-amber-300 px-3.5 py-1.5 font-mono text-xs font-bold text-ink transition-transform hover:-translate-y-0.5"
               >
                 <span>← Exit Monitor</span>
                 <span aria-hidden="true">[ESC]</span>

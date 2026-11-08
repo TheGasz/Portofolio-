@@ -137,6 +137,16 @@ describe("Bagas's Study Room 3D Workstation & 5 Cinematic Stage Animations", () 
     });
     await user.click(exitBtn);
     expect(screen.queryByTestId("desk-overlay-monitor")).not.toBeInTheDocument();
+
+    // Re-open monitor and verify "Open Full Project Page" button exists and dives into project
+    await user.click(monitorHotspot);
+    const reOpenedDialog = screen.getByTestId("desk-overlay-monitor");
+    const openFullBtn = within(reOpenedDialog).getByRole("button", {
+      name: /Open Full Project Page/i,
+    });
+    expect(openFullBtn).toBeInTheDocument();
+    await user.click(openFullBtn);
+    expect(reOpenedDialog).toHaveClass("is-diving-thru");
   });
 
   it("opens and closes the [02] About Me portrait stage when Wall Portrait is clicked or Escape is pressed", async () => {

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import "../index.css";
 import { isValidHttpUrl } from "./url.js";
 import { usePointerTilt } from "./usePointerTilt.js";
@@ -330,7 +331,24 @@ export const Projects = () => {
 
     return (
         <div className="min-h-screen bg-paper text-ink">
-            <header className="paper-dots border-b border-ink px-6 pb-16 pt-14 md:pb-20 md:pt-20">
+            {/* Top Bar Navigation back to Bagas Works Room */}
+            <div className="sticky top-0 z-40 border-b border-ink/15 bg-paper/90 px-6 py-3.5 backdrop-blur-md">
+                <div className="mx-auto flex max-w-7xl items-center justify-between">
+                    <Link
+                        to="/"
+                        aria-label="Back to Bagas Works Room"
+                        className="focus-ring group inline-flex cursor-pointer items-center gap-2 rounded-xl border-2 border-ink bg-card px-4 py-2 font-mono text-xs font-bold text-ink shadow-[2px_2px_0_0_#17150f] transition-all hover:-translate-y-0.5 hover:bg-amber-300 hover:shadow-[3px_3px_0_0_#d93f12]"
+                    >
+                        <span aria-hidden="true" className="text-signal transition-transform duration-200 group-hover:-translate-x-1">←</span>
+                        <span>Back to Bagas Works Room</span>
+                    </Link>
+                    <span className="hidden font-mono text-xs text-muted sm:inline">
+                        Bagas Works Room // Project Explorer
+                    </span>
+                </div>
+            </div>
+
+            <header className="paper-dots border-b border-ink px-6 pb-16 pt-10 md:pb-20 md:pt-14">
                 <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-12 md:items-end">
                     <div className="md:col-span-8">
                         <p className="font-mono text-sm text-muted">
@@ -399,6 +417,20 @@ export const Projects = () => {
                         </div>
                     </div>
                     <ProjectGrid projects={filteredProjects} />
+
+                    {/* Bottom Return Bar */}
+                    <div className="mt-16 flex flex-wrap items-center justify-between gap-4 border-t border-ink/15 pt-8">
+                        <Link
+                            to="/"
+                            className="focus-ring group inline-flex cursor-pointer items-center gap-2 rounded-xl border-2 border-ink bg-card px-5 py-2.5 font-mono text-xs font-bold text-ink shadow-[2px_2px_0_0_#17150f] transition-all hover:-translate-y-0.5 hover:bg-amber-300 hover:shadow-[3px_3px_0_0_#d93f12]"
+                        >
+                            <span aria-hidden="true" className="text-signal transition-transform duration-200 group-hover:-translate-x-1">←</span>
+                            <span>Return to Bagas Works Room</span>
+                        </Link>
+                        <span className="font-mono text-xs text-muted">
+                            {filteredProjects.length} of {projectsData.length} repositories
+                        </span>
+                    </div>
                 </div>
             </section>
         </div>
