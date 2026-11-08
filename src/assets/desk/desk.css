@@ -260,6 +260,42 @@
 .iso-desk .box-purple-solid > .iso-shade {
   fill: #6f4573;
 }
+
+/* Career Documents Hotspot [06] Binders, Dossier & Badges */
+.iso-desk .doc-binder-cv > .iso-top {
+  fill: #3b82f6;
+}
+.iso-desk .doc-binder-cv > .iso-shade {
+  fill: #1d4ed8;
+}
+.iso-desk .doc-binder-portfolio > .iso-top {
+  fill: #f59e0b;
+}
+.iso-desk .doc-binder-portfolio > .iso-shade {
+  fill: #b45309;
+}
+.iso-desk .doc-binder-resume > .iso-top {
+  fill: #14b8a6;
+}
+.iso-desk .doc-binder-resume > .iso-shade {
+  fill: #0f766e;
+}
+.iso-desk .doc-dossier-solid > .iso-top {
+  fill: #f1f5f9;
+}
+.iso-desk .doc-dossier-solid > .iso-shade {
+  fill: #94a3b8;
+}
+.iso-desk .doc-label-white > .iso-top,
+.iso-desk .doc-label-white > .iso-shade {
+  fill: #ffffff;
+}
+.iso-desk .doc-seal-gold > .iso-top {
+  fill: #ffd84d;
+}
+.iso-desk .doc-seal-gold > .iso-shade {
+  fill: #d97706;
+}
 .iso-desk .coaster-blue-solid > .iso-top {
   fill: #4fc3f7;
 }
@@ -663,6 +699,23 @@
   animation: stagePortraitSlide 560ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
+/* 06. Career Documents Dossier Pop & Expand */
+@keyframes stageDocumentsPop {
+  0% {
+    opacity: 0;
+    transform: perspective(1000px) translateY(32px) scale(0.94);
+  }
+  100% {
+    opacity: 1;
+    transform: perspective(1000px) translateY(0) scale(1);
+  }
+}
+
+.stage-documents-dossier {
+  will-change: transform, opacity;
+  animation: stageDocumentsPop 420ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 @keyframes deskCursorBlink {
   to {
     opacity: 0.15;
@@ -780,6 +833,7 @@
   .stage-book-unfold,
   .stage-phone-zoom,
   .stage-portrait-slide,
+  .stage-documents-dossier,
   .audio-eq-bar,
   .iso-desk .desk-screen-cursor,
   .iso-desk .iso-dots circle[data-pulse],

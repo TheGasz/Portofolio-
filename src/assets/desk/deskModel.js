@@ -4,7 +4,7 @@
  */
 
 export const DEFAULT_READOUT =
-  "BAGAS'S STUDY ROOM ONLINE · 5 INTERACTIVE OBJECTS · CLICK OBJECT OR PRESS [1–5]";
+  "BAGAS'S STUDY ROOM ONLINE · 6 INTERACTIVE OBJECTS · CLICK OBJECT OR PRESS [1–6]";
 
 /**
  * @typedef {Object} CameraZoom
@@ -15,7 +15,7 @@ export const DEFAULT_READOUT =
 
 /**
  * @typedef {Object} DeskHotspot
- * @property {"monitor"|"photo"|"phone"|"notebook"|"trophy"} id
+ * @property {"monitor"|"photo"|"phone"|"notebook"|"trophy"|"documents"} id
  * @property {string} number          2-digit figure callout ("01".."05")
  * @property {string} key             Keyboard shortcut ("1".."5")
  * @property {string} label           Short navigation label
@@ -109,6 +109,23 @@ export const DESK_HOTSPOTS = [
       "05 / TOP-LEFT CABINET TROPHY · CLICK TO IGNITE TROPHY & VIEW 7 CERTIFICATES",
     pinWorld: [-134, -36, 156],
     cameraZoom: { scale: 2.2, originX: "28%", originY: "20%" },
+  },
+  {
+    id: "documents",
+    number: "06",
+    key: "6",
+    label: "Documents",
+    objectName: "Career Dossier (CV, Portfolio & Resume)",
+    summary:
+      "Inspect Bagas's official CV, Portfolio PDF, and Data Scientist Resume with live preview and download",
+    actionType: "stage",
+    target: "#documents",
+    ariaLabel:
+      "06 Important Career Documents: View and download Bagas's CV, Portfolio, and Data Scientist Resume",
+    readout:
+      "06 / CAREER DOSSIER · CV · PORTFOLIO · RESUME · CLICK TO VIEW & DOWNLOAD",
+    pinWorld: [-174, 30, 60],
+    cameraZoom: { scale: 2.35, originX: "24%", originY: "58%" },
   },
 ];
 

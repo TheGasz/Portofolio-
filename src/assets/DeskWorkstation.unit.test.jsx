@@ -44,8 +44,8 @@ const renderWorkstation = () =>
     </MemoryRouter>
   );
 
-describe("Bagas's Study Room 3D Workstation & 5 Cinematic Stage Animations", () => {
-  it("renders the SVG study room with all 5 interactive hotspots, default readout, and Musik Syahdu toggle", async () => {
+describe("Bagas's Study Room 3D Workstation & 6 Cinematic Stage Animations", () => {
+  it("renders the SVG study room with all 6 interactive hotspots, default readout, and Musik Syahdu toggle", async () => {
     const user = userEvent.setup();
     const { container } = renderWorkstation();
 
@@ -247,9 +247,81 @@ describe("Bagas's Study Room 3D Workstation & 5 Cinematic Stage Animations", () 
     ).toBeInTheDocument();
   });
 
-  it("supports keyboard shortcuts 1–5 and toggling callout pins", async () => {
+  it("opens [06] Career Documents stage when middle shelf is clicked, displaying CV, Portfolio, and Resume with download links", async () => {
+    const user = userEvent.setup();
+    const { container } = renderWorkstation();
+
+    const docHotspot = container.querySelector(
+      'g.desk-hotspot[data-hotspot="documents"]'
+    );
+    expect(docHotspot).not.toBeNull();
+    await user.click(docHotspot);
+
+    const docDialog = screen.getByTestId("desk-overlay-documents");
+    expect(docDialog).toBeInTheDocument();
+    expect(
+      within(docDialog).getByText(/Important Documents & Credentials/i)
+    ).toBeInTheDocument();
+
+    // Verify all 3 document tabs in navbar atas
+    const cvTab = within(docDialog).getByRole("tab", {
+      name: /Curriculum Vitae \(CV\)/i,
+    });
+    const portTab = within(docDialog).getByRole("tab", {
+      name: /Technical Project Portfolio/i,
+    });
+    const resumeTab = within(docDialog).getByRole("tab", {
+      name: /Data Scientist Resume/i,
+    });
+
+    expect(cvTab).toBeInTheDocument();
+    expect(portTab).toBeInTheDocument();
+    expect(resumeTab).toBeInTheDocument();
+
+    // Initially CV is selected in navbar atas
+    const cvDownload = within(docDialog).getByRole("link", {
+      name: /Download Curriculum Vitae \(CV\)/i,
+    });
+    expect(cvDownload).toHaveAttribute("href", "/certificates/CV.pdf");
+    expect(cvDownload).toHaveAttribute("download", "Bagas_Adjie_Pamungkas_CV.pdf");
+
+    const cvPreview = within(docDialog).getByRole("link", {
+      name: /Open Curriculum Vitae \(CV\) in new tab/i,
+    });
+    expect(cvPreview).toHaveAttribute("href", "/certificates/CV.pdf");
+    expect(cvPreview).toHaveAttribute("target", "_blank");
+    expect(cvPreview).toHaveAttribute("rel", "noopener noreferrer");
+
+    // Click Portfolio tab in navbar atas
+    await user.click(portTab);
+    const portDownload = within(docDialog).getByRole("link", {
+      name: /Download Technical Project Portfolio/i,
+    });
+    expect(portDownload).toHaveAttribute("href", "/certificates/Portofolio.pdf");
+    expect(portDownload).toHaveAttribute(
+      "download",
+      "Bagas_Adjie_Pamungkas_Portfolio.pdf"
+    );
+
+    // Click Resume tab in navbar atas
+    await user.click(resumeTab);
+    const resumeDownload = within(docDialog).getByRole("link", {
+      name: /Download Data Scientist Resume/i,
+    });
+    expect(resumeDownload).toHaveAttribute("href", "/certificates/Resume.pdf");
+    expect(resumeDownload).toHaveAttribute(
+      "download",
+      "Bagas_Adjie_Pamungkas_Data_Scientist_Resume.pdf"
+    );
+  });
+
+  it("supports keyboard shortcuts 1–6 and toggling callout pins", async () => {
     const user = userEvent.setup();
     renderWorkstation();
+
+    // Press "6" to open Career Documents stage directly
+    await user.keyboard("6");
+    expect(screen.getByTestId("desk-overlay-documents")).toBeInTheDocument();
 
     // Press "5" to open Glowing Trophy stage
     await user.keyboard("5");

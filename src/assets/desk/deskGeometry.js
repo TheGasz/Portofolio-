@@ -443,20 +443,7 @@ function buildLeftCabinet() {
     })
   );
 
-  // Middle Open Cubby Items (z = 46): Green/Black GPU Box & Purple Box (exact photo details!)
-  const GREEN_BOX = { x: -195, y: 8, w: 22, d: 42, r: 1.5 };
-  const PURPLE_BOX = { x: -171, y: 14, w: 24, d: 36, r: 1.5 };
-  out.push(
-    S(k.slabOf(GREEN_BOX, 46, 18, P, 3, 0.4), {
-      tone: "hi",
-      className: "box-green-solid",
-    }),
-    S(k.slabOf(PURPLE_BOX, 46, 15, P, 3, 0.4), {
-      tone: "mid",
-      className: "box-purple-solid",
-    })
-  );
-
+  // Middle Open Cubby (z = 46): Populated with interactive Career Documents Hotspot [06] (see buildDocumentsInLeftShelf)
   return out.join("");
 }
 
@@ -871,6 +858,125 @@ function buildBooksInLeftShelf() {
 }
 
 /**
+ * 6B. [06] Clickable Career Documents & Dossier in the Left Cabinet Middle Shelf ("Documents" Hotspot)
+ * Features 3 standing archival binders (CV, Portfolio, Resume) and a horizontal dossier case.
+ */
+function buildDocumentsInLeftShelf() {
+  const out = [];
+  const SHELF_MID = 46; // Middle open cubby floor of the left wooden cabinet (x: -198..-145, z: 46..84)
+
+  // 1. Standing Archival Binders for CV, Portfolio, and Resume
+  const cvBinder = k.slabOf(
+    { x: -195, y: 14, w: 7.5, d: 34, r: 1.0 },
+    SHELF_MID,
+    31,
+    P,
+    3,
+    0.35
+  );
+  const portfolioBinder = k.slabOf(
+    { x: -186, y: 18, w: 9.5, d: 36, r: 1.0 },
+    SHELF_MID,
+    34,
+    P,
+    3,
+    0.35
+  );
+  const resumeBinder = k.slabOf(
+    { x: -175, y: 15, w: 7.0, d: 33, r: 1.0 },
+    SHELF_MID,
+    29,
+    P,
+    3,
+    0.35
+  );
+
+  // 2. Horizontal Document Dossier Portfolio Folder lying flat next to the binders
+  const dossierFolder = k.slabOf(
+    { x: -166, y: 14, w: 20, d: 34, r: 1.2 },
+    SHELF_MID,
+    7.5,
+    P,
+    3,
+    0.35
+  );
+  // Gold Seal / Emblem on top of dossier
+  const dossierBadge = k.slabOf(
+    { x: -159, y: 28, w: 6.5, d: 6.5, r: 3.2 },
+    SHELF_MID + 7.5,
+    1.2,
+    P,
+    2,
+    0.2
+  );
+
+  // Spine Label accents on binders
+  const cvLabel = k.slabOf(
+    { x: -194, y: 44, w: 5.5, d: 3.5, r: 0.5 },
+    SHELF_MID + 10,
+    12,
+    P,
+    2,
+    0.2
+  );
+  const portLabel = k.slabOf(
+    { x: -184.5, y: 50, w: 6.5, d: 3.5, r: 0.5 },
+    SHELF_MID + 10,
+    14,
+    P,
+    2,
+    0.2
+  );
+  const resLabel = k.slabOf(
+    { x: -174, y: 44, w: 5.0, d: 3.5, r: 0.5 },
+    SHELF_MID + 9,
+    11,
+    P,
+    2,
+    0.2
+  );
+
+  out.push(
+    S(cvBinder, {
+      tone: "mid",
+      className: "doc-binder-cv",
+    }),
+    S(cvLabel, {
+      tone: "hi",
+      className: "doc-label-white",
+    }),
+    S(portfolioBinder, {
+      tone: "hi",
+      lit: true,
+      className: "hotspot-primary doc-binder-portfolio",
+    }),
+    S(portLabel, {
+      tone: "hi",
+      className: "doc-label-white",
+    }),
+    S(resumeBinder, {
+      tone: "mid",
+      className: "doc-binder-resume",
+    }),
+    S(resLabel, {
+      tone: "hi",
+      className: "doc-label-white",
+    }),
+    S(dossierFolder, {
+      tone: "mid",
+      className: "doc-dossier-solid",
+    }),
+    S(dossierBadge, {
+      tone: "hi",
+      lit: true,
+      className: "hotspot-primary doc-seal-gold",
+    })
+  );
+
+  return out.join("");
+}
+
+/**
  * 7. [01] External Widescreen Monitor & Red-Backlit Gaming Laptop ("Projects" Hotspot)
  */
 function buildMonitorAndLaptop() {
@@ -1264,6 +1370,7 @@ export function buildDeskScene(photoHref = "") {
       deskAndWall:
         buildRoomAndWindow() + buildLeftCabinet() + buildStudyDesk(),
       photo: buildWallPhoto(key),
+      documents: buildDocumentsInLeftShelf(),
       notebook: buildBooksInLeftShelf(),
       cabinetFrontAndCrown: buildCabinetFrontAndCrown(),
       trophy: buildTrophyOnCabinet(),

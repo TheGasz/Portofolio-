@@ -10,6 +10,7 @@ import { projectsData, ProjectCard, PROJECT_CATEGORIES } from "../project.jsx";
 
 const LAYER_ORDER = [
   { type: "static", key: "deskAndWall" },
+  { type: "hotspot", id: "documents" },
   { type: "hotspot", id: "notebook" },
   { type: "static", key: "cabinetFrontAndCrown" },
   { type: "hotspot", id: "photo" },
@@ -112,6 +113,8 @@ export const DeskWorkstation = ({
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [imgError, setImgError] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [activeDocTab, setActiveDocTab] = useState("cv");
+  const [isDocLoading, setIsDocLoading] = useState(false);
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
   const [hasEnteredRoom, setHasEnteredRoom] = useState(false);
   const [isDoorOpening, setIsDoorOpening] = useState(false);
@@ -832,6 +835,243 @@ export const DeskWorkstation = ({
                   ))}
                 </dl>
               )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ------------------------------------------------------------------------
+    // 06. CAREER DOCUMENTS & DOSSIER: CV, Portfolio & Data Scientist Resume
+    // ------------------------------------------------------------------------
+    if (openStageId === "documents") {
+      const documentsList = [
+        {
+          id: "cv",
+          title: "Curriculum Vitae (CV)",
+          badge: "CURRICULUM VITAE",
+          subtitle: "Comprehensive Career & Academic Track Record",
+          pdfUrl: "/certificates/CV.pdf",
+          downloadName: "Bagas_Adjie_Pamungkas_CV.pdf",
+          fileSize: "178 KB",
+          tagColor: "bg-sky-500/20 text-sky-300 border-sky-400/40",
+          description:
+            "Complete end-to-end curriculum vitae highlighting machine learning engineering experience, research background, data pipelines, academic honors, and verified technical skills.",
+          highlights: [
+            "End-to-End ML & AI Engineering",
+            "Data Pipelines & Orchestration",
+            "Academic Background & Honors",
+            "Verified Industry Credentials",
+          ],
+        },
+        {
+          id: "portfolio",
+          title: "Technical Project Portfolio",
+          badge: "FEATURED PORTFOLIO",
+          subtitle: "11 Production Machine Learning & Data Projects",
+          pdfUrl: "/certificates/Portofolio.pdf",
+          downloadName: "Bagas_Adjie_Pamungkas_Portfolio.pdf",
+          fileSize: "436 KB",
+          tagColor: "bg-amber-500/20 text-amber-300 border-amber-400/40",
+          description:
+            "Detailed architectural teardowns, quantitative benchmarks (PR-AUC, F1, p95 latency), data models, system design, and open-source GitHub code repositories.",
+          highlights: [
+            "11 Applied ML & Data Repositories",
+            "GenAI, Agents, Computer Vision & RAG",
+            "Time-Series Forecasting & Anomaly Detection",
+            "Architecture & Latency Benchmarks",
+          ],
+        },
+        {
+          id: "resume",
+          title: "Data Scientist Resume",
+          badge: "1-PAGE EXECUTIVE RESUME",
+          subtitle: "Concise Summary for Hiring Managers & Recruiters",
+          pdfUrl: "/certificates/Resume.pdf",
+          downloadName: "Bagas_Adjie_Pamungkas_Data_Scientist_Resume.pdf",
+          fileSize: "135 KB",
+          tagColor: "bg-emerald-500/20 text-emerald-300 border-emerald-400/40",
+          description:
+            "Tailored 1-page executive technical resume focused on high-impact business outcomes, model accuracy improvements, stack proficiency, and technical leadership.",
+          highlights: [
+            "1-Page Fast Review Format",
+            "Key Performance Metrics & Impact",
+            "PyTorch, Scikit-Learn & Docker Stack",
+            "Direct Contact & Verified Links",
+          ],
+        },
+      ];
+
+      const currentDoc =
+        documentsList.find((d) => d.id === activeDocTab) || documentsList[0];
+
+      return (
+        <div
+          role="dialog"
+          aria-modal="false"
+          aria-labelledby="desk-overlay-heading"
+          data-testid="desk-overlay-documents"
+          className="stage-documents-dossier flex h-[88vh] max-h-full w-full max-w-6xl flex-col overflow-hidden rounded-2xl border-2 border-ink bg-[#111927] text-paper shadow-[8px_8px_0_0_#17150f]"
+        >
+          {/* Top Window Bar */}
+          <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-white/15 bg-[#172234] px-4 py-2.5 sm:px-6">
+            <div className="flex items-center gap-3">
+              <span
+                aria-hidden="true"
+                className="h-3 w-3 rounded-full bg-amber-400 shadow-[0_0_10px_#fbbf24]"
+              />
+              <div>
+                <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-amber-300">
+                  CAREER DOSSIER · HOTSPOT 06
+                </span>
+                <h2
+                  id="desk-overlay-heading"
+                  className="text-base font-extrabold tracking-tight text-white sm:text-xl"
+                >
+                  Important Documents &amp; Credentials
+                </h2>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2.5">
+              <button
+                type="button"
+                onClick={() => setOpenStageId(null)}
+                aria-label="Close Documents overlay and return to room"
+                className="focus-ring inline-flex min-h-[36px] cursor-pointer items-center gap-1.5 rounded-xl border-2 border-amber-300 bg-amber-300 px-3.5 py-1.5 font-mono text-xs font-bold text-ink transition-transform hover:-translate-y-0.5"
+              >
+                <span>← Back to Room</span>
+                <span aria-hidden="true">[ESC]</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Top Navbar: Document Switcher Tabs Only */}
+          <div className="flex shrink-0 items-center border-b border-white/10 bg-[#0d141f] px-4 py-2 sm:px-6">
+            <div
+              role="tablist"
+              aria-label="Select career document to view"
+              className="flex flex-wrap gap-2"
+            >
+              {documentsList.map((doc) => {
+                const isActive = doc.id === currentDoc.id;
+                return (
+                  <button
+                    key={doc.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={isActive}
+                    onClick={() => {
+                      if (activeDocTab !== doc.id) {
+                        setIsDocLoading(true);
+                        setActiveDocTab(doc.id);
+                      }
+                    }}
+                    className={`focus-ring inline-flex items-center gap-2 rounded-lg px-3 py-1.5 font-mono text-xs font-semibold transition-all ${
+                      isActive
+                        ? "bg-amber-300 text-ink shadow-[2px_2px_0_0_#d93f12]"
+                        : "border border-white/15 bg-white/5 text-white/80 hover:bg-white/15 hover:text-white"
+                    }`}
+                  >
+                    <span>{doc.title}</span>
+                    <span className="rounded bg-black/20 px-1.5 py-0.5 text-[10px] opacity-80">
+                      {doc.fileSize}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Document Section Below Navbar: Header Bar (with Icons on Top-Right) + Auto-Zoomed Viewer */}
+          <div
+            key={currentDoc.id}
+            className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-slate-950"
+          >
+            {/* Document Header Bar (Directly Above Document) */}
+            <div className="flex shrink-0 items-center justify-between gap-3 border-b border-white/10 bg-[#141e2c] px-4 py-2 sm:px-6">
+              <div className="flex items-center gap-2.5">
+                <span
+                  aria-hidden="true"
+                  className={`h-2.5 w-2.5 rounded-full transition-colors ${
+                    isDocLoading
+                      ? "bg-amber-400 animate-pulse shadow-[0_0_8px_#f59e0b]"
+                      : "bg-emerald-400 shadow-[0_0_8px_#10b981]"
+                  }`}
+                />
+                <span className="font-mono text-xs font-bold text-white sm:text-sm">
+                  {currentDoc.title}
+                </span>
+                <span className="rounded bg-black/30 px-2 py-0.5 font-mono text-[10px] text-sky-200/80">
+                  {currentDoc.fileSize}
+                </span>
+                {isDocLoading && (
+                  <span className="font-mono text-[11px] text-amber-300 animate-pulse">
+                    Loading...
+                  </span>
+                )}
+              </div>
+
+              {/* Sebelah Atas-Kanan Dokumen: Icon Unduh & Icon Preview in Tab */}
+              <div className="flex items-center gap-2">
+                <a
+                  href={currentDoc.pdfUrl}
+                  download={currentDoc.downloadName}
+                  aria-label={`Download ${currentDoc.title} (${currentDoc.downloadName})`}
+                  title={`Download ${currentDoc.title} (${currentDoc.fileSize})`}
+                  className="focus-ring inline-flex h-8 w-8 items-center justify-center rounded-lg border-2 border-amber-300 bg-amber-300 text-ink shadow-[2px_2px_0_0_#d93f12] transition-transform hover:-translate-y-0.5 active:translate-y-0"
+                >
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="h-4 w-4"
+                  >
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                  </svg>
+                </a>
+
+                <a
+                  href={currentDoc.pdfUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Open ${currentDoc.title} in new tab`}
+                  title={`Open ${currentDoc.title} in new tab`}
+                  className="focus-ring inline-flex h-8 w-8 items-center justify-center rounded-lg border border-white/30 bg-white/10 text-white transition-colors hover:bg-white/20"
+                >
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="h-3.5 w-3.5"
+                  >
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                    <polyline points="15 3 21 3 21 9" />
+                    <line x1="10" y1="14" x2="21" y2="3" />
+                  </svg>
+                </a>
+              </div>
+            </div>
+
+            {/* Document Viewer Frame with Auto Fit-Width Zoom */}
+            <div className="relative min-h-0 flex-1 p-0 sm:p-1">
+              <iframe
+                key={currentDoc.id}
+                src={`${currentDoc.pdfUrl}#view=FitH&zoom=125&toolbar=0&navpanes=0`}
+                title={`Preview of ${currentDoc.title}`}
+                onLoad={() => setIsDocLoading(false)}
+                className="h-full w-full rounded-b-xl border-0 bg-slate-900"
+              />
             </div>
           </div>
         </div>

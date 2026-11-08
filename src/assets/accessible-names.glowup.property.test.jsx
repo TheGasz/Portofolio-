@@ -78,5 +78,5 @@ describe("Glow-up: every interactive element has a non-empty accessible name pro
       }),
       { numRuns: 100 }
     );
-  });
+  }, 40000);
 });

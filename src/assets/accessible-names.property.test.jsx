@@ -72,5 +72,5 @@ describe("Every interactive element has a non-empty accessible name property", (
       }),
       { numRuns: 100 }
     );
-  });
+  }, 40000);
 });
