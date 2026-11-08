@@ -56,21 +56,30 @@
   overflow: visible;
   user-select: none;
   transform-origin: var(--cam-origin-x, 50%) var(--cam-origin-y, 50%);
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
   transition:
     transform 680ms cubic-bezier(0.22, 1, 0.36, 1),
-    filter 480ms cubic-bezier(0.22, 1, 0.36, 1),
     opacity 420ms ease;
 }
 
 .iso-desk .iso-svg[data-zoomed="true"] {
-  transform: scale(var(--cam-scale, 2.2));
-  filter: blur(2.5px) brightness(0.82);
+  transform: scale(var(--cam-scale, 2.2)) translate3d(0, 0, 0);
+  opacity: 0.95;
 }
 
 .iso-desk .iso-svg path,
 .iso-desk .iso-svg circle,
 .iso-desk .iso-svg rect {
   vector-effect: non-scaling-stroke;
+}
+
+/* During camera zoom, disable non-scaling stroke recalculation so GPU can do 60fps texture scaling */
+.iso-desk .iso-svg[data-zoomed="true"] path,
+.iso-desk .iso-svg[data-zoomed="true"] circle,
+.iso-desk .iso-svg[data-zoomed="true"] rect {
+  vector-effect: none;
 }
 
 .iso-desk .iso-fill {
@@ -85,7 +94,6 @@
 .iso-desk .iso-shade,
 .iso-desk .iso-top {
   stroke: none;
-  transition: fill 220ms var(--anatomy-ease);
 }
 
 .iso-desk .iso-shade[data-shade="0"] {
@@ -386,7 +394,6 @@
   stroke-width: var(--anatomy-weight);
   stroke-linecap: round;
   stroke-linejoin: round;
-  transition: stroke 220ms var(--anatomy-ease), stroke-width 220ms var(--anatomy-ease);
 }
 
 .iso-desk .iso-line[data-tone="hi"] {
@@ -476,14 +483,14 @@
 .iso-desk .desk-hotspot {
   cursor: pointer;
   outline: none;
-  transition: transform 260ms var(--anatomy-ease), filter 260ms var(--anatomy-ease);
+  will-change: transform;
+  transition: transform 220ms var(--anatomy-ease);
 }
 
 .iso-desk .desk-hotspot:hover,
 .iso-desk .desk-hotspot:focus-visible,
 .iso-desk .desk-hotspot[data-active="true"] {
-  transform: translateY(-4px);
-  filter: drop-shadow(0 6px 14px rgba(217, 63, 18, 0.28));
+  transform: translateY(-3.5px) translateZ(0);
 }
 
 .iso-desk .desk-hotspot:hover .hotspot-primary > .iso-edge,
@@ -513,22 +520,18 @@
 @keyframes stageMonitorDiveIn {
   0% {
     opacity: 0;
-    transform: scale(0.38) translateY(18px);
-    filter: brightness(2.2);
-  }
-  45% {
-    opacity: 1;
-    filter: brightness(1.25);
+    transform: translate3d(0, 16px, 0) scale(0.85);
   }
   100% {
     opacity: 1;
-    transform: scale(1) translateY(0);
-    filter: brightness(1);
+    transform: translate3d(0, 0, 0) scale(1);
   }
 }
 
 .stage-monitor-dive {
-  animation: stageMonitorDiveIn 560ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  animation: stageMonitorDiveIn 520ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .stage-monitor-dive .reveal {
@@ -540,36 +543,36 @@
 @keyframes stageTrophySlideAside {
   0% {
     opacity: 0;
-    transform: translateX(110px) scale(0.55);
+    transform: translate3d(110px, 0, 0) scale(0.65);
   }
-  55% {
+  65% {
     opacity: 1;
-    transform: translateX(65px) scale(1.12);
+    transform: translate3d(15px, 0, 0) scale(1.05);
   }
   100% {
     opacity: 1;
-    transform: translateX(0) scale(1);
+    transform: translate3d(0, 0, 0) scale(1);
   }
 }
 
 @keyframes trophyGoldenAura {
   0%,
   100% {
-    filter: drop-shadow(0 0 18px rgba(255, 216, 77, 0.65))
-      drop-shadow(0 0 36px rgba(217, 63, 18, 0.35));
-    transform: translateY(0) scale(1);
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.92;
   }
   50% {
-    filter: drop-shadow(0 0 30px rgba(255, 224, 102, 0.95))
-      drop-shadow(0 0 54px rgba(255, 179, 0, 0.6));
-    transform: translateY(-5px) scale(1.03);
+    transform: translate3d(0, -4px, 0) scale(1.03);
+    opacity: 1;
   }
 }
 
 .stage-trophy-hero {
+  will-change: transform, opacity;
+  backface-visibility: hidden;
   animation:
-    stageTrophySlideAside 680ms cubic-bezier(0.22, 1, 0.36, 1) forwards,
-    trophyGoldenAura 2.8s ease-in-out 680ms infinite;
+    stageTrophySlideAside 640ms cubic-bezier(0.22, 1, 0.36, 1) forwards,
+    trophyGoldenAura 3s ease-in-out 640ms infinite;
 }
 
 /* 04. Book Pull-Out from Shelf & 2-Page Unfold */
@@ -593,7 +596,9 @@
 
 .stage-book-unfold {
   transform-style: preserve-3d;
-  animation: stageBookPullAndOpen 680ms cubic-bezier(0.18, 1, 0.32, 1) forwards;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  animation: stageBookPullAndOpen 640ms cubic-bezier(0.18, 1, 0.32, 1) forwards;
 }
 
 /* 03. Smartphone Lift off Stand & Zoom-In */
@@ -616,7 +621,9 @@
 }
 
 .stage-phone-zoom {
-  animation: stagePhoneZoomIn 580ms cubic-bezier(0.2, 1, 0.32, 1) forwards;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  animation: stagePhoneZoomIn 560ms cubic-bezier(0.2, 1, 0.32, 1) forwards;
 }
 
 /* 02. Portrait Zoom & Slide-Aside */
@@ -632,7 +639,9 @@
 }
 
 .stage-portrait-slide {
-  animation: stagePortraitSlide 580ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  animation: stagePortraitSlide 560ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 @keyframes deskCursorBlink {
@@ -677,6 +686,8 @@
 .room-entrance-backdrop {
   background: linear-gradient(180deg, #c8dce9 0%, #d5e3ed 100%);
   perspective: 1400px;
+  will-change: opacity, transform;
+  transform: translate3d(0, 0, 0);
   transition:
     opacity 480ms cubic-bezier(0.22, 1, 0.36, 1),
     transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
@@ -684,7 +695,7 @@
 
 .room-entrance-backdrop[data-opening="true"] {
   opacity: 0;
-  transform: scale(1.28);
+  transform: scale(1.15) translate3d(0, 0, 0);
 }
 
 .room-entrance-wall {
@@ -707,22 +718,26 @@
 
 .room-door-frame {
   perspective: 1200px;
+  transform: translate3d(0, 0, 0);
 }
 
 .room-door-leaf {
   transform-origin: left center;
   transform-style: preserve-3d;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
   transition:
     transform 520ms cubic-bezier(0.22, 1, 0.36, 1),
     box-shadow 520ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .room-door-leaf:hover {
-  transform: rotateY(-8deg);
+  transform: rotateY(-8deg) translate3d(0, 0, 0);
 }
 
 .room-door-leaf.is-opening {
-  transform: rotateY(-82deg);
+  transform: rotateY(-82deg) translate3d(0, 0, 0);
 }
 
 /* -------------------------------------------------------------------------- */

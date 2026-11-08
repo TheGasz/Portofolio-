@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import "./desk.css";
 import { DESK_HOTSPOTS, getHotspotById, getReadoutText } from "./deskModel.js";
@@ -18,6 +18,76 @@ const LAYER_ORDER = [
   { type: "static", key: "keyboardAndMouse" },
   { type: "hotspot", id: "phone" },
 ];
+
+/**
+ * Isolated memoized components for high-frequency 60fps rendering.
+ * Prevents full-SVG reconciliation when cursor hovers or pins toggle.
+ */
+const StaticLayer = React.memo(({ html }) => (
+  <g aria-hidden="true" dangerouslySetInnerHTML={{ __html: html }} />
+));
+
+const HotspotLayer = React.memo(
+  ({
+    hotspot,
+    isActive,
+    isOpen,
+    html,
+    onActivate,
+    onHover,
+    onLeave,
+    onFocus,
+    onBlur,
+  }) => (
+    <g
+      className="desk-hotspot"
+      data-hotspot={hotspot.id}
+      data-active={isActive ? "true" : "false"}
+      role="button"
+      tabIndex={0}
+      aria-label={hotspot.ariaLabel}
+      aria-expanded={isOpen}
+      onMouseEnter={onHover}
+      onMouseLeave={onLeave}
+      onFocus={onFocus}
+      onBlur={onBlur}
+      onClick={onActivate}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onActivate();
+        }
+      }}
+    >
+      <g aria-hidden="true" dangerouslySetInnerHTML={{ __html: html }} />
+    </g>
+  )
+);
+
+const CalloutPin = React.memo(({ hotspot, pin, isActive }) => (
+  <g
+    aria-hidden="true"
+    transform={`translate(${pin.x}, ${pin.y})`}
+    className="pointer-events-none"
+  >
+    <circle
+      r="13.5"
+      fill={isActive ? "#d93f12" : "#17150f"}
+      stroke="#ffd84d"
+      strokeWidth="2.2"
+    />
+    <text
+      textAnchor="middle"
+      dominantBaseline="central"
+      fill="#fbf9f4"
+      fontFamily="var(--font-mono)"
+      fontSize="9.5"
+      fontWeight="700"
+    >
+      {hotspot.number}
+    </text>
+  </g>
+));
 
 /**
  * Single-Page Interactive 3D Bedroom & Real Study Desk ("Bagas's Room").
@@ -71,13 +141,21 @@ export const DeskWorkstation = ({
 
   const scene = useMemo(() => buildDeskScene(profilePhoto), [profilePhoto]);
 
-  const handleActivateHotspot = (id) => {
+  const handleActivateHotspot = useCallback((id) => {
     const hotspot = getHotspotById(id);
     if (!hotspot) return;
 
     setActiveHotspotId(id);
     setOpenStageId((prev) => (prev === id ? null : id));
-  };
+  }, []);
+
+  const handleHoverHotspot = useCallback((id) => {
+    setActiveHotspotId((curr) => (curr === id ? curr : id));
+  }, []);
+
+  const handleLeaveHotspot = useCallback((id) => {
+    setActiveHotspotId((curr) => (curr === id ? null : curr));
+  }, []);
 
   useEffect(() => {
     const onKeyDown = (event) => {
@@ -956,12 +1034,9 @@ export const DeskWorkstation = ({
             {LAYER_ORDER.map((item) => {
               if (item.type === "static") {
                 return (
-                  <g
+                  <StaticLayer
                     key={item.key}
-                    aria-hidden="true"
-                    dangerouslySetInnerHTML={{
-                      __html: scene.layers[item.key],
-                    }}
+                    html={scene.layers[item.key]}
                   />
                 );
               }
@@ -972,42 +1047,18 @@ export const DeskWorkstation = ({
                 activeHotspotId === hotspot.id || openStageId === hotspot.id;
 
               return (
-                <g
+                <HotspotLayer
                   key={hotspot.id}
-                  className="desk-hotspot"
-                  data-hotspot={hotspot.id}
-                  data-active={isActive ? "true" : "false"}
-                  role="button"
-                  tabIndex={0}
-                  aria-label={hotspot.ariaLabel}
-                  aria-expanded={openStageId === hotspot.id}
-                  onMouseEnter={() => setActiveHotspotId(hotspot.id)}
-                  onMouseLeave={() =>
-                    setActiveHotspotId((curr) =>
-                      curr === hotspot.id ? null : curr
-                    )
-                  }
-                  onFocus={() => setActiveHotspotId(hotspot.id)}
-                  onBlur={() =>
-                    setActiveHotspotId((curr) =>
-                      curr === hotspot.id ? null : curr
-                    )
-                  }
-                  onClick={() => handleActivateHotspot(hotspot.id)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      handleActivateHotspot(hotspot.id);
-                    }
-                  }}
-                >
-                  <g
-                    aria-hidden="true"
-                    dangerouslySetInnerHTML={{
-                      __html: scene.layers[hotspot.id],
-                    }}
-                  />
-                </g>
+                  hotspot={hotspot}
+                  isActive={isActive}
+                  isOpen={openStageId === hotspot.id}
+                  html={scene.layers[hotspot.id]}
+                  onActivate={() => handleActivateHotspot(hotspot.id)}
+                  onHover={() => handleHoverHotspot(hotspot.id)}
+                  onLeave={() => handleLeaveHotspot(hotspot.id)}
+                  onFocus={() => handleHoverHotspot(hotspot.id)}
+                  onBlur={() => handleLeaveHotspot(hotspot.id)}
+                />
               );
             })}
 
@@ -1020,29 +1071,12 @@ export const DeskWorkstation = ({
                   activeHotspotId === hotspot.id || openStageId === hotspot.id;
 
                 return (
-                  <g
+                  <CalloutPin
                     key={`pin-${hotspot.id}`}
-                    aria-hidden="true"
-                    transform={`translate(${pin.x}, ${pin.y})`}
-                    className="pointer-events-none"
-                  >
-                    <circle
-                      r="13.5"
-                      fill={isActive ? "#d93f12" : "#17150f"}
-                      stroke="#ffd84d"
-                      strokeWidth="2.2"
-                    />
-                    <text
-                      textAnchor="middle"
-                      dominantBaseline="central"
-                      fill="#fbf9f4"
-                      fontFamily="var(--font-mono)"
-                      fontSize="9.5"
-                      fontWeight="700"
-                    >
-                      {hotspot.number}
-                    </text>
-                  </g>
+                    hotspot={hotspot}
+                    pin={pin}
+                    isActive={isActive}
+                  />
                 );
               })}
           </svg>
@@ -1050,7 +1084,7 @@ export const DeskWorkstation = ({
 
         {/* Active Cinematic Object Stage View Overlaid on the Full-Screen Room */}
         {openHotspot && (
-          <div className=" absolute inset-0 z-20 flex items-center justify-center overflow-hidden bg-slate-950/40 p-3 backdrop-blur-[2px] sm:p-5">
+          <div className="absolute inset-0 z-20 flex items-center justify-center overflow-hidden bg-slate-950/60 p-3 transition-opacity duration-300 sm:p-5">
             {renderCinematicStage()}
           </div>
         )}
