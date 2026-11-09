@@ -145,10 +145,13 @@ export const DeskWorkstation = ({
     [isMusicPlaying]
   );
 
-  const { phase: stagePhase } = useStageChoreography(openStageId, {
-    play,
-    duck: handleDuckAmbient,
-  });
+  const { phase: stagePhase } = useStageChoreography(
+    openStageId === "trophy" ? "trophy" : null,
+    {
+      play,
+      duck: handleDuckAmbient,
+    }
+  );
 
   const handleCloseStage = useCallback(() => {
     play("ui.close");
@@ -212,6 +215,11 @@ export const DeskWorkstation = ({
         play("ui.close");
         return null;
       }
+      if (id === "monitor") play("monitor.powerOn");
+      else if (id === "notebook") play("book.slide");
+      else if (id === "phone") play("phone.lift");
+      else if (id === "photo") play("tag.swing");
+      else if (id === "documents") play("docs.folder");
       return id;
     });
   }, [play]);
@@ -295,6 +303,11 @@ export const DeskWorkstation = ({
             play("ui.close");
             return null;
           }
+          if (matched.id === "monitor") play("monitor.powerOn");
+          else if (matched.id === "notebook") play("book.slide");
+          else if (matched.id === "phone") play("phone.lift");
+          else if (matched.id === "photo") play("tag.swing");
+          else if (matched.id === "documents") play("docs.folder");
           return matched.id;
         });
       }
@@ -378,7 +391,6 @@ export const DeskWorkstation = ({
           aria-modal="false"
           aria-labelledby="desk-overlay-heading"
           data-testid="desk-overlay-monitor"
-          data-stage-phase={stagePhase}
           className={`${
             isMonitorMaximized
               ? "flex h-full w-full flex-col overflow-hidden bg-[#0f1722] text-paper"
@@ -565,7 +577,6 @@ export const DeskWorkstation = ({
         <BookStage
           skills={skills}
           toolbelt={toolbelt}
-          phase={stagePhase}
           onClose={handleCloseStage}
         />
       );
@@ -581,7 +592,6 @@ export const DeskWorkstation = ({
           aria-modal="false"
           aria-labelledby="desk-overlay-heading"
           data-testid="desk-overlay-phone"
-          data-stage-phase={stagePhase}
           className="stage-phone-zoom flex w-full max-w-md justify-center py-2"
         >
           {/* Zoomed-In Smartphone Bezel */}
@@ -691,7 +701,6 @@ export const DeskWorkstation = ({
           aria-modal="false"
           aria-labelledby="desk-overlay-heading"
           data-testid="desk-overlay-photo"
-          data-stage-phase={stagePhase}
           className="max-h-full w-full max-w-4xl overflow-y-auto rounded-2xl border-2 border-ink bg-card p-5 shadow-[8px_8px_0_0_#17150f] sm:p-6"
         >
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b-2 border-ink pb-3">
@@ -847,7 +856,6 @@ export const DeskWorkstation = ({
           aria-modal="false"
           aria-labelledby="desk-overlay-heading"
           data-testid="desk-overlay-documents"
-          data-stage-phase={stagePhase}
           className="stage-documents-dossier flex h-[88vh] max-h-full w-full max-w-6xl flex-col overflow-hidden rounded-2xl border-2 border-ink bg-[#111927] text-paper shadow-[8px_8px_0_0_#17150f]"
         >
           {/* Top Window Bar */}

@@ -62,10 +62,10 @@ describe("useStageChoreography (Unit)", () => {
   it("allows skipping directly to settled on click / fast-forward", () => {
     const play = vi.fn();
     const { result } = renderHook(() =>
-      useStageChoreography("notebook", { play })
+      useStageChoreography("trophy", { play })
     );
 
-    expect(result.current.phase).toBe("pulling");
+    expect(result.current.phase).toBe("center");
     act(() => {
       result.current.skipToSettled();
     });
