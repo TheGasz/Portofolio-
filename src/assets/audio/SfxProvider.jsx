@@ -16,7 +16,7 @@ const SfxContext = createContext({
   toggleSfx: () => defaultFallbackEngine.setEnabled(!defaultFallbackEngine.isEnabled),
   setSfxVolume: (v) => defaultFallbackEngine.setVolume(v),
   unlockSfx: () => defaultFallbackEngine.unlock(),
-  sfxVolume: 0.22,
+  sfxVolume: 0.75,
   sfxEngine: defaultFallbackEngine,
 });
 
@@ -46,9 +46,10 @@ export const SfxProvider = ({ children, onDuckAmbient }) => {
   const [isSfxEnabled, setIsSfxEnabled] = useState(() =>
     readStorage(STORAGE_KEY_ENABLED, true)
   );
-  const [sfxVolume, setSfxVolumeState] = useState(() =>
-    readStorage(STORAGE_KEY_VOLUME, 0.22)
-  );
+  const [sfxVolume, setSfxVolumeState] = useState(() => {
+    const stored = readStorage(STORAGE_KEY_VOLUME, 0.75);
+    return stored <= 0.25 ? 0.75 : stored;
+  });
 
   const engineRef = useRef(null);
 
@@ -91,19 +92,25 @@ export const SfxProvider = ({ children, onDuckAmbient }) => {
   }, []);
 
   useEffect(() => {
-    // Autoplay policy: unlock on first user gesture
+    // Autoplay policy: unlock on first user gesture or mouse movement
     const handleGesture = () => {
       unlockSfx();
       window.removeEventListener("pointerdown", handleGesture);
+      window.removeEventListener("pointermove", handleGesture);
       window.removeEventListener("keydown", handleGesture);
+      window.removeEventListener("click", handleGesture);
     };
 
     window.addEventListener("pointerdown", handleGesture, { passive: true });
+    window.addEventListener("pointermove", handleGesture, { passive: true, once: true });
     window.addEventListener("keydown", handleGesture, { passive: true });
+    window.addEventListener("click", handleGesture, { passive: true });
 
     return () => {
       window.removeEventListener("pointerdown", handleGesture);
+      window.removeEventListener("pointermove", handleGesture);
       window.removeEventListener("keydown", handleGesture);
+      window.removeEventListener("click", handleGesture);
     };
   }, [unlockSfx]);
 

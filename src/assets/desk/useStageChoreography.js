@@ -11,8 +11,23 @@ import { STAGE_TIMELINES } from "./stageTimelines.js";
  * @param {(durationMs?: number, gain?: number) => void} [sfx.duck]
  */
 export function useStageChoreography(stageId, { play, duck } = {}) {
-  const [phase, setPhase] = useState("settled");
+  const [prevStageId, setPrevStageId] = useState(stageId);
+
+  const getInitialPhase = (id) => {
+    if (!id) return "settled";
+    const timeline = STAGE_TIMELINES[id];
+    return timeline?.phases?.[0]?.name || "settled";
+  };
+
+  const [phase, setPhase] = useState(() => getInitialPhase(stageId));
   const timeoutsRef = useRef([]);
+
+  // Adjust state synchronously during render when stageId changes
+  // Prevents frame-1 "settled" flash / glitch
+  if (stageId !== prevStageId) {
+    setPrevStageId(stageId);
+    setPhase(getInitialPhase(stageId));
+  }
 
   const isReducedMotion = useCallback(() => {
     if (typeof window === "undefined" || !window.matchMedia) return false;
@@ -47,8 +62,8 @@ export function useStageChoreography(stageId, { play, duck } = {}) {
     }
 
     const { phases } = timeline;
-    // Set initial phase
-    setPhase(phases[0].name);
+
+    // Trigger initial phase SFX and ducking immediately
     if (phases[0].sfx && typeof play === "function") {
       play(phases[0].sfx);
     }
@@ -81,4 +96,3 @@ export function useStageChoreography(stageId, { play, duck } = {}) {
     skipToSettled,
   };
 }
-

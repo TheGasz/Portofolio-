@@ -10,7 +10,6 @@ import { Icon } from "../../icons.jsx";
  * @param {string[]} props.toolbelt
  * @param {() => void} props.onClose
  * @param {string} [props.phase="settled"]
- * @param {() => void} [props.onSkip]
  * @param {React.RefObject} [props.containerRef]
  */
 export const BookStage = ({
@@ -18,7 +17,6 @@ export const BookStage = ({
   toolbelt = [],
   onClose,
   phase = "settled",
-  onSkip,
   containerRef,
 }) => {
   const isIntro = phase !== "settled";
@@ -31,20 +29,32 @@ export const BookStage = ({
       aria-labelledby="desk-overlay-heading"
       data-testid="desk-overlay-notebook"
       data-stage-phase={phase}
-      onClick={isIntro ? onSkip : undefined}
       className="stage-book-unfold max-h-full w-full max-w-5xl overflow-y-auto rounded-2xl border-4 border-[#6e3b14] bg-[#8f4e1e] p-3 shadow-[10px_12px_0_0_#17150f] sm:p-5 relative"
     >
-      {/* 3D Book Cover & Flipping Leaves Overlay (during intro animation) */}
-      {isIntro && (
+      {/* 3D Book Pull-Out & Page Flipping Layer */}
+      <div
+        aria-hidden="true"
+        className={`book-stage-3d pointer-events-none absolute inset-0 z-30 flex items-center justify-center p-4 bg-[#8f4e1e]/90 rounded-xl backdrop-blur-sm transition-opacity duration-300 ${
+          isIntro ? "opacity-100" : "opacity-0"
+        }`}
+      >
         <div
-          aria-hidden="true"
-          className="book-stage-3d pointer-events-none absolute inset-0 z-30 flex items-center justify-center p-4 bg-[#8f4e1e]/95 rounded-xl backdrop-blur-sm transition-opacity duration-300"
+          className={`book-3d-volume relative h-80 w-64 rounded-r-xl border-4 border-[#4a260c] bg-[#5c3010] p-6 shadow-2xl text-amber-100 flex flex-col justify-between ${
+            phase === "pulling" ? "book-anim-pull" : ""
+          }`}
         >
-          <div className="relative h-80 w-64 rounded-r-xl border-4 border-[#4a260c] bg-[#5c3010] p-6 shadow-2xl text-amber-100 flex flex-col justify-between">
-            {/* Book Spine Stitching */}
-            <div className="absolute left-0 top-0 bottom-0 w-6 bg-[#3b1c06] border-r-2 border-[#ffdb7d]/30" />
+          {/* Book Spine Stitching */}
+          <div className="absolute left-0 top-0 bottom-0 w-6 bg-[#3b1c06] border-r-2 border-[#ffdb7d]/30" />
 
-            {/* Embossed Gold Title on Closed Cover */}
+          {/* Front Hardcover that swings open on spine */}
+          <div
+            className={`book-front-cover absolute inset-0 rounded-r-xl border-4 border-[#4a260c] bg-[#5c3010] p-6 shadow-2xl flex flex-col justify-between ${
+              phase === "coverOpen" || phase === "flipping" || phase === "flipping2" || phase === "settled"
+                ? "book-cover-swing-open"
+                : ""
+            }`}
+          >
+            <div className="absolute left-0 top-0 bottom-0 w-6 bg-[#3b1c06] border-r-2 border-[#ffdb7d]/30" />
             <div className="ml-4 border-2 border-amber-300/40 p-4 text-center rounded-lg bg-[#45220a]">
               <span className="font-mono text-[10px] tracking-widest text-amber-300">
                 LAB NOTEBOOK · VOL. 04
@@ -56,26 +66,33 @@ export const BookStage = ({
                 BAGAS ADJIE PAMUNGKAS
               </p>
             </div>
-
-            {/* Flipping Page Leaf simulation */}
-            <div
-              className={`absolute inset-0 bg-[#fbf8f1] rounded-r-lg border border-amber-900/20 shadow-lg ${
-                phase === "flipping"
-                  ? "book-page-leaf-1"
-                  : phase === "flipping2"
-                  ? "book-page-leaf-2"
-                  : "opacity-0"
-              }`}
-            />
-
             {/* Bookmark ribbon */}
             <div className="absolute -bottom-4 right-10 h-10 w-4 bg-red-700 shadow-md" />
-            <div className="text-center font-mono text-[11px] text-amber-300/80 animate-pulse">
-              [Click anywhere to open immediately]
-            </div>
+          </div>
+
+          {/* Flipping Page Leaf 1 */}
+          <div
+            className={`book-page-leaf absolute inset-1 bg-[#fbf8f1] rounded-r-lg border border-amber-900/20 shadow-md p-4 text-ink flex flex-col justify-center items-center ${
+              phase === "flipping" || phase === "flipping2" || phase === "settled"
+                ? "book-leaf-flipped-1"
+                : "opacity-0"
+            }`}
+          >
+            <span className="font-mono text-[10px] text-muted">01 · Machine Learning &amp; AI</span>
+          </div>
+
+          {/* Flipping Page Leaf 2 */}
+          <div
+            className={`book-page-leaf absolute inset-1 bg-[#fbf8f1] rounded-r-lg border border-amber-900/20 shadow-md p-4 text-ink flex flex-col justify-center items-center ${
+              phase === "flipping2" || phase === "settled"
+                ? "book-leaf-flipped-2"
+                : "opacity-0"
+            }`}
+          >
+            <span className="font-mono text-[10px] text-muted">02 · Data Engineering Pipelines</span>
           </div>
         </div>
-      )}
+      </div>
 
       {/* Open 2-Page Hardcover Book Spread */}
       <div className="relative grid overflow-hidden rounded-xl border-2 border-ink bg-[#fbf8f1] md:grid-cols-12 transition-opacity duration-300">

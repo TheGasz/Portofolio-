@@ -18,7 +18,6 @@ export const TrophyStage = ({
   certifications = [],
   onClose,
   phase = "settled",
-  onSkip,
   containerRef,
 }) => {
   const { play } = useSfx();
@@ -40,7 +39,6 @@ export const TrophyStage = ({
       aria-labelledby="desk-overlay-heading"
       data-testid="desk-overlay-trophy"
       data-stage-phase={phase}
-      onClick={phase !== "settled" ? onSkip : undefined}
       className={`stage-trophy-overlay max-h-full w-full max-w-5xl overflow-y-auto rounded-2xl border-2 border-ink bg-gradient-to-br from-[#1b2838] via-[#223448] to-[#172230] p-5 text-paper shadow-[8px_8px_0_0_#17150f] sm:p-6 transition-all duration-500`}
     >
       <div className="stage-trophy-header mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-white/15 pb-3">

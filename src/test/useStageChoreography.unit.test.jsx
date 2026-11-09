@@ -46,6 +46,19 @@ describe("useStageChoreography (Unit)", () => {
     expect(result.current.isSettled).toBe(true);
   });
 
+  it("synchronously initializes initial phase when stageId transitions from null, preventing frame-1 glitch", () => {
+    let stageId = null;
+    const { result, rerender } = renderHook(() => useStageChoreography(stageId));
+    expect(result.current.phase).toBe("settled");
+
+    // Transition from null to trophy
+    stageId = "trophy";
+    rerender();
+    // On the exact render of stage change, phase MUST be "center", never "settled"
+    expect(result.current.phase).toBe("center");
+    expect(result.current.isSettled).toBe(false);
+  });
+
   it("allows skipping directly to settled on click / fast-forward", () => {
     const play = vi.fn();
     const { result } = renderHook(() =>

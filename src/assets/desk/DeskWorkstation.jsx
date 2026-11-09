@@ -145,13 +145,10 @@ export const DeskWorkstation = ({
     [isMusicPlaying]
   );
 
-  const { phase: stagePhase, skipToSettled } = useStageChoreography(
-    openStageId,
-    {
-      play,
-      duck: handleDuckAmbient,
-    }
-  );
+  const { phase: stagePhase } = useStageChoreography(openStageId, {
+    play,
+    duck: handleDuckAmbient,
+  });
 
   const handleCloseStage = useCallback(() => {
     play("ui.close");
@@ -382,7 +379,6 @@ export const DeskWorkstation = ({
           aria-labelledby="desk-overlay-heading"
           data-testid="desk-overlay-monitor"
           data-stage-phase={stagePhase}
-          onClick={stagePhase !== "settled" ? skipToSettled : undefined}
           className={`${
             isMonitorMaximized
               ? "flex h-full w-full flex-col overflow-hidden bg-[#0f1722] text-paper"
@@ -556,7 +552,6 @@ export const DeskWorkstation = ({
         <TrophyStage
           certifications={certifications}
           phase={stagePhase}
-          onSkip={skipToSettled}
           onClose={handleCloseStage}
         />
       );
@@ -571,7 +566,6 @@ export const DeskWorkstation = ({
           skills={skills}
           toolbelt={toolbelt}
           phase={stagePhase}
-          onSkip={skipToSettled}
           onClose={handleCloseStage}
         />
       );
@@ -588,7 +582,6 @@ export const DeskWorkstation = ({
           aria-labelledby="desk-overlay-heading"
           data-testid="desk-overlay-phone"
           data-stage-phase={stagePhase}
-          onClick={stagePhase !== "settled" ? skipToSettled : undefined}
           className="stage-phone-zoom flex w-full max-w-md justify-center py-2"
         >
           {/* Zoomed-In Smartphone Bezel */}
@@ -699,7 +692,6 @@ export const DeskWorkstation = ({
           aria-labelledby="desk-overlay-heading"
           data-testid="desk-overlay-photo"
           data-stage-phase={stagePhase}
-          onClick={stagePhase !== "settled" ? skipToSettled : undefined}
           className="max-h-full w-full max-w-4xl overflow-y-auto rounded-2xl border-2 border-ink bg-card p-5 shadow-[8px_8px_0_0_#17150f] sm:p-6"
         >
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b-2 border-ink pb-3">
@@ -856,7 +848,6 @@ export const DeskWorkstation = ({
           aria-labelledby="desk-overlay-heading"
           data-testid="desk-overlay-documents"
           data-stage-phase={stagePhase}
-          onClick={stagePhase !== "settled" ? skipToSettled : undefined}
           className="stage-documents-dossier flex h-[88vh] max-h-full w-full max-w-6xl flex-col overflow-hidden rounded-2xl border-2 border-ink bg-[#111927] text-paper shadow-[8px_8px_0_0_#17150f]"
         >
           {/* Top Window Bar */}

@@ -106,11 +106,14 @@ export function createSfxEngine({ onDuckAmbient } = {}) {
       lastPlayTimes.set(name, now);
     }
 
-    if (!isUnlocked) return false;
     if (!ctx || !masterGain) {
       initContext();
-      if (!ctx || !masterGain) return false;
     }
+    if (ctx && ctx.state === "suspended" && typeof ctx.resume === "function") {
+      ctx.resume().catch(() => {});
+      isUnlocked = true;
+    }
+    if (!ctx || !masterGain) return false;
 
     if (activeVoiceCount >= MAX_VOICES) {
       return false; // drop to prevent clipping & audio starvation
