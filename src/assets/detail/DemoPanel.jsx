@@ -13,11 +13,11 @@ export const DemoPanel = ({ demo, title, repoUrl }) => {
       >
         <div className="flex flex-col items-center justify-center text-center">
           <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full border border-amber-400/40 bg-amber-400/10 text-amber-300">
-            <span aria-hidden="true" className="font-mono text-xl">⚡</span>
+            <span aria-hidden="true" className="font-mono text-xl">⏳</span>
           </div>
-          <h4 className="text-lg font-bold text-white">Live Demo Being Hardened</h4>
+          <h4 className="text-xl font-bold text-white tracking-wide">Coming Soon</h4>
           <p className="mt-2 max-w-lg text-sm leading-relaxed text-white/70">
-            The zero-cost live environment for <strong className="text-white">{title}</strong> is currently being prepared (Streamlit Cloud / In-Browser ONNX). You can explore the full reproducible source code, notebooks, and model weights directly on GitHub.
+            Live demo for <strong className="text-white">{title}</strong> is coming soon. In the meantime, you can explore the full reproducible source code, notebooks, and model weights directly on GitHub.
           </p>
           {isValidHttpUrl(repoUrl) && (
             <a

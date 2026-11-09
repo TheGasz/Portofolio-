@@ -191,7 +191,7 @@ export const ProjectDetail = ({
                 <span aria-hidden="true">↗</span>
               </a>
             )}
-            {detail.demo?.type === "iframe" && detail.demo.url && (
+            {detail.demo?.status === "live" && detail.demo.url && (
               <a
                 href={detail.demo.url}
                 target="_blank"
