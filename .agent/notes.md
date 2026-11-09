@@ -34,4 +34,12 @@
   3. **Desk Phone (with coiled cord)** → Click opens **Contact Hub Overlay Card** (`mailto:`, Copy Email, LinkedIn, GitHub) + button to scroll to `#contact`.
   4. **Lab Notebook + Pen on desk** → Click opens **Skills Overlay Card** + button to scroll to `#skills`.
   5. **Trophy & Certificates Shelf** → Click opens **Credentials Overlay Card** (7 verified certs) + button to scroll to `#credentials`.
+  6. **Career Dossier (Shelf)** → Click opens **Documents Overlay Card** (CV, Portfolio, Resume) + live preview and download.
+
+## 5. UX Sound & Motion Architecture Decisions
+- **Sound Engine (`src/assets/audio/sfxEngine.js`):** Pure Web Audio API synthesis (zero external audio file dependencies), harmonized to F-major pentatonic palette matching `ambientAudio.js`.
+- **Exit Animation:** Option A (dialog unmounts immediately to preserve synchronous test assertions `not.toBeInTheDocument()`, plays `ui.close`, while room object settles).
+- **Default SFX:** ON upon room door entrance / interaction, with dedicated accessible toggle button persisted to `localStorage`.
+- **Stage Choreography:** Controlled multi-phase stages via `useStageChoreography` / CSS variables, auto-skipping on reduced-motion or user fast-forward click.
+
 

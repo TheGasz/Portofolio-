@@ -8,6 +8,11 @@ import { isValidHttpUrl } from "../url.js";
 import { Icon } from "../icons.jsx";
 import { projectsData, ProjectCard, PROJECT_CATEGORIES } from "../project.jsx";
 import { ProjectDetail } from "../detail/ProjectDetail.jsx";
+import { TrophyStage } from "./stages/TrophyStage.jsx";
+import { BookStage } from "./stages/BookStage.jsx";
+import { useSfx } from "../audio/SfxProvider.jsx";
+import { HOTSPOT_PITCH_MAP } from "../audio/sfxCatalog.js";
+import { useStageChoreography } from "./useStageChoreography.js";
 
 const LAYER_ORDER = [
   { type: "static", key: "deskAndWall" },
@@ -123,21 +128,50 @@ export const DeskWorkstation = ({
   const [selectedProjectSlug, setSelectedProjectSlug] = useState(null);
   const [isMonitorMaximized, setIsMonitorMaximized] = useState(false);
 
-  const handleCloseMonitor = () => {
+  const audioEngineRef = useRef(null);
+  const { play, isSfxEnabled, toggleSfx, unlockSfx } = useSfx();
+
+  const handleDuckAmbient = useCallback(
+    (gainFactor = 0.08, durationMs = 600) => {
+      if (audioEngineRef.current && isMusicPlaying) {
+        audioEngineRef.current.setLevel(gainFactor);
+        setTimeout(() => {
+          if (audioEngineRef.current && isMusicPlaying) {
+            audioEngineRef.current.setLevel(0.28);
+          }
+        }, durationMs);
+      }
+    },
+    [isMusicPlaying]
+  );
+
+  const { phase: stagePhase, skipToSettled } = useStageChoreography(
+    openStageId,
+    {
+      play,
+      duck: handleDuckAmbient,
+    }
+  );
+
+  const handleCloseStage = useCallback(() => {
+    play("ui.close");
     setSelectedProjectSlug(null);
     setIsMonitorMaximized(false);
     setOpenStageId(null);
+  }, [play]);
+
+  const handleCloseMonitor = () => {
+    handleCloseStage();
   };
 
   const handleOpenFullProjectPage = () => {
     if (isDivingIntoProject) return;
+    play("monitor.dive");
     setIsDivingIntoProject(true);
     setTimeout(() => {
       navigate("/project");
     }, 380);
   };
-
-  const audioEngineRef = useRef(null);
 
   useEffect(() => {
     const engine = createSereneAudioEngine();
@@ -151,10 +185,18 @@ export const DeskWorkstation = ({
     if (!audioEngineRef.current) return;
     const playing = await audioEngineRef.current.toggle();
     setIsMusicPlaying(playing);
+    play(playing ? "music.needle" : "music.tapeStop");
+  };
+
+  const handleToggleSfx = () => {
+    play(isSfxEnabled ? "ui.toggleOff" : "ui.toggleOn");
+    toggleSfx();
   };
 
   const handleEnterRoom = () => {
     if (isDoorOpening || hasEnteredRoom) return;
+    play("door.open");
+    unlockSfx();
     setIsDoorOpening(true);
     setTimeout(() => {
       setHasEnteredRoom(true);
@@ -168,12 +210,29 @@ export const DeskWorkstation = ({
     if (!hotspot) return;
 
     setActiveHotspotId(id);
-    setOpenStageId((prev) => (prev === id ? null : id));
-  }, []);
+    setOpenStageId((prev) => {
+      if (prev === id) {
+        play("ui.close");
+        return null;
+      }
+      return id;
+    });
+  }, [play]);
 
   const handleHoverHotspot = useCallback((id) => {
-    setActiveHotspotId((curr) => (curr === id ? curr : id));
-  }, []);
+    setActiveHotspotId((curr) => {
+      if (curr !== id) {
+        if (
+          typeof window !== "undefined" &&
+          !window.matchMedia?.("(pointer: coarse)").matches
+        ) {
+          const pitch = HOTSPOT_PITCH_MAP[id];
+          play("ui.hover", { pitch });
+        }
+      }
+      return id;
+    });
+  }, [play]);
 
   const handleLeaveHotspot = useCallback((id) => {
     setActiveHotspotId((curr) => (curr === id ? null : curr));
@@ -207,17 +266,19 @@ export const DeskWorkstation = ({
       if (event.key === "Escape") {
         if (isMonitorMaximized) {
           event.preventDefault();
+          play("ui.close");
           setIsMonitorMaximized(false);
           return;
         }
         if (selectedProjectSlug) {
           event.preventDefault();
+          play("monitor.back");
           setSelectedProjectSlug(null);
           return;
         }
         if (openStageId) {
           event.preventDefault();
-          handleCloseMonitor();
+          handleCloseStage();
           return;
         }
       }
@@ -232,13 +293,34 @@ export const DeskWorkstation = ({
         event.preventDefault();
         setHasEnteredRoom(true);
         setActiveHotspotId(matched.id);
-        setOpenStageId((prev) => (prev === matched.id ? null : matched.id));
+        setOpenStageId((prev) => {
+          if (prev === matched.id) {
+            play("ui.close");
+            return null;
+          }
+          return matched.id;
+        });
       }
     };
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [openStageId, hasEnteredRoom, selectedProjectSlug, isMonitorMaximized]);
+  }, [openStageId, hasEnteredRoom, selectedProjectSlug, isMonitorMaximized, handleCloseStage, play]);
+
+  const [phoneClock, setPhoneClock] = useState(() => {
+    const d = new Date();
+    return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+  });
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const d = new Date();
+      setPhoneClock(
+        `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`
+      );
+    }, 30000);
+    return () => clearInterval(timer);
+  }, []);
 
   const handleCopyOverlayEmail = async () => {
     if (!siteConfig?.contactEmail) return;
@@ -246,10 +328,19 @@ export const DeskWorkstation = ({
       if (navigator?.clipboard?.writeText) {
         await navigator.clipboard.writeText(siteConfig.contactEmail);
       }
+      if (navigator?.vibrate) {
+        try {
+          navigator.vibrate(12);
+        } catch {
+          void 0; // Ignore vibration failures on unsupported devices
+        }
+      }
+      play("ui.success");
       setCopiedEmail(true);
       setTimeout(() => setCopiedEmail(false), 2000);
     } catch (err) {
       console.error("Failed to copy email:", err);
+      play("ui.error");
     }
   };
 
@@ -290,6 +381,8 @@ export const DeskWorkstation = ({
           aria-modal="false"
           aria-labelledby="desk-overlay-heading"
           data-testid="desk-overlay-monitor"
+          data-stage-phase={stagePhase}
+          onClick={stagePhase !== "settled" ? skipToSettled : undefined}
           className={`${
             isMonitorMaximized
               ? "flex h-full w-full flex-col overflow-hidden bg-[#0f1722] text-paper"
@@ -319,7 +412,10 @@ export const DeskWorkstation = ({
               {selectedProjectSlug && (
                 <button
                   type="button"
-                  onClick={() => setSelectedProjectSlug(null)}
+                  onClick={() => {
+                    play("monitor.back");
+                    setSelectedProjectSlug(null);
+                  }}
                   aria-label="Back to project list inside monitor"
                   className="focus-ring inline-flex min-h-[38px] cursor-pointer items-center gap-1.5 rounded-xl border border-sky-300/40 bg-sky-500/20 px-3.5 py-1.5 font-mono text-xs font-semibold text-sky-200 transition-all hover:bg-sky-500/35"
                 >
@@ -329,7 +425,10 @@ export const DeskWorkstation = ({
 
               <button
                 type="button"
-                onClick={() => setIsMonitorMaximized((prev) => !prev)}
+                onClick={() => {
+                  play("ui.press");
+                  setIsMonitorMaximized((prev) => !prev);
+                }}
                 aria-label={isMonitorMaximized ? "Restore monitor window size" : "Maximize monitor window size"}
                 aria-pressed={isMonitorMaximized}
                 className="focus-ring inline-flex min-h-[38px] cursor-pointer items-center gap-1.5 rounded-xl border border-amber-300/60 bg-amber-300/20 px-3.5 py-1.5 font-mono text-xs font-semibold text-amber-200 transition-all hover:bg-amber-300/35"
@@ -364,9 +463,15 @@ export const DeskWorkstation = ({
               <ProjectDetail
                 slug={selectedProjectSlug}
                 headingLevel={2}
-                onBack={() => setSelectedProjectSlug(null)}
+                onBack={() => {
+                  play("monitor.back");
+                  setSelectedProjectSlug(null);
+                }}
                 isMaximized={isMonitorMaximized}
-                onToggleMaximize={() => setIsMonitorMaximized((prev) => !prev)}
+                onToggleMaximize={() => {
+                  play("ui.press");
+                  setIsMonitorMaximized((prev) => !prev);
+                }}
               />
             </div>
           ) : (
@@ -384,7 +489,10 @@ export const DeskWorkstation = ({
                       <button
                         key={cat}
                         type="button"
-                        onClick={() => setSelectedCategory(cat)}
+                        onClick={() => {
+                          play("ui.toggleOn");
+                          setSelectedCategory(cat);
+                        }}
                         aria-pressed={active}
                         className={`focus-ring min-h-[34px] rounded-lg px-3 py-1 font-mono text-xs font-semibold transition-all ${
                           active
@@ -417,7 +525,10 @@ export const DeskWorkstation = ({
                       repoUrl={project.repoUrl}
                       metric={project.metric}
                       revealDelayMs={0}
-                      onOpenDetail={() => setSelectedProjectSlug(project.slug)}
+                      onOpenDetail={() => {
+                        play("monitor.select");
+                        setSelectedProjectSlug(project.slug);
+                      }}
                     />
                   ))}
                 </div>
@@ -441,163 +552,13 @@ export const DeskWorkstation = ({
     // 05. TROPHY ZOOM & SLIDE-ASIDE: Glowing Trophy on Left, Certs on Right
     // ------------------------------------------------------------------------
     if (openStageId === "trophy") {
-      const linkFor = (href) =>
-        typeof href === "string" &&
-        (isValidHttpUrl(href) || href.startsWith("/"))
-          ? href
-          : null;
-
       return (
-        <div
-          role="dialog"
-          aria-modal="false"
-          aria-labelledby="desk-overlay-heading"
-          data-testid="desk-overlay-trophy"
-          className="max-h-full w-full max-w-5xl overflow-y-auto rounded-2xl border-2 border-ink bg-gradient-to-br from-[#1b2838] via-[#223448] to-[#172230] p-5 text-paper shadow-[8px_8px_0_0_#17150f] sm:p-6"
-        >
-          <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-white/15 pb-3">
-            <div>
-              <h2
-                id="desk-overlay-heading"
-                className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl"
-              >
-                Achievements &amp; Verified Certifications
-              </h2>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setOpenStageId(null)}
-              aria-label="Close Credentials overlay"
-              className="focus-ring inline-flex min-h-[44px] items-center gap-1.5 rounded-xl border-2 border-amber-300 bg-amber-300 px-3.5 py-1.5 font-mono text-xs font-bold text-ink transition-transform hover:-translate-y-0.5"
-            >
-              <span>← Back to Room</span>
-              <span aria-hidden="true">[ESC]</span>
-            </button>
-          </div>
-
-          <div className="grid gap-6 lg:grid-cols-12 lg:items-center">
-            {/* Left Stage: Pure Glowing Trophy Showcase (no visible text) */}
-            <div className="stage-trophy-hero flex flex-col items-center justify-center rounded-2xl border border-amber-300/40 bg-gradient-to-b from-amber-400/15 to-transparent p-8 text-center lg:col-span-4">
-              <div className="relative flex h-48 w-48 items-center justify-center">
-                <div
-                  aria-hidden="true"
-                  className="absolute inset-0 rounded-full bg-amber-300/30 blur-2xl"
-                />
-                <svg
-                  viewBox="0 0 140 160"
-                  aria-hidden="true"
-                  className="relative h-44 w-44"
-                >
-                  {/* Sparkle stars around the glowing trophy */}
-                  <circle cx="24" cy="28" r="2.5" fill="#fff3b0" />
-                  <circle cx="118" cy="34" r="3" fill="#ffd84d" />
-                  <circle cx="20" cy="88" r="2" fill="#ffd84d" />
-                  <circle cx="122" cy="92" r="2.5" fill="#fff3b0" />
-                  {/* TrophyHandles */}
-                  <path
-                    d="M38 42 C 16 42, 18 78, 44 82 M102 42 C 124 42, 122 78, 96 82"
-                    fill="none"
-                    stroke="#ffd84d"
-                    strokeWidth="6"
-                    strokeLinecap="round"
-                  />
-                  {/* Trophy Cup Body */}
-                  <path
-                    d="M36 28 H104 L96 84 C 92 104, 48 104, 44 84 Z"
-                    fill="#ffd84d"
-                    stroke="#17150f"
-                    strokeWidth="3.5"
-                  />
-                  {/* Trophy Stem & Pedestal */}
-                  <rect
-                    x="63"
-                    y="100"
-                    width="14"
-                    height="24"
-                    rx="3"
-                    fill="#f3c846"
-                    stroke="#17150f"
-                    strokeWidth="3"
-                  />
-                  <rect
-                    x="38"
-                    y="124"
-                    width="64"
-                    height="22"
-                    rx="4"
-                    fill="#2b261f"
-                    stroke="#ffd84d"
-                    strokeWidth="3"
-                  />
-                  <rect
-                    x="50"
-                    y="131"
-                    width="40"
-                    height="8"
-                    rx="1.5"
-                    fill="#ffd84d"
-                  />
-                </svg>
-              </div>
-              <span className="sr-only">2× BOOTCAMP 1ST RUNNER UP</span>
-            </div>
-
-            {/* Right Stage: Achievements & 7 Certificates List */}
-            <ul className="grid gap-3 sm:grid-cols-2 lg:col-span-8">
-              {certifications.map((cert, idx) => {
-                const href = linkFor(cert.href);
-                const isExt = isValidHttpUrl(href);
-                const isAward = cert.icon === "trophy";
-                return (
-                  <li
-                    key={cert.title}
-                    className={`rounded-xl border-2 p-3.5 transition-transform hover:-translate-y-0.5 ${
-                      isAward
-                        ? "border-amber-300 bg-amber-300/15 text-white"
-                        : "border-ink bg-card text-ink"
-                    }`}
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <span
-                          className={`font-mono text-[11px] font-bold ${
-                            isAward ? "text-amber-300" : "text-signal"
-                          }`}
-                        >
-                          #{String(idx + 1).padStart(2, "0")}{" "}
-                          {isAward ? "· AWARD WIN" : "· CERTIFICATE"}
-                        </span>
-                        <p className="mt-0.5 text-sm font-bold leading-snug">
-                          {cert.title}
-                        </p>
-                        <p
-                          className={`mt-1 font-mono text-[11px] ${
-                            isAward ? "text-sky-100/80" : "text-muted"
-                          }`}
-                        >
-                          {cert.issuer}
-                          {cert.issuer && cert.date ? ` · ${cert.date}` : ""}
-                        </p>
-                      </div>
-                      {href && (
-                        <a
-                          href={href}
-                          target="_blank"
-                          rel={isExt ? "noopener noreferrer" : "noopener"}
-                          aria-label={`Open certificate: ${cert.title} (opens in a new tab)`}
-                          className="focus-ring inline-flex min-h-[38px] min-w-[38px] shrink-0 items-center justify-center rounded-lg border-2 border-ink bg-amber-300 font-mono text-xs font-bold text-ink transition-transform hover:scale-105"
-                        >
-                          ↗
-                        </a>
-                      )}
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        </div>
+        <TrophyStage
+          certifications={certifications}
+          phase={stagePhase}
+          onSkip={skipToSettled}
+          onClose={handleCloseStage}
+        />
       );
     }
 
@@ -606,103 +567,13 @@ export const DeskWorkstation = ({
     // ------------------------------------------------------------------------
     if (openStageId === "notebook") {
       return (
-        <div
-          role="dialog"
-          aria-modal="false"
-          aria-labelledby="desk-overlay-heading"
-          data-testid="desk-overlay-notebook"
-          className="stage-book-unfold max-h-full w-full max-w-5xl overflow-y-auto rounded-2xl border-4 border-[#6e3b14] bg-[#8f4e1e] p-3 shadow-[10px_12px_0_0_#17150f] sm:p-5"
-        >
-          {/* Open 2-Page Hardcover Book Spread */}
-          <div className="relative grid overflow-hidden rounded-xl border-2 border-ink bg-[#fbf8f1] md:grid-cols-12">
-            {/* Left Book Page: Chapter 01 — What I Do */}
-            <div className="border-b-2 border-ink/20 p-5 sm:p-6 md:col-span-7 md:border-b-0 md:border-r-2">
-              <div className="flex items-center justify-between border-b border-ink/20 pb-3">
-                <div>
-                  <h2
-                    id="desk-overlay-heading"
-                    className="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl"
-                  >
-                    What I <span className="font-serif italic">Do</span>
-                  </h2>
-                </div>
-                <span className="font-mono text-xs text-muted">CH. I</span>
-              </div>
-
-              <div className="mt-4 space-y-3">
-                {skills.map((skill, idx) => (
-                  <div
-                    key={skill.title}
-                    className="rounded-xl border border-ink/25 bg-paper p-3.5 transition-colors hover:bg-marker/40"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-mono text-xs font-bold text-signal">
-                        0{idx + 1} · {skill.title}
-                      </span>
-                      <span aria-hidden="true" className="text-ink">
-                        <Icon name={skill.icon} className="h-5 w-5" />
-                      </span>
-                    </div>
-                    <p className="mt-1.5 text-xs leading-relaxed text-ink-soft sm:text-sm">
-                      {skill.description}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Right Book Page: Chapter 02 — Core Toolbelt & Close Book */}
-            <div className="flex flex-col justify-between bg-[#f6f1e5] p-5 sm:p-6 md:col-span-5">
-              <div>
-                <div className="flex items-center justify-between border-b border-ink/20 pb-3">
-                  <div>
-                    <p className="text-xl font-extrabold tracking-tight text-ink">
-                      Engineering Toolbelt
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setOpenStageId(null)}
-                    aria-label="Close What I Do book overlay"
-                    className="focus-ring inline-flex min-h-[40px] items-center gap-1.5 rounded-xl border-2 border-ink bg-marker px-3 py-1.5 font-mono text-xs font-bold text-ink shadow-[2px_2px_0_0_#17150f]"
-                  >
-                    <span>Close Book</span>
-                    <span aria-hidden="true">[ESC]</span>
-                  </button>
-                </div>
-
-                <p className="mt-4 text-sm leading-relaxed text-ink-soft">
-                  Buku ini diambil dari rak terbuka lemari kayu sebelah kiri
-                  meja belajar. Berikut tumpukan teknologi yang saya gunakan di
-                  produksi &amp; riset:
-                </p>
-
-                {toolbelt.length > 0 && (
-                  <ul className="mt-4 flex flex-wrap gap-2">
-                    {toolbelt.map((tool) => (
-                      <li
-                        key={tool}
-                        className="rounded-lg border border-ink bg-card px-3 py-1.5 font-mono text-xs font-semibold text-ink shadow-[2px_2px_0_0_#17150f]"
-                      >
-                        {tool}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-
-              <div className="mt-6 rounded-xl border border-ink/25 bg-card p-3.5 font-mono text-xs text-ink-soft">
-                <p className="font-bold text-ink">
-                  ▸ LAB PRINCIPLE // LEAK-FREE VALIDATION
-                </p>
-                <p className="mt-1">
-                  Split before preprocessing · Rolling/Stratified CV · Seeded
-                  reproducible pipelines.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <BookStage
+          skills={skills}
+          toolbelt={toolbelt}
+          phase={stagePhase}
+          onSkip={skipToSettled}
+          onClose={handleCloseStage}
+        />
       );
     }
 
@@ -716,13 +587,15 @@ export const DeskWorkstation = ({
           aria-modal="false"
           aria-labelledby="desk-overlay-heading"
           data-testid="desk-overlay-phone"
+          data-stage-phase={stagePhase}
+          onClick={stagePhase !== "settled" ? skipToSettled : undefined}
           className="stage-phone-zoom flex w-full max-w-md justify-center py-2"
         >
           {/* Zoomed-In Smartphone Bezel */}
           <div className="w-full max-w-md overflow-hidden rounded-[2.25rem] border-[6px] border-[#1f242d] bg-[#121824] p-5 text-white shadow-[0_24px_60px_rgba(0,0,0,0.55)]">
             {/* Phone Dynamic Island / Speaker Notch & Status Bar */}
             <div className="flex items-center justify-between px-2 font-mono text-[11px] text-sky-200/80">
-              <span>21:00 · ID</span>
+              <span>{phoneClock} · ID</span>
               <span
                 aria-hidden="true"
                 className="h-4 w-24 rounded-full bg-black"
@@ -742,7 +615,7 @@ export const DeskWorkstation = ({
               </div>
               <button
                 type="button"
-                onClick={() => setOpenStageId(null)}
+                onClick={handleCloseStage}
                 aria-label="Put smartphone back on stand"
                 className="focus-ring inline-flex min-h-[40px] items-center gap-1 rounded-full border border-white/25 bg-white/10 px-3.5 py-1.5 font-mono text-xs font-semibold text-white hover:bg-white/20"
               >
@@ -791,6 +664,7 @@ export const DeskWorkstation = ({
                       href={social.href}
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={() => play("ui.pop")}
                       aria-label={`${social.label} profile (opens in a new tab)`}
                       className="focus-ring flex min-h-[52px] items-center justify-between rounded-2xl border border-white/20 bg-white/10 px-4 py-3 font-mono text-sm font-bold text-white transition-colors hover:bg-amber-300 hover:text-ink"
                     >
@@ -824,6 +698,8 @@ export const DeskWorkstation = ({
           aria-modal="false"
           aria-labelledby="desk-overlay-heading"
           data-testid="desk-overlay-photo"
+          data-stage-phase={stagePhase}
+          onClick={stagePhase !== "settled" ? skipToSettled : undefined}
           className="max-h-full w-full max-w-4xl overflow-y-auto rounded-2xl border-2 border-ink bg-card p-5 shadow-[8px_8px_0_0_#17150f] sm:p-6"
         >
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b-2 border-ink pb-3">
@@ -838,7 +714,7 @@ export const DeskWorkstation = ({
 
             <button
               type="button"
-              onClick={() => setOpenStageId(null)}
+              onClick={handleCloseStage}
               aria-label="Close About Me overlay"
               className="focus-ring inline-flex min-h-[44px] items-center gap-1.5 rounded-xl border-2 border-ink bg-paper px-3.5 py-1.5 font-mono text-xs font-semibold text-ink transition-colors hover:bg-marker"
             >
@@ -979,6 +855,8 @@ export const DeskWorkstation = ({
           aria-modal="false"
           aria-labelledby="desk-overlay-heading"
           data-testid="desk-overlay-documents"
+          data-stage-phase={stagePhase}
+          onClick={stagePhase !== "settled" ? skipToSettled : undefined}
           className="stage-documents-dossier flex h-[88vh] max-h-full w-full max-w-6xl flex-col overflow-hidden rounded-2xl border-2 border-ink bg-[#111927] text-paper shadow-[8px_8px_0_0_#17150f]"
         >
           {/* Top Window Bar */}
@@ -1004,7 +882,7 @@ export const DeskWorkstation = ({
             <div className="flex flex-wrap items-center gap-2.5">
               <button
                 type="button"
-                onClick={() => setOpenStageId(null)}
+                onClick={handleCloseStage}
                 aria-label="Close Documents overlay and return to room"
                 className="focus-ring inline-flex min-h-[36px] cursor-pointer items-center gap-1.5 rounded-xl border-2 border-amber-300 bg-amber-300 px-3.5 py-1.5 font-mono text-xs font-bold text-ink transition-transform hover:-translate-y-0.5"
               >
@@ -1031,6 +909,7 @@ export const DeskWorkstation = ({
                     aria-selected={isActive}
                     onClick={() => {
                       if (activeDocTab !== doc.id) {
+                        play("docs.paperSlide");
                         setIsDocLoading(true);
                         setActiveDocTab(doc.id);
                       }
@@ -1085,6 +964,7 @@ export const DeskWorkstation = ({
                 <a
                   href={currentDoc.pdfUrl}
                   download={currentDoc.downloadName}
+                  onClick={() => play("docs.stamp")}
                   aria-label={`Download ${currentDoc.title} (${currentDoc.downloadName})`}
                   title={`Download ${currentDoc.title} (${currentDoc.fileSize})`}
                   className="focus-ring inline-flex h-8 w-8 items-center justify-center rounded-lg border-2 border-amber-300 bg-amber-300 text-ink shadow-[2px_2px_0_0_#d93f12] transition-transform hover:-translate-y-0.5 active:translate-y-0"
@@ -1109,6 +989,7 @@ export const DeskWorkstation = ({
                   href={currentDoc.pdfUrl}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => play("ui.pop")}
                   aria-label={`Open ${currentDoc.title} in new tab`}
                   title={`Open ${currentDoc.title} in new tab`}
                   className="focus-ring inline-flex h-8 w-8 items-center justify-center rounded-lg border border-white/30 bg-white/10 text-white transition-colors hover:bg-white/20"
@@ -1185,6 +1066,7 @@ export const DeskWorkstation = ({
               <button
                 type="button"
                 onClick={handleEnterRoom}
+                onMouseEnter={() => play("door.handle")}
                 aria-label="My Portofolio — Klik pintu untuk masuk ke Bagas Works Room"
                 className={`room-door-leaf focus-ring group relative flex h-[450px] w-[280px] cursor-pointer flex-col items-center justify-between rounded-t-lg border-4 border-[#17150f] bg-gradient-to-b from-[#d48842] via-[#c87b36] to-[#b56d2f] p-5 text-left shadow-inner sm:h-[520px] sm:w-[336px] sm:p-6 ${
                   isDoorOpening ? "is-opening" : ""
@@ -1318,9 +1200,33 @@ export const DeskWorkstation = ({
             )}
           </button>
 
+          {/* SFX Sound Toggle Button */}
           <button
             type="button"
-            onClick={() => setShowPins((prev) => !prev)}
+            onClick={handleToggleSfx}
+            aria-pressed={isSfxEnabled}
+            aria-label={
+              isSfxEnabled
+                ? "Mute interaction sound effects"
+                : "Enable interaction sound effects"
+            }
+            title={isSfxEnabled ? "SFX: ON" : "SFX: OFF"}
+            className={`focus-ring inline-flex h-10 items-center gap-1.5 rounded-xl border px-3 font-mono text-xs font-semibold shadow-lg backdrop-blur-md transition-all ${
+              isSfxEnabled
+                ? "border-amber-300 bg-amber-300 text-ink shadow-[2px_2px_0_0_#d93f12]"
+                : "border-white/30 bg-[#1b2d3e]/90 text-white hover:bg-[#1b2d3e]"
+            }`}
+          >
+            <span aria-hidden="true">{isSfxEnabled ? "🔔" : "🔕"}</span>
+            <span>SFX: {isSfxEnabled ? "ON" : "OFF"}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              play(showPins ? "ui.toggleOff" : "ui.toggleOn");
+              setShowPins((prev) => !prev);
+            }}
             aria-pressed={showPins}
             aria-label={
               showPins
@@ -1445,12 +1351,8 @@ export const DeskWorkstation = ({
                   key={hotspot.id}
                   type="button"
                   onClick={() => handleActivateHotspot(hotspot.id)}
-                  onMouseEnter={() => setActiveHotspotId(hotspot.id)}
-                  onMouseLeave={() =>
-                    setActiveHotspotId((curr) =>
-                      curr === hotspot.id ? null : curr
-                    )
-                  }
+                  onMouseEnter={() => handleHoverHotspot(hotspot.id)}
+                  onMouseLeave={() => handleLeaveHotspot(hotspot.id)}
                   aria-label={`${hotspot.number} ${hotspot.objectName}: ${hotspot.label}`}
                   className={`focus-ring inline-flex min-h-[38px] items-center gap-1.5 rounded-xl border px-2.5 py-1 font-mono text-xs font-semibold transition-all ${
                     isSelected

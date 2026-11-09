@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { getProjectDetail } from "../projectDetails.js";
 import { ArchitectureDiagram, TradeoffList } from "./ArchitectureDiagram.jsx";
 import { DemoPanel } from "./DemoPanel.jsx";
+import { useSfx } from "../audio/SfxProvider.jsx";
 
 const TOC_SECTIONS = [
   { id: "problem", label: "01. Problem", title: "Problem & Business Context" },
@@ -20,6 +21,7 @@ export const ProjectDetail = ({
   onToggleMaximize,
 }) => {
   const detail = getProjectDetail(slug);
+  const { play } = useSfx();
   const [copiedLink, setCopiedLink] = useState(false);
   const [activeSection, setActiveSection] = useState("problem");
   const containerRef = useRef(null);
@@ -72,13 +74,17 @@ export const ProjectDetail = ({
     const url = `${window.location.origin}/project/${slug}`;
     if (navigator?.clipboard?.writeText) {
       navigator.clipboard.writeText(url).then(() => {
+        play("ui.success");
         setCopiedLink(true);
         setTimeout(() => setCopiedLink(false), 2200);
-      }).catch(() => {});
+      }).catch(() => {
+        play("ui.error");
+      });
     }
   };
 
   const scrollToSection = (id) => {
+    play("ui.press");
     setActiveSection(id);
     const element = document.getElementById(`section-${id}`);
     if (element) {

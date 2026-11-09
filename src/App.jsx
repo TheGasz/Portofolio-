@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import "./index.css";
 import Core from "./assets/core.jsx";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import { SfxProvider } from "./assets/audio/SfxProvider.jsx";
 import Projects from "./assets/project.jsx";
 import ProjectDetailPage from "./assets/detail/ProjectDetailPage.jsx";
 
@@ -41,11 +42,13 @@ function MainContent() {
 
 function App() {
   return (
-    <Router>
-      <div className="flex min-h-screen flex-col bg-paper text-ink">
-        <MainContent />
-      </div>
-    </Router>
+    <SfxProvider>
+      <Router>
+        <div className="flex min-h-screen flex-col bg-paper text-ink">
+          <MainContent />
+        </div>
+      </Router>
+    </SfxProvider>
   );
 }
 

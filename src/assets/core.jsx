@@ -7,6 +7,7 @@ import profilePhoto from "./profile.jpg";
 import { Reveal } from "./useScrollReveal.js";
 import { projectsData, ProjectCard } from "./project.jsx";
 import { DeskWorkstation } from "./desk/DeskWorkstation.jsx";
+import { useSfx } from "./audio/SfxProvider.jsx";
 
 /**
  * @typedef {Object} SocialLink
@@ -414,6 +415,7 @@ export const Core = () => {
   // Hero image fallback: swap to a decorative same-size placeholder on error.
   const [imgError, setImgError] = useState(false);
   const [copied, setCopied] = useState(false);
+  const { play } = useSfx();
 
   const handleCopyEmail = async () => {
     if (!siteConfig.contactEmail) return;
@@ -421,10 +423,19 @@ export const Core = () => {
       if (navigator?.clipboard?.writeText) {
         await navigator.clipboard.writeText(siteConfig.contactEmail);
       }
+      if (navigator?.vibrate) {
+        try {
+          navigator.vibrate(12);
+        } catch {
+          // ignore
+        }
+      }
+      play("ui.success");
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error("Failed to copy email:", err);
+      play("ui.error");
     }
   };
 

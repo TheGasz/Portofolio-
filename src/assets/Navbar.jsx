@@ -1,6 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import "../index.css";
+import { useSfx } from "./audio/SfxProvider.jsx";
 
 // Centralized nav link definitions so Home + Projects render on every route.
 const NAV_LINKS = [
@@ -10,6 +11,7 @@ const NAV_LINKS = [
 
 export const Header = ({ title }) => {
   const location = useLocation();
+  const { play } = useSfx();
 
   // A link is active only when its target exactly matches the current path.
   // Unknown routes match neither link, leaving both in the inactive state.
@@ -20,6 +22,7 @@ export const Header = ({ title }) => {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-2">
         <Link
           to="/"
+          onClick={() => play("nav.whoosh")}
           className="focus-ring group -mx-2 flex min-h-[44px] items-center gap-2.5 rounded-lg px-2 py-2"
         >
           <span
@@ -50,6 +53,7 @@ export const Header = ({ title }) => {
               <Link
                 key={to}
                 to={to}
+                onClick={() => play("nav.whoosh")}
                 aria-current={active ? "page" : undefined}
                 // `text-blue-600 font-bold` are the active-state hooks pinned by
                 // Navbar.property.test; the visible color is forced to paper.
