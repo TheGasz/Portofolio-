@@ -4,6 +4,7 @@ import "./index.css";
 import Core from "./assets/core.jsx";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import Projects from "./assets/project.jsx";
+import ProjectDetailPage from "./assets/detail/ProjectDetailPage.jsx";
 
 function ScrollToTop() {
   const { pathname, hash } = useLocation();
@@ -31,6 +32,7 @@ function MainContent() {
         <Routes>
           <Route path="/" element={<Core />} />
           <Route path="/project" element={<Projects />} />
+          <Route path="/project/:slug" element={<ProjectDetailPage />} />
         </Routes>
       </div>
     </main>

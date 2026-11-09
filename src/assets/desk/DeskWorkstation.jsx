@@ -7,6 +7,7 @@ import { createSereneAudioEngine } from "./ambientAudio.js";
 import { isValidHttpUrl } from "../url.js";
 import { Icon } from "../icons.jsx";
 import { projectsData, ProjectCard, PROJECT_CATEGORIES } from "../project.jsx";
+import { ProjectDetail } from "../detail/ProjectDetail.jsx";
 
 const LAYER_ORDER = [
   { type: "static", key: "deskAndWall" },
@@ -119,6 +120,14 @@ export const DeskWorkstation = ({
   const [hasEnteredRoom, setHasEnteredRoom] = useState(false);
   const [isDoorOpening, setIsDoorOpening] = useState(false);
   const [isDivingIntoProject, setIsDivingIntoProject] = useState(false);
+  const [selectedProjectSlug, setSelectedProjectSlug] = useState(null);
+  const [isMonitorMaximized, setIsMonitorMaximized] = useState(false);
+
+  const handleCloseMonitor = () => {
+    setSelectedProjectSlug(null);
+    setIsMonitorMaximized(false);
+    setOpenStageId(null);
+  };
 
   const handleOpenFullProjectPage = () => {
     if (isDivingIntoProject) return;
@@ -195,9 +204,26 @@ export const DeskWorkstation = ({
         return;
       }
 
-      if (event.key === "Escape" && openStageId) {
-        event.preventDefault();
-        setOpenStageId(null);
+      if (event.key === "Escape") {
+        if (isMonitorMaximized) {
+          event.preventDefault();
+          setIsMonitorMaximized(false);
+          return;
+        }
+        if (selectedProjectSlug) {
+          event.preventDefault();
+          setSelectedProjectSlug(null);
+          return;
+        }
+        if (openStageId) {
+          event.preventDefault();
+          handleCloseMonitor();
+          return;
+        }
+      }
+
+      // When actively viewing a deep project case study, ignore 1-6 room hotspot hotkeys
+      if (selectedProjectSlug) {
         return;
       }
 
@@ -212,7 +238,7 @@ export const DeskWorkstation = ({
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [openStageId, hasEnteredRoom]);
+  }, [openStageId, hasEnteredRoom, selectedProjectSlug, isMonitorMaximized]);
 
   const handleCopyOverlayEmail = async () => {
     if (!siteConfig?.contactEmail) return;
@@ -264,9 +290,11 @@ export const DeskWorkstation = ({
           aria-modal="false"
           aria-labelledby="desk-overlay-heading"
           data-testid="desk-overlay-monitor"
-          className={`stage-monitor-dive flex max-h-full w-full max-w-6xl flex-col overflow-hidden rounded-2xl border-4 border-[#252830] bg-[#0f1722] text-paper shadow-[0_24px_60px_rgba(0,0,0,0.65)] ${
-            isDivingIntoProject ? "is-diving-thru" : ""
-          }`}
+          className={`${
+            isMonitorMaximized
+              ? "flex h-full w-full flex-col overflow-hidden bg-[#0f1722] text-paper"
+              : "stage-monitor-dive flex max-h-full w-full max-w-6xl flex-col overflow-hidden rounded-2xl border-4 border-[#252830] bg-[#0f1722] text-paper shadow-[0_24px_60px_rgba(0,0,0,0.65)]"
+          } ${isDivingIntoProject ? "is-diving-thru" : ""}`}
         >
           {/* Monitor Bezel Top Status Bar */}
           <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-sky-400/25 bg-[#162232] px-4 py-2.5 sm:px-6">
@@ -280,23 +308,48 @@ export const DeskWorkstation = ({
                   id="desk-overlay-heading"
                   className="text-lg font-extrabold tracking-tight text-white sm:text-xl"
                 >
-                  BagasOS — Project Explorer ({projects.length} Repositories)
+                  {selectedProjectSlug
+                    ? "BagasOS — Project Case Study & Architecture"
+                    : `BagasOS — Project Explorer (${projects.length} Repositories)`}
                 </h2>
               </div>
             </div>
 
             <div className="flex flex-wrap items-center gap-2.5">
+              {selectedProjectSlug && (
+                <button
+                  type="button"
+                  onClick={() => setSelectedProjectSlug(null)}
+                  aria-label="Back to project list inside monitor"
+                  className="focus-ring inline-flex min-h-[38px] cursor-pointer items-center gap-1.5 rounded-xl border border-sky-300/40 bg-sky-500/20 px-3.5 py-1.5 font-mono text-xs font-semibold text-sky-200 transition-all hover:bg-sky-500/35"
+                >
+                  <span>← Back to Grid</span>
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={() => setIsMonitorMaximized((prev) => !prev)}
+                aria-label={isMonitorMaximized ? "Restore monitor window size" : "Maximize monitor window size"}
+                aria-pressed={isMonitorMaximized}
+                className="focus-ring inline-flex min-h-[38px] cursor-pointer items-center gap-1.5 rounded-xl border border-amber-300/60 bg-amber-300/20 px-3.5 py-1.5 font-mono text-xs font-semibold text-amber-200 transition-all hover:bg-amber-300/35"
+              >
+                <span aria-hidden="true">{isMonitorMaximized ? "⤡" : "⤢"}</span>
+                <span>{isMonitorMaximized ? "Restore" : "Maximize"}</span>
+              </button>
+
               <button
                 type="button"
                 onClick={handleOpenFullProjectPage}
                 aria-label="Open Full Project Page"
-                className="focus-ring inline-flex min-h-[38px] cursor-pointer items-center rounded-xl border border-sky-300/40 bg-sky-500/20 px-3.5 py-1.5 font-mono text-xs font-semibold text-sky-200 transition-all hover:bg-sky-500/35 hover:scale-105 active:scale-95"
+                className="focus-ring inline-flex min-h-[38px] cursor-pointer items-center rounded-xl border border-sky-300/40 bg-sky-500/20 px-3.5 py-1.5 font-mono text-xs font-semibold text-sky-200 transition-all hover:bg-sky-500/35"
               >
-                <span>Open Full Project Page</span>
+                <span>Standalone Route</span>
               </button>
+
               <button
                 type="button"
-                onClick={() => setOpenStageId(null)}
+                onClick={handleCloseMonitor}
                 aria-label="Exit Monitor and return to room"
                 className="focus-ring inline-flex min-h-[38px] cursor-pointer items-center gap-1.5 rounded-xl border-2 border-amber-300 bg-amber-300 px-3.5 py-1.5 font-mono text-xs font-bold text-ink transition-transform hover:-translate-y-0.5"
               >
@@ -306,56 +359,71 @@ export const DeskWorkstation = ({
             </div>
           </div>
 
-          {/* Category Filter Bar inside Monitor */}
-          <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-white/10 bg-[#121d2b] px-4 py-2.5 sm:px-6">
-            <div
-              role="group"
-              aria-label="Filter projects inside monitor"
-              className="flex flex-wrap gap-2"
-            >
-              {PROJECT_CATEGORIES.map((cat) => {
-                const active = selectedCategory === cat;
-                return (
-                  <button
-                    key={cat}
-                    type="button"
-                    onClick={() => setSelectedCategory(cat)}
-                    aria-pressed={active}
-                    className={`focus-ring min-h-[34px] rounded-lg px-3 py-1 font-mono text-xs font-semibold transition-all ${
-                      active
-                        ? "bg-amber-300 text-ink shadow-[2px_2px_0_0_#d93f12]"
-                        : "border border-white/15 bg-white/5 text-white/80 hover:bg-white/15"
-                    }`}
-                  >
-                    {cat}
-                  </button>
-                );
-              })}
+          {selectedProjectSlug ? (
+            <div className="min-h-0 flex-1 overflow-hidden bg-paper">
+              <ProjectDetail
+                slug={selectedProjectSlug}
+                headingLevel={2}
+                onBack={() => setSelectedProjectSlug(null)}
+                isMaximized={isMonitorMaximized}
+                onToggleMaximize={() => setIsMonitorMaximized((prev) => !prev)}
+              />
             </div>
-            <span className="font-mono text-xs text-sky-200/80">
-              Showing {filteredProjects.length} of {projects.length} projects
-            </span>
-          </div>
+          ) : (
+            <>
+              {/* Category Filter Bar inside Monitor */}
+              <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-white/10 bg-[#121d2b] px-4 py-2.5 sm:px-6">
+                <div
+                  role="group"
+                  aria-label="Filter projects inside monitor"
+                  className="flex flex-wrap gap-2"
+                >
+                  {PROJECT_CATEGORIES.map((cat) => {
+                    const active = selectedCategory === cat;
+                    return (
+                      <button
+                        key={cat}
+                        type="button"
+                        onClick={() => setSelectedCategory(cat)}
+                        aria-pressed={active}
+                        className={`focus-ring min-h-[34px] rounded-lg px-3 py-1 font-mono text-xs font-semibold transition-all ${
+                          active
+                            ? "bg-amber-300 text-ink shadow-[2px_2px_0_0_#d93f12]"
+                            : "border border-white/15 bg-white/5 text-white/80 hover:bg-white/15"
+                        }`}
+                      >
+                        {cat}
+                      </button>
+                    );
+                  })}
+                </div>
+                <span className="font-mono text-xs text-sky-200/80">
+                  Showing {filteredProjects.length} of {projects.length} projects
+                </span>
+              </div>
 
-          {/* Scrollable Monitor Screen Viewport with All ProjectCards */}
-          <div className="min-h-0 flex-1 overflow-y-auto bg-paper p-4 text-ink sm:p-6">
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {filteredProjects.map((project, idx) => (
-                <ProjectCard
-                  key={project.id}
-                  number={idx + 1}
-                  title={project.title}
-                  description={project.description}
-                  image={project.image}
-                  tech={project.tech}
-                  demoUrl={project.demoUrl}
-                  repoUrl={project.repoUrl}
-                  metric={project.metric}
-                  revealDelayMs={0}
-                />
-              ))}
-            </div>
-          </div>
+              {/* Scrollable Monitor Screen Viewport with All ProjectCards */}
+              <div className="min-h-0 flex-1 overflow-y-auto bg-paper p-4 text-ink sm:p-6">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {filteredProjects.map((project, idx) => (
+                    <ProjectCard
+                      key={project.id}
+                      number={idx + 1}
+                      title={project.title}
+                      description={project.description}
+                      image={project.image}
+                      tech={project.tech}
+                      demoUrl={project.demoUrl}
+                      repoUrl={project.repoUrl}
+                      metric={project.metric}
+                      revealDelayMs={0}
+                      onOpenDetail={() => setSelectedProjectSlug(project.slug)}
+                    />
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
 
           {/* Monitor Bezel Bottom Chin */}
           <div className="flex shrink-0 items-center justify-between bg-[#1c2026] px-6 py-1.5 font-mono text-[11px] text-white/60">
@@ -1337,7 +1405,13 @@ export const DeskWorkstation = ({
 
         {/* Active Cinematic Object Stage View Overlaid on the Full-Screen Room */}
         {openHotspot && (
-          <div className="absolute inset-0 z-20 flex items-center justify-center overflow-hidden bg-slate-950/60 p-3 transition-opacity duration-300 sm:p-5">
+          <div
+            className={`absolute inset-0 transition-opacity duration-300 ${
+              isMonitorMaximized
+                ? "z-50 p-0 overflow-hidden bg-slate-950"
+                : "z-20 flex items-center justify-center overflow-hidden bg-slate-950/60 p-3 sm:p-5"
+            }`}
+          >
             {renderCinematicStage()}
           </div>
         )}

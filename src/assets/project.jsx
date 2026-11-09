@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "../index.css";
 import { isValidHttpUrl } from "./url.js";
 import { usePointerTilt } from "./usePointerTilt.js";
@@ -42,6 +42,7 @@ import {
 const projectsData = [
     {
         id: 8,
+        slug: "enterprise-ai-support-copilot",
         title: "Enterprise AI Support Copilot (RAG)",
         category: "GenAI & Agents",
         metric: "0.98 macro-F1 · 30/30 traps caught",
@@ -52,6 +53,7 @@ const projectsData = [
     },
     {
         id: 9,
+        slug: "klaimkilat-reimbursement-agent",
         title: "KlaimKilat — AI Reimbursement Agent",
         category: "GenAI & Agents",
         metric: "0% false auto-approve · RRF hybrid search",
@@ -62,6 +64,7 @@ const projectsData = [
     },
     {
         id: 10,
+        slug: "transit-cashless-anomaly-detection",
         title: "TransitSentinel — Cashless Transit Anomaly Detection",
         category: "Tabular & ML",
         metric: "0.987 PR-AUC · <25 ms p95 latency",
@@ -72,6 +75,7 @@ const projectsData = [
     },
     {
         id: 11,
+        slug: "15-minute-city-profiler",
         title: "The 15-Minute City Profiler",
         category: "Time-Series & Geo",
         metric: "NumPy K-Means++ · 25x25 spatial grid",
@@ -82,6 +86,7 @@ const projectsData = [
     },
     {
         id: 1,
+        slug: "river-water-level-bengawan-solo",
         title: "River Water-Level Forecasting (Bengawan Solo)",
         category: "Time-Series & Geo",
         metric: "Mean RMSE 1.39 · 242-day lead time",
@@ -92,6 +97,7 @@ const projectsData = [
     },
     {
         id: 6,
+        slug: "jakarta-flood-data-pipeline",
         title: "Jakarta Flood Risk Data Pipeline",
         category: "Time-Series & Geo",
         metric: "97k rows spatio-temporal feature store",
@@ -102,6 +108,7 @@ const projectsData = [
     },
     {
         id: 2,
+        slug: "ai-pilahyuk-waste-classification",
         title: "Hierarchical Waste Classification (AI PilahYuk)",
         category: "Computer Vision",
         metric: "~0.99 macro F1 · SigLIP 1152-dim embeddings",
@@ -112,6 +119,7 @@ const projectsData = [
     },
     {
         id: 3,
+        slug: "satria-data-waste-classification",
         title: "Waste Image Classification (Satria Data 2026)",
         category: "Computer Vision",
         metric: "0.9962 F1 score · Satria Data competition",
@@ -122,6 +130,7 @@ const projectsData = [
     },
     {
         id: 7,
+        slug: "face-anti-spoofing-detection",
         title: "Face Anti-Spoofing Detection",
         category: "Computer Vision",
         metric: "6-class ConvNeXt · 0 duplicate leakage",
@@ -132,6 +141,7 @@ const projectsData = [
     },
     {
         id: 4,
+        slug: "crop-yield-prediction",
         title: "Crop Yield Prediction",
         category: "Tabular & ML",
         metric: "TensorFlow & Keras full-stack deployment",
@@ -142,6 +152,7 @@ const projectsData = [
     },
     {
         id: 5,
+        slug: "agent-based-exposure-simulation",
         title: "Agent-Based Exposure Simulation",
         category: "Tabular & ML",
         metric: "Poisson arrival · Ray-casting FOV heatmap",
@@ -156,7 +167,7 @@ const projectsData = [
 // Reusable ProjectCard: a paper card with an ink border that lifts onto a hard
 // offset shadow on hover, plus the pointer tilt and scroll reveal. All content
 // fields are optional so a partial Project_Entry degrades gracefully.
-export const ProjectCard = ({ title, description, image, tech, demoUrl, repoUrl, revealDelayMs = 0, number, metric }) => {
+export const ProjectCard = ({ title, description, image, tech, demoUrl, repoUrl, revealDelayMs = 0, number, metric, onOpenDetail }) => {
     const [imgError, setImgError] = useState(false);
     const { ref, onPointerMove, onPointerLeave } = usePointerTilt();
     const { ref: revealRef, revealed } = useScrollReveal();
@@ -249,8 +260,24 @@ export const ProjectCard = ({ title, description, image, tech, demoUrl, repoUrl,
                             ))}
                         </div>
                     )}
+                    {onOpenDetail && (
+                        <div className="mt-auto mb-3">
+                            <button
+                                type="button"
+                                onClick={onOpenDetail}
+                                aria-label={`View case study for ${title || "this project"}`}
+                                className="focus-ring group/btn inline-flex min-h-[44px] w-full cursor-pointer items-center justify-between rounded-xl border-2 border-ink bg-marker px-4 py-2.5 font-mono text-xs font-bold text-ink shadow-[2px_2px_0_0_#17150f] transition-all duration-200 hover:-translate-y-0.5 hover:bg-amber-400 hover:shadow-[4px_4px_0_0_#17150f]"
+                            >
+                                <span className="flex items-center gap-2">
+                                    <span aria-hidden="true" className="h-2 w-2 rounded-full bg-signal" />
+                                    <span>EXPLORE ARCHITECTURE & CASE STUDY</span>
+                                </span>
+                                <span aria-hidden="true" className="text-base font-bold transition-transform duration-200 group-hover/btn:translate-x-1">→</span>
+                            </button>
+                        </div>
+                    )}
                     {(isValidHttpUrl(demoUrl) || isValidHttpUrl(repoUrl)) && (
-                        <div className="mt-auto flex gap-3">
+                        <div className={`${onOpenDetail ? "" : "mt-auto "}flex gap-3`}>
                             {isValidHttpUrl(demoUrl) && (
                                 <a
                                     href={demoUrl}
@@ -283,7 +310,7 @@ export const ProjectCard = ({ title, description, image, tech, demoUrl, repoUrl,
 
 // Presentational grid: renders one ProjectCard per entry in array order, or
 // the empty-state message when there are no entries (Req 5.2, 5.5).
-export const ProjectGrid = ({ projects = [] }) => {
+export const ProjectGrid = ({ projects = [], onOpenProject }) => {
     if (projects.length === 0) {
         return (
             <p className="text-lg text-muted">
@@ -308,6 +335,7 @@ export const ProjectGrid = ({ projects = [] }) => {
                     // 0/120/240ms stagger matches the 3-column rows; max
                     // delay + 600ms transition stays within the 1000ms budget.
                     revealDelayMs={(index % 3) * 120}
+                    onOpenDetail={onOpenProject ? () => onOpenProject(project.slug) : undefined}
                 />
             ))}
         </div>
@@ -323,6 +351,7 @@ export const PROJECT_CATEGORIES = [
 ];
 
 export const Projects = () => {
+    const navigate = useNavigate();
     const [selectedCategory, setSelectedCategory] = useState("All");
 
     const filteredProjects = selectedCategory === "All"
@@ -416,7 +445,10 @@ export const Projects = () => {
                             })}
                         </div>
                     </div>
-                    <ProjectGrid projects={filteredProjects} />
+                    <ProjectGrid
+                        projects={filteredProjects}
+                        onOpenProject={(slug) => navigate(`/project/${slug}`)}
+                    />
 
                     {/* Bottom Return Bar */}
                     <div className="mt-16 flex flex-wrap items-center justify-between gap-4 border-t border-ink/15 pt-8">
@@ -435,6 +467,10 @@ export const Projects = () => {
             </section>
         </div>
     );
+};
+
+export const getProjectBySlug = (slug) => {
+    return projectsData.find((p) => p.slug === slug);
 };
 
 export { projectsData };
