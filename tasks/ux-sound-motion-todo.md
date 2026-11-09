@@ -175,7 +175,8 @@
 - [x] Animasi berbasis GPU (transform, opacity, filter, clip-path) tanpa layout thrashing.
 
 ### Task 6.5 🧪 Final gate (P0)
-- [x] `npm test`: 44 test files passed, 148 tests passed (100% passing).
+- [x] `npm test`: 44 test files passed, 149 tests passed (100% passing).
 - [x] `npm run lint`: 0 errors.
 - [x] `npm run build`: Production build sukses tanpa error.
 - [x] Tidak melakukan `git push` sesuai instruksi user ("jangan push github dulu biar saya review lokal dulu").
+- [x] **Keputusan User (Turn 3):** Animasi semua hotspot non-trophy (Monitor 01, Photo 02, Phone 03, Book 04, Documents 06) dikembalikan ke presentasi awal yang stabil & snappy. Khusus **Trophy (05)** tetap menggunakan animasi baru: trophy bersinar di tengah layar → slide ke kiri membuka popup → kartu sertifikat deal out. Suara SFX interaksi tetap aktif di semua elemen.
