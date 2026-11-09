@@ -293,7 +293,7 @@ export const DeskWorkstation = ({
           className={`${
             isMonitorMaximized
               ? "flex h-full w-full flex-col overflow-hidden bg-[#0f1722] text-paper"
-              : "stage-monitor-dive flex max-h-full w-full max-w-6xl flex-col overflow-hidden rounded-2xl border-4 border-[#252830] bg-[#0f1722] text-paper shadow-[0_24px_60px_rgba(0,0,0,0.65)]"
+              : "stage-monitor-dive flex h-[88vh] max-h-full w-full max-w-6xl flex-col overflow-hidden rounded-2xl border-4 border-[#252830] bg-[#0f1722] text-paper shadow-[0_24px_60px_rgba(0,0,0,0.65)]"
           } ${isDivingIntoProject ? "is-diving-thru" : ""}`}
         >
           {/* Monitor Bezel Top Status Bar */}
@@ -360,7 +360,7 @@ export const DeskWorkstation = ({
           </div>
 
           {selectedProjectSlug ? (
-            <div className="min-h-0 flex-1 overflow-hidden bg-paper">
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-paper">
               <ProjectDetail
                 slug={selectedProjectSlug}
                 headingLevel={2}

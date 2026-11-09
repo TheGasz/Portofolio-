@@ -92,7 +92,8 @@ export const ProjectDetail = ({
     <article
       ref={containerRef}
       data-testid="project-case-study"
-      className="flex h-full w-full flex-col overflow-y-auto bg-paper text-ink"
+      className="flex min-h-0 flex-1 w-full flex-col overflow-y-auto overflow-x-hidden bg-paper text-ink"
+      style={{ WebkitOverflowScrolling: "touch" }}
     >
       {/* Top Breadcrumb & Action Bar */}
       <div className="sticky top-0 z-30 flex flex-wrap items-center justify-between gap-3 border-b-2 border-ink bg-card px-4 py-2.5 sm:px-6 shadow-sm">
