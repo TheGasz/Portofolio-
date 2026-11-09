@@ -129,7 +129,7 @@ export const DeskWorkstation = ({
   const [isMonitorMaximized, setIsMonitorMaximized] = useState(false);
 
   const audioEngineRef = useRef(null);
-  const { play, isSfxEnabled, toggleSfx, unlockSfx } = useSfx();
+  const { play, unlockSfx } = useSfx();
 
   const handleDuckAmbient = useCallback(
     (gainFactor = 0.08, durationMs = 600) => {
@@ -186,11 +186,6 @@ export const DeskWorkstation = ({
     const playing = await audioEngineRef.current.toggle();
     setIsMusicPlaying(playing);
     play(playing ? "music.needle" : "music.tapeStop");
-  };
-
-  const handleToggleSfx = () => {
-    play(isSfxEnabled ? "ui.toggleOff" : "ui.toggleOn");
-    toggleSfx();
   };
 
   const handleEnterRoom = () => {
@@ -1197,27 +1192,6 @@ export const DeskWorkstation = ({
                 <line x1="17" y1="9" x2="23" y2="15" />
               </svg>
             )}
-          </button>
-
-          {/* SFX Sound Toggle Button */}
-          <button
-            type="button"
-            onClick={handleToggleSfx}
-            aria-pressed={isSfxEnabled}
-            aria-label={
-              isSfxEnabled
-                ? "Mute interaction sound effects"
-                : "Enable interaction sound effects"
-            }
-            title={isSfxEnabled ? "SFX: ON" : "SFX: OFF"}
-            className={`focus-ring inline-flex h-10 items-center gap-1.5 rounded-xl border px-3 font-mono text-xs font-semibold shadow-lg backdrop-blur-md transition-all ${
-              isSfxEnabled
-                ? "border-amber-300 bg-amber-300 text-ink shadow-[2px_2px_0_0_#d93f12]"
-                : "border-white/30 bg-[#1b2d3e]/90 text-white hover:bg-[#1b2d3e]"
-            }`}
-          >
-            <span aria-hidden="true">{isSfxEnabled ? "🔔" : "🔕"}</span>
-            <span>SFX: {isSfxEnabled ? "ON" : "OFF"}</span>
           </button>
 
           <button

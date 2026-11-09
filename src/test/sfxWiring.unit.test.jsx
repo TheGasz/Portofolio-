@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { DeskWorkstation } from "../assets/desk/DeskWorkstation.jsx";
-import { SfxProvider } from "../assets/audio/SfxProvider.jsx";
+import { SfxProvider, useSfx } from "../assets/audio/SfxProvider.jsx";
 import { HOTSPOT_PITCH_MAP } from "../assets/audio/sfxCatalog.js";
 
 describe("SFX Wiring (DeskWorkstation & Interactivity)", () => {
@@ -11,10 +11,17 @@ describe("SFX Wiring (DeskWorkstation & Interactivity)", () => {
     vi.clearAllMocks();
   });
 
-  it("renders SFX toggle button with accessible state and toggles on click", () => {
+  it("enables SFX by default without requiring an explicit toggle button", () => {
+    let sfx;
+    const Inspector = () => {
+      sfx = useSfx();
+      return null;
+    };
+
     render(
       <MemoryRouter>
         <SfxProvider>
+          <Inspector />
           <DeskWorkstation
             siteConfig={{ contactEmail: "test@example.com" }}
             skills={[]}
@@ -26,15 +33,15 @@ describe("SFX Wiring (DeskWorkstation & Interactivity)", () => {
       </MemoryRouter>
     );
 
-    const sfxButton = screen.getByRole("button", {
+    // SFX is enabled by default
+    expect(sfx.isSfxEnabled).toBe(true);
+    expect(typeof sfx.play).toBe("function");
+
+    // Button is cleanly removed from top bar
+    const sfxButton = screen.queryByRole("button", {
       name: /mute interaction sound effects|enable interaction sound effects/i,
     });
-    expect(sfxButton).toBeInTheDocument();
-    expect(sfxButton).toHaveAttribute("aria-pressed", "true");
-
-    // Click to mute
-    fireEvent.click(sfxButton);
-    expect(sfxButton).toHaveAttribute("aria-pressed", "false");
+    expect(sfxButton).not.toBeInTheDocument();
   });
 
   it("handles door hover and room entrance interaction", () => {

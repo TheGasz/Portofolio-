@@ -43,9 +43,7 @@ const writeStorage = (key, val) => {
 };
 
 export const SfxProvider = ({ children, onDuckAmbient }) => {
-  const [isSfxEnabled, setIsSfxEnabled] = useState(() =>
-    readStorage(STORAGE_KEY_ENABLED, true)
-  );
+  const [isSfxEnabled, setIsSfxEnabled] = useState(true);
   const [sfxVolume, setSfxVolumeState] = useState(() => {
     const stored = readStorage(STORAGE_KEY_VOLUME, 0.75);
     return stored <= 0.25 ? 0.75 : stored;
